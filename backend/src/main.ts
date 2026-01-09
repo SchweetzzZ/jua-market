@@ -1,6 +1,10 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { auth } from "./modules/auth/auth";
+import { authMacro } from "./modules/auth/macro";
+import { productsRoutes } from "./modules/products/routes";
+import { servicesRoutes } from "./modules/servicos/routes";
+import { categoryRoutes } from "./modules/category/routes";
 
 const app = new Elysia()
   .use(cors(
@@ -12,6 +16,10 @@ const app = new Elysia()
     }
   ))
   .mount(auth.handler)
+  .use(authMacro)
+  .use(productsRoutes)
+  .use(categoryRoutes)
+  .use(servicesRoutes)
   .get("/teste", () => "Hello Elysia")
   .get("/", () => "Hello Elysia")
   .listen(3000);
