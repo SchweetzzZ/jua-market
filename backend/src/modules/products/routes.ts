@@ -6,6 +6,10 @@ export const productsRoutes = new Elysia()
     .use(authMacro)
     .post("/products", async ({ body, set, user }) => {
         const data = await createProduct(user.id, body)
+        if (!data) {
+            set.status = 404
+            return { success: false, message: "Erro ao criar produto" }
+        }
         set.status = 201
         return { success: true, data }
     }, {
@@ -16,7 +20,6 @@ export const productsRoutes = new Elysia()
             category: t.String(),
             image: t.String(),
             price: t.String(),
-            history: t.String(),
         })
     })
     .put("/products/:id", async ({ body, params, set, user }) => {
@@ -25,13 +28,15 @@ export const productsRoutes = new Elysia()
         return { success: true, data }
     }, {
         auth: true,
-        body: t.Object({
-            nome: t.String(),
-            description: t.String(),
-            image: t.String(),
-            price: t.String(),
-            history: t.String(),
-        })
+        body: t.Partial(
+            t.Object({
+                nome: t.String(),
+                description: t.String(),
+                category: t.String(),
+                image: t.String(),
+                price: t.String(),
+            })
+        )
     })
     .delete("/products/:id", async ({ params, user, set }) => {
         const data = await deleteProduct(params.id, user.id)
@@ -45,17 +50,23 @@ export const productsRoutes = new Elysia()
         auth: true
     })
     //para admin
-    .get("/products/:id", ({ params: { id }, set }) => {
-        const data = getByUserId(id)
+    .get("/products", async ({ set, user }) => {
+        const data = await getByUserId(user.id)
         if (!data) {
             set.status = 404
             return { success: false, message: "Produto não encontrado" }
         }
         set.status = 200
         return { success: true, data }
+    }, {
+        auth: true
     })
-    .get("/products", ({ set }) => {
-        const data = getAllProducts()
+    .get("/products/all", async ({ set }) => {
+        const data = await getAllProducts()
+        if (!data) {
+            set.status = 404
+            return { success: false, message: "Nenhum produto encontrado" }
+        }
         set.status = 200
         return { success: true, data }
     })

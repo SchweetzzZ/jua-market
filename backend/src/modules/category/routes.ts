@@ -1,17 +1,43 @@
 import { Elysia, t } from "elysia"
 import { authMacro } from "../../modules/auth/macro"
-import { createCategory } from "./service"
+import { createCategory, updateCatgory, deleteCategory, getCategory, getAllCategories } from "./service"
 
 export const categoryRoutes = new Elysia()
     .use(authMacro)
-    .post("/category", async ({ body, set, user }) => {
-        const data = await createCategory(user.id, body)
+    .post("/category", async ({ body, set }) => {
+        const data = await createCategory(body)
         set.status = 201
         return { success: true, data }
     }, {
-        auth: true,
         body: t.Object({
             name: t.String(),
             description: t.String(),
         })
+    })
+    .put("/category/:id", async ({ body, params, set }) => {
+        const data = await updateCatgory(params.id, body)
+        set.status = 200
+        return { success: true, data }
+    }, {
+        body: t.Partial(
+            t.Object({
+                name: t.String(),
+                description: t.String(),
+            })
+        )
+    })
+    .delete("/category/:id", async ({ params, set }) => {
+        const data = await deleteCategory(params.id)
+        set.status = 200
+        return { success: true, data }
+    })
+    .get("/category/:id", async ({ params, set }) => {
+        const data = await getCategory(params.id)
+        set.status = 200
+        return { success: true, data }
+    })
+    .get("/category", async ({ set }) => {
+        const data = await getAllCategories()
+        set.status = 200
+        return { success: true, data }
     })

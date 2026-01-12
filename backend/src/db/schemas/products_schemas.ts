@@ -8,7 +8,7 @@ export const table_products = pgTable("products", {
     nome: text("nome").notNull(),
     user_id: uuid("user_id").notNull().references(() => user.id),
     description: text("description").notNull(),
-    category_id: uuid("category_id").notNull().references(() => tablecategories.id),
+    category_name: text("category_name").notNull().references(() => tablecategories.name),
     image: text("image").notNull(),
     price: numeric("price", { precision: 10, scale: 2 }).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

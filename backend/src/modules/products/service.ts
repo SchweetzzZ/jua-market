@@ -1,5 +1,6 @@
 import { db } from "../../db";
 import { table_products } from "../../db/schemas/products_schemas";
+import { tablecategories } from "../../db/schemas/category_schema"
 import { eq, and } from "drizzle-orm"
 
 interface createProductInput {
@@ -12,17 +13,28 @@ interface createProductInput {
 }
 
 export const createProduct = async (user_id: string, input: createProductInput) => {
-    const existingProduct = await db.select().from(table_products).where(
-        eq(table_products.user_id, user_id))
+    const categoryExists = await db.select()
+        .from(tablecategories)
+        .where(eq(tablecategories.name, input.category))
+        .limit(1)
 
-    if (existingProduct) {
-        return { success: false, message: "User already has a product" }
+    if (!categoryExists.length) {
+        return { success: false, message: "Categoria não encontrada" }
+    }
+    const existingProduct = await db.select().from(table_products).where(
+        eq(table_products.user_id, user_id)).limit(1)
+
+    if (existingProduct.length) {
+        return { success: false, message: "Usuário já possui um produto" }
     }
 
     const [create] = await db.insert(table_products).values({
-        user_id,
-        category_id: input.category,
-        ...input
+        user_id: user_id,
+        category_name: input.category,
+        nome: input.nome,
+        description: input.description,
+        image: input.image,
+        price: input.price,
     }).returning()
     if (!create) {
         return { success: false, message: "Erro ao criar produto" }
@@ -33,13 +45,25 @@ export const createProduct = async (user_id: string, input: createProductInput) 
 export const updateProduct = async (id: string, user_id: string,
     input: Partial<createProductInput>) => {
 
-    const updateData: Partial<createProductInput> = {}
+    const updateData: Partial<typeof table_products.$inferInsert> = {}
 
     if (input.nome !== undefined) { updateData.nome = input.nome }
     if (input.description !== undefined) { updateData.description = input.description }
     if (input.image !== undefined) { updateData.image = input.image }
     if (input.price !== undefined) { updateData.price = input.price }
-    if (input.category !== undefined) { updateData.category = input.category }
+    if (input.category !== undefined) {
+        const categoryExists = await db
+            .select()
+            .from(tablecategories)
+            .where(eq(tablecategories.name, input.category))
+            .limit(1)
+
+        if (!categoryExists.length) {
+            return { success: false, message: "Categoria não encontrada" }
+        }
+
+        updateData.category_name = input.category
+    }
 
     const update = await db.update(table_products).set({
         ...updateData
@@ -81,13 +105,13 @@ export const getByUserId = async (user_id: string) => {
 }
 
 export const getAllProducts = async () => {
-    const getAllProducts = await db.select().from(table_products)
-    if (!getAllProducts || getAllProducts.length === 0) {
+    const getProducts = await db.select().from(table_products)
+    if (!getProducts || getProducts.length === 0) {
         return { success: false, message: "Erro ao buscar produtos" }
     }
     return {
         success: true,
         message: "Produtos buscados com sucesso",
-        data: getAllProducts
+        data: getProducts
     }
 }

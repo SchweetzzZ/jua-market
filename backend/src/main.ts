@@ -5,6 +5,7 @@ import { authMacro } from "./modules/auth/macro";
 import { productsRoutes } from "./modules/products/routes";
 import { servicesRoutes } from "./modules/servicos/routes";
 import { categoryRoutes } from "./modules/category/routes";
+import { adminRoutes } from "./modules/admin/routes";
 
 const app = new Elysia()
   .use(cors(
@@ -17,6 +18,7 @@ const app = new Elysia()
   ))
   .mount(auth.handler)
   .use(authMacro)
+  .use(adminRoutes)
   .use(productsRoutes)
   .use(categoryRoutes)
   .use(servicesRoutes)

@@ -1,5 +1,6 @@
 import { db } from "../../db";
 import { table_servicos } from "../../db/schemas/servicos_schema";
+import { tablecategories } from "../../db/schemas/category_schema"
 import { eq, and } from "drizzle-orm"
 
 interface createServicoInput {
@@ -8,21 +9,24 @@ interface createServicoInput {
     category: string
     image: string;
     price: string;
-    history: string;
 }
 
 export const createServico = async (userId: string, input: createServicoInput) => {
     const existingServico = await db.select().from(table_servicos).where(
         eq(table_servicos.user_id, userId))
+        .limit(1)
 
-    if (existingServico.length > 0) {
+    if (existingServico.length) {
         return { success: false, message: "User already has a service" }
     }
 
     const servico = await db.insert(table_servicos).values({
-        ...input,
-        category_id: input.category,
         user_id: userId,
+        category_name: input.category,
+        nome: input.nome,
+        description: input.description,
+        image: input.image,
+        price: input.price,
     }).returning()
 
     if (!servico || servico.length === 0) {
@@ -33,13 +37,19 @@ export const createServico = async (userId: string, input: createServicoInput) =
 }
 
 export const updateService = async (id: string, userId: string, input: Partial<createServicoInput>) => {
-    const updateData: Partial<createServicoInput> = {}
+    const updateData: Partial<typeof table_servicos.$inferInsert> = {}
 
     if (input.nome !== undefined) { updateData.nome = input.nome }
     if (input.description !== undefined) { updateData.description = input.description }
-    if (input.category !== undefined) { updateData.category = input.category }
     if (input.image !== undefined) { updateData.image = input.image }
     if (input.price !== undefined) { updateData.price = input.price }
+    if (input.category !== undefined) {
+        const categoryExists = await db.select().from(tablecategories).where(eq(tablecategories.name, input.category)).limit(1)
+        if (!categoryExists.length) {
+            return { success: false, message: "Category not found" }
+        }
+        updateData.category_name = input.category
+    }
 
     const update = await db.update(table_servicos).set({
         ...updateData

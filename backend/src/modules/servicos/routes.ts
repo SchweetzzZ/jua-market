@@ -16,7 +16,6 @@ export const servicesRoutes = new Elysia()
             category: t.String(),
             image: t.String(),
             price: t.String(),
-            history: t.String(),
         })
     })
     .put("/servicos/:id", async ({ body, params, set, user }) => {
@@ -25,13 +24,15 @@ export const servicesRoutes = new Elysia()
         return { success: true, data }
     }, {
         auth: true,
-        body: t.Object({
-            nome: t.String(),
-            description: t.String(),
-            category: t.String(),
-            image: t.String(),
-            price: t.String(),
-        })
+        body: t.Partial(
+            t.Object({
+                nome: t.String(),
+                description: t.String(),
+                category: t.String(),
+                image: t.String(),
+                price: t.String(),
+            })
+        )
     })
     .delete("/servicos/:id", async ({ params, user, set }) => {
         const data = await deletService(params.id, user.id)
@@ -45,17 +46,19 @@ export const servicesRoutes = new Elysia()
         auth: true
     })
 
-    .get("/servicos/:id", ({ params: { id }, set }) => {
-        const data = getByUserId(id)
+    .get("/servicos/:id", async ({ user, set }) => {
+        const data = await getByUserId(user.id)
         if (!data) {
             set.status = 404
             return { success: false, message: "Servico não encontrado" }
         }
         set.status = 200
         return { success: true, data }
+    }, {
+        auth: true
     })
-    .get("/servicos", ({ set }) => {
-        const data = getAllServices()
+    .get("/servicos", async ({ set }) => {
+        const data = await getAllServices()
         set.status = 200
         return { success: true, data }
     })
