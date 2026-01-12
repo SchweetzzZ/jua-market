@@ -1,20 +1,14 @@
-import { auth } from "../auth/auth"
-
 export const listUsers = async () => {
-    return await auth.api.listUsers({
-        query: {
-            limit: 10
-        }
-    })
+    const res = await fetch("/admin/users")
+    return res.json()
 }
+
 export const banUser = async (userId: string) => {
-    await auth.api.banUser({
-        userId,
-        reason: "Banned by admin"
-    })
-    await auth.api.revokeUserSessions({
-        userId
+    const res = await fetch("/admin/ban-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
     })
 
-    return { success: true, message: "User banned successfully" }
+    return res.json()
 }

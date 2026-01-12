@@ -1,9 +1,7 @@
 import { Elysia, t } from "elysia"
-import { authMacro } from "../../modules/auth/macro"
 import { createCategory, updateCatgory, deleteCategory, getCategory, getAllCategories } from "./service"
 
 export const categoryRoutes = new Elysia()
-    .use(authMacro)
     .post("/category", async ({ body, set }) => {
         const data = await createCategory(body)
         set.status = 201
