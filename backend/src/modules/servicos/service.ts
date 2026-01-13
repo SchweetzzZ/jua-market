@@ -4,7 +4,7 @@ import { tablecategories } from "../../db/schemas/category_schema"
 import { eq, and } from "drizzle-orm"
 
 interface createServicoInput {
-    nome: string;
+    name: string;
     description: string;
     category: string
     image: string;
@@ -20,10 +20,18 @@ export const createServico = async (userId: string, input: createServicoInput) =
         return { success: false, message: "User already has a service" }
     }
 
+    const categoryExists = await db.select().from(tablecategories)
+        .where(eq(tablecategories.name, input.category))
+        .limit(1)
+
+    if (!categoryExists.length) {
+        return { success: false, message: "Category not found" }
+    }
+
     const servico = await db.insert(table_servicos).values({
         user_id: userId,
         category_name: input.category,
-        nome: input.nome,
+        name: input.name,
         description: input.description,
         image: input.image,
         price: input.price,
@@ -34,12 +42,13 @@ export const createServico = async (userId: string, input: createServicoInput) =
     }
 
     return { success: true, message: "Service created successfully", data: servico }
+
 }
 
 export const updateService = async (id: string, userId: string, input: Partial<createServicoInput>) => {
     const updateData: Partial<typeof table_servicos.$inferInsert> = {}
 
-    if (input.nome !== undefined) { updateData.nome = input.nome }
+    if (input.name !== undefined) { updateData.name = input.name }
     if (input.description !== undefined) { updateData.description = input.description }
     if (input.image !== undefined) { updateData.image = input.image }
     if (input.price !== undefined) { updateData.price = input.price }

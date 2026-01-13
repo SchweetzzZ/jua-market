@@ -16,6 +16,29 @@ const app = new Elysia()
       allowedHeaders: ["Content-Type", "Authorization"],
     }
   ))
+  .onError(({ code, error, set }) => {
+    if (code === 'NOT_FOUND') {
+      set.status = 404
+      return { success: false, message: 'Rota não encontrada' }
+    }
+
+    if (code === 'VALIDATION') {
+      set.status = 400
+      return {
+        success: false,
+        message: 'Dados inválidos',
+        errors: error.all
+      }
+    }
+
+    console.error("ERRO CRÍTICO:", error)
+
+    set.status = 500
+    return {
+      success: false,
+      message: "Ocorreu um erro interno no servidor."
+    }
+  })
   .mount(auth.handler)
   .use(authMacro)
   .use(adminRoutes)

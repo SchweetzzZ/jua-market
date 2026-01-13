@@ -40,3 +40,14 @@ export const adminRoutes = new Elysia({
             reason: t.Optional(t.String())
         })
     })
+    .post("/impersonate", async ({ body, request: { headers } }) => {
+        const { userId } = body
+        return await auth.api.impersonateUser({
+            body: { userId },
+            headers
+        })
+    }, {
+        body: t.Object({
+            userId: t.String()
+        })
+    })

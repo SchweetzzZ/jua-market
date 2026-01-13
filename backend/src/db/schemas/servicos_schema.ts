@@ -7,7 +7,7 @@ import { tablecategories } from "./category_schema"
 
 export const table_servicos = pgTable("servicos", {
     id: uuid("id").primaryKey().defaultRandom(),
-    nome: text("nome").notNull(),
+    name: text("name").notNull(),
     user_id: uuid("user_id").notNull().references(() => user.id),
     description: text("description").notNull(),
     category_name: text("category_name").notNull().references(() => tablecategories.name),

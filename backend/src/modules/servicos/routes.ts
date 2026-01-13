@@ -6,12 +6,16 @@ export const servicesRoutes = new Elysia()
     .use(authMacro)
     .post("/servicos", async ({ body, set, user }) => {
         const data = await createServico(user.id, body)
+        if (!data.success) {
+            set.status = 400
+            return data
+        }
         set.status = 201
-        return { success: true, data }
+        return data
     }, {
         auth: true,
         body: t.Object({
-            nome: t.String(),
+            name: t.String(),
             description: t.String(),
             category: t.String(),
             image: t.String(),
@@ -26,7 +30,7 @@ export const servicesRoutes = new Elysia()
         auth: true,
         body: t.Partial(
             t.Object({
-                nome: t.String(),
+                name: t.String(),
                 description: t.String(),
                 category: t.String(),
                 image: t.String(),

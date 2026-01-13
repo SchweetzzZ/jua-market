@@ -9,6 +9,14 @@ export const banUser = async (userId: string) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId })
     })
+    return res.json()
 
+}
+export const impersonateUser = async (userId: string) => {
+    const res = await fetch("/admin/impersonate-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
+    })
     return res.json()
 }

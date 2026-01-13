@@ -15,7 +15,7 @@ export const productsRoutes = new Elysia()
     }, {
         auth: true,
         body: t.Object({
-            nome: t.String(),
+            name: t.String(),
             description: t.String(),
             category: t.String(),
             image: t.String(),
@@ -30,7 +30,7 @@ export const productsRoutes = new Elysia()
         auth: true,
         body: t.Partial(
             t.Object({
-                nome: t.String(),
+                name: t.String(),
                 description: t.String(),
                 category: t.String(),
                 image: t.String(),
@@ -51,13 +51,13 @@ export const productsRoutes = new Elysia()
     })
     //para admin
     .get("/products", async ({ set, user }) => {
-        const data = await getByUserId(user.id)
-        if (!data) {
+        const result = await getByUserId(user.id)
+        if (!result.success) {
             set.status = 404
-            return { success: false, message: "Produto não encontrado" }
+            return result
         }
         set.status = 200
-        return { success: true, data }
+        return result
     }, {
         auth: true
     })

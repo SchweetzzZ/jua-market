@@ -4,7 +4,7 @@ import { tablecategories } from "../../db/schemas/category_schema"
 import { eq, and } from "drizzle-orm"
 
 interface createProductInput {
-    nome: string;
+    name: string;
     description: string;
     category: string
     image: string;
@@ -31,7 +31,7 @@ export const createProduct = async (user_id: string, input: createProductInput) 
     const [create] = await db.insert(table_products).values({
         user_id: user_id,
         category_name: input.category,
-        nome: input.nome,
+        name: input.name,
         description: input.description,
         image: input.image,
         price: input.price,
@@ -47,14 +47,12 @@ export const updateProduct = async (id: string, user_id: string,
 
     const updateData: Partial<typeof table_products.$inferInsert> = {}
 
-    if (input.nome !== undefined) { updateData.nome = input.nome }
+    if (input.name !== undefined) { updateData.name = input.name }
     if (input.description !== undefined) { updateData.description = input.description }
     if (input.image !== undefined) { updateData.image = input.image }
     if (input.price !== undefined) { updateData.price = input.price }
     if (input.category !== undefined) {
-        const categoryExists = await db
-            .select()
-            .from(tablecategories)
+        const categoryExists = await db.select().from(tablecategories)
             .where(eq(tablecategories.name, input.category))
             .limit(1)
 
@@ -92,11 +90,9 @@ export const deleteProduct = async (id: string, user_id: string) => {
 }
 
 export const getByUserId = async (user_id: string) => {
-    const getByUserIdProducts = await db.select().from(table_products).where(eq(table_products.user_id, user_id))
+    const getByUserIdProducts = await db.select().from(table_products).where(
+        eq(table_products.user_id, user_id))
 
-    if (!getByUserIdProducts || getByUserIdProducts.length === 0) {
-        return { success: false, message: "Erro ao buscar produtos" }
-    }
     return {
         success: true,
         message: "Produtos buscados com sucesso",
