@@ -1,9 +1,11 @@
 import { Elysia, t } from "elysia"
 import { authMacro } from "../../modules/auth/macro"
 import { createServico, updateService, deletService, getByUserId, getAllServices } from "./service"
+import { sellerGuard } from "../../modules/admin/seller-guard"
 
 export const servicesRoutes = new Elysia()
     .use(authMacro)
+    .use(sellerGuard)
     .post("/servicos", async ({ body, set, user }) => {
         const data = await createServico(user.id, body)
         if (!data.success) {

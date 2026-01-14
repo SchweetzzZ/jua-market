@@ -1,9 +1,11 @@
 import { createProduct, updateProduct, deleteProduct, getByUserId, getAllProducts } from "./service"
 import { Elysia, t } from "elysia"
 import { authMacro } from "../../modules/auth/macro"
+import { sellerGuard } from "../../modules/admin/seller-guard"
 
 export const productsRoutes = new Elysia()
     .use(authMacro)
+    .use(sellerGuard)
     .post("/products", async ({ body, set, user }) => {
         const data = await createProduct(user.id, body)
         if (!data) {
