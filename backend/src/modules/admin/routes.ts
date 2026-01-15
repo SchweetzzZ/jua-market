@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia"
 import { adminGuard } from "./admin-guard"
 import { auth } from "../auth/auth"
+import { changePass } from "./user.service"
 
 export const adminRoutes = new Elysia({
     prefix: "/admin"
@@ -51,3 +52,31 @@ export const adminRoutes = new Elysia({
             userId: t.String()
         })
     })
+    .post("/change-password", async ({ body, request: { headers } }) => {
+        const { userId, newPassword } = body
+
+        await auth.api.setUserPassword({
+            body: {
+                userId,
+                newPassword
+            },
+            headers
+        })
+
+        // 2. Revogar outras sessões (opcional - se necessário)
+        // Você precisaria implementar esta lógica separadamente
+        // Por exemplo:
+        // await auth.api.revokeAllUserSessions({ userId })
+
+        return {
+            success: true,
+            message: "Password changed successfully"
+        }
+    }, {
+        body: t.Object({
+            userId: t.String(),
+            newPassword: t.String()
+        })
+    })
+
+

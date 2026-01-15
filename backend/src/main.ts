@@ -6,6 +6,12 @@ import { productsRoutes } from "./modules/products/routes";
 import { servicesRoutes } from "./modules/servicos/routes";
 import { categoryRoutes } from "./modules/category/routes";
 import { adminRoutes } from "./modules/admin/routes";
+import { createAdmin } from "./modules/admin/create-admin";
+
+async function createAdm() {
+  await createAdmin()
+}
+
 
 const app = new Elysia()
   .use(cors(
@@ -52,3 +58,5 @@ const app = new Elysia()
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
 );
+
+createAdm()

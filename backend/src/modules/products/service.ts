@@ -111,3 +111,5 @@ export const getAllProducts = async () => {
         data: getProducts
     }
 }
+
+

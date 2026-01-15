@@ -1,3 +1,1 @@
-export { ac } from "./access-control"
-export { roles } from "./roles"
-export { statements } from "./statements"
+export { ac, roles } from "./access-control"

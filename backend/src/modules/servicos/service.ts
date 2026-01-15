@@ -53,11 +53,15 @@ export const updateService = async (id: string, userId: string, input: Partial<c
     if (input.image !== undefined) { updateData.image = input.image }
     if (input.price !== undefined) { updateData.price = input.price }
     if (input.category !== undefined) {
-        const categoryExists = await db.select().from(tablecategories).where(eq(tablecategories.name, input.category)).limit(1)
+        const categoryExists = await db.select().from(tablecategories).where(
+            eq(tablecategories.name, input.category)).limit(1)
+
         if (!categoryExists.length) {
             return { success: false, message: "Category not found" }
         }
+
         updateData.category_name = input.category
+
     }
 
     const update = await db.update(table_servicos).set({
