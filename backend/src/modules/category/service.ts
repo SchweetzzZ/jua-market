@@ -44,6 +44,7 @@ export const updateCatgory = async (id: string, input: Partial<createCategoryInp
     }
     return { success: true, message: "Categoria atualizada com sucesso", data: update }
 }
+
 export const deleteCategory = async (id: string) => {
     const catDelet = await db.delete(tablecategories)
         .where(eq(tablecategories.id, id))
@@ -53,6 +54,7 @@ export const deleteCategory = async (id: string) => {
     }
     return { success: true, message: "Categoria deletada com sucesso", data: catDelet }
 }
+
 export const getCategory = async (id: string) => {
     const catGet = await db.select().from(tablecategories).where(eq(tablecategories.id, id)).limit(1)
     if (!catGet) {
@@ -60,6 +62,7 @@ export const getCategory = async (id: string) => {
     }
     return { success: true, message: "Categoria buscada com sucesso", data: catGet }
 }
+
 export const getAllCategories = async () => {
     const catGetAll = await db.select().from(tablecategories)
     if (!catGetAll) {

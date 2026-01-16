@@ -7,56 +7,61 @@ import { servicesRoutes } from "./modules/servicos/routes";
 import { categoryRoutes } from "./modules/category/routes";
 import { adminRoutes } from "./modules/admin/routes";
 import { createAdmin } from "./modules/admin/create-admin";
+import { swaggerModules } from "./modules/swagger";
 
 async function createAdm() {
   await createAdmin()
 }
 
+export const createCoreApi = () => {
+  const app = new Elysia()
+    .use(cors(
+      {
+        origin: "http://localhost:5173",
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+      }
+    ))
+    .onError(({ code, error, set }) => {
+      if (code === 'NOT_FOUND') {
+        set.status = 404
+        return { success: false, message: 'Rota não encontrada' }
+      }
 
-const app = new Elysia()
-  .use(cors(
-    {
-      origin: "*",
-      credentials: true,
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-    }
-  ))
-  .onError(({ code, error, set }) => {
-    if (code === 'NOT_FOUND') {
-      set.status = 404
-      return { success: false, message: 'Rota não encontrada' }
-    }
+      if (code === 'VALIDATION') {
+        set.status = 400
+        return {
+          success: false,
+          message: 'Dados inválidos',
+          errors: error.all
+        }
+      }
 
-    if (code === 'VALIDATION') {
-      set.status = 400
+      console.error("ERRO CRÍTICO:", error)
+
+      set.status = 500
       return {
         success: false,
-        message: 'Dados inválidos',
-        errors: error.all
+        message: "Ocorreu um erro interno no servidor."
       }
-    }
+    })
+    .mount(auth.handler)
+    .use(authMacro)
+    .use(swaggerModules)
+    .use(adminRoutes)
+    .use(productsRoutes)
+    .use(categoryRoutes)
+    .use(servicesRoutes)
+    .get("/teste", () => "Hello Elysia")
+    .get("/", () => "Hello Elysia")
 
-    console.error("ERRO CRÍTICO:", error)
+  console.log(
+    `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
+  );
 
-    set.status = 500
-    return {
-      success: false,
-      message: "Ocorreu um erro interno no servidor."
-    }
-  })
-  .mount(auth.handler)
-  .use(authMacro)
-  .use(adminRoutes)
-  .use(productsRoutes)
-  .use(categoryRoutes)
-  .use(servicesRoutes)
-  .get("/teste", () => "Hello Elysia")
-  .get("/", () => "Hello Elysia")
-  .listen(3000);
+  createAdm()
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
-);
-
-createAdm()
+  return app
+}
+export type CoreApi = Awaited<ReturnType<typeof createCoreApi>>

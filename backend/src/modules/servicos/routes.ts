@@ -1,12 +1,48 @@
 import { Elysia, t } from "elysia"
 import { authMacro } from "../../modules/auth/macro"
-import { createServico, updateService, deletService, getByUserId, getAllServices } from "./service"
+import { createServico, updateService, deletService, getByUserId, getAllServices, getServiceById } from "./service"
 import { checkPermission } from "../../modules/access-control/access-control"
-import { auth } from "../../modules/auth/auth"
-
 
 export const servicesRoutes = new Elysia()
     .use(authMacro)
+
+    // Rota pública: Listar todos
+    .get("/servicos/all", async ({ set }) => {
+        const data = await getAllServices()
+        set.status = 200
+        return { success: true, data }
+    })
+
+    // Rota pública: Detalhes de um serviço
+    .get("/servicos/:id", async ({ params, set }) => {
+        const data = await getServiceById(params.id)
+        if (!data.success) {
+            set.status = 404
+            return data
+        }
+        set.status = 200
+        return data
+    })
+
+    // Rotas protegidas (Meus Serviços)
+    .get("/servicos/me", async ({ set, user }) => {
+        const allowed = checkPermission(user.role, "services", "read")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado" }
+        }
+        const result = await getByUserId(user.id)
+        if (!result.success) {
+            set.status = 404
+            return result
+        }
+        set.status = 200
+        return result
+    }, {
+        auth: true
+    })
+
+    // Criar (Auth)
     .post("/servicos", async ({ body, set, user }) => {
         const allowed = checkPermission(user.role, "services", "create")
         if (!allowed) {
@@ -30,6 +66,8 @@ export const servicesRoutes = new Elysia()
             price: t.String(),
         })
     })
+
+    // Atualizar (Auth)
     .put("/servicos/:id", async ({ body, params, set, user }) => {
         const allowed = checkPermission(user.role, "services", "update")
         if (!allowed) {
@@ -51,6 +89,8 @@ export const servicesRoutes = new Elysia()
             })
         )
     })
+
+    // Deletar (Auth)
     .delete("/servicos/:id", async ({ params, user, set }) => {
         const allowed = checkPermission(user.role, "services", "delete")
         if (!allowed) {
@@ -66,42 +106,4 @@ export const servicesRoutes = new Elysia()
         return { success: true, data }
     }, {
         auth: true
-    })
-    .get("/servicos", async ({ set, user }) => {
-        // Apenas quem pode criar (sellers/admins) pode ver "meus produtos"
-        const allowed = checkPermission(user.role, "services", "read")
-        if (!allowed) {
-            set.status = 403
-            return { success: false, message: "Acesso negado" }
-        }
-        const result = await getByUserId(user.id)
-        if (!result.success) {
-            set.status = 404
-            return result
-        }
-        set.status = 200
-        return result
-    }, {
-        auth: true
-    })
-    .get("/servicos/:id", async ({ user, set }) => {
-        const allowed = checkPermission(user.role, "services", "read")
-        if (!allowed) {
-            set.status = 403
-            return { success: false, message: "Sem permissão para ver serviços" }
-        }
-        const data = await getByUserId(user.id)
-        if (!data) {
-            set.status = 404
-            return { success: false, message: "Servico não encontrado" }
-        }
-        set.status = 200
-        return { success: true, data }
-    }, {
-        auth: true
-    })
-    .get("/servicos", async ({ set }) => {
-        const data = await getAllServices()
-        set.status = 200
-        return { success: true, data }
     })

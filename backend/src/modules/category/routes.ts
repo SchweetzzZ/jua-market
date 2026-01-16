@@ -1,7 +1,9 @@
 import { Elysia, t } from "elysia"
 import { createCategory, updateCatgory, deleteCategory, getCategory, getAllCategories } from "./service"
+import { adminGuard } from "../admin/admin-guard"
 
 export const categoryRoutes = new Elysia()
+    .use(adminGuard)
     .post("/category", async ({ body, set }) => {
         const data = await createCategory(body)
         set.status = 201

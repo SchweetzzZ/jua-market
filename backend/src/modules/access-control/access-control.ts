@@ -1,12 +1,11 @@
 import { createAccessControl } from "better-auth/plugins/access"
 
-// Define os recursos e suas ações possíveis
 const statements = {
     products: ["create", "read", "update", "delete", "*"],
     services: ["create", "read", "update", "delete", "*"],
 } as const
 
-// Cria o sistema de controle de acesso
+
 export const ac = createAccessControl(statements)
 
 // Define as roles com suas permissões
@@ -24,9 +23,7 @@ export const roles = {
         services: ["read"]
     }),
 }
-// Mapeamento direto de permissões por role
-// Como ac.newRole() não expõe as permissões como propriedades,
-// precisamos manter um mapa separado
+
 const rolePermissions = {
     admin: {
         products: ["*"],

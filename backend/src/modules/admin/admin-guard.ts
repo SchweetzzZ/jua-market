@@ -1,13 +1,15 @@
 import { Elysia } from "elysia"
 import { auth } from "../auth/auth"
 
-export const adminGuard = new Elysia({ name: "admin-guard" })
+export const adminGuard = (app: Elysia) => app
     .derive(async ({ request: { headers }, set }) => {
-        const session = await auth.api.getSession({ headers })
+        const session = await auth.api.getSession({
+            headers
+        })
 
         if (!session) {
             set.status = 401
-            return { message: "Unauthorized" }
+            return { success: false, message: "Unauthorized" }
         }
 
         return {
@@ -24,6 +26,6 @@ export const adminGuard = new Elysia({ name: "admin-guard" })
 
         if (!isAdmin) {
             set.status = 403
-            return { message: "Forbidden: Admin access required" }
+            return { success: false, message: "Forbidden: Admin access required" }
         }
     })

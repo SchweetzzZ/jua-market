@@ -1,7 +1,6 @@
 import { Elysia, t } from "elysia"
 import { adminGuard } from "./admin-guard"
 import { auth } from "../auth/auth"
-import { changePass } from "./user.service"
 
 export const adminRoutes = new Elysia({
     prefix: "/admin"
@@ -41,6 +40,23 @@ export const adminRoutes = new Elysia({
             reason: t.Optional(t.String())
         })
     })
+
+    .post("/unban-user", async ({ body, request: { headers } }) => {
+        const { userId } = body
+        await auth.api.unbanUser({
+            body: { userId },
+            headers
+        })
+        return {
+            success: true,
+            message: "User unbanned successfully"
+        }
+    }, {
+        body: t.Object({
+            userId: t.String()
+        })
+    })
+
     .post("/impersonate", async ({ body, request: { headers } }) => {
         const { userId } = body
         return await auth.api.impersonateUser({
@@ -52,6 +68,7 @@ export const adminRoutes = new Elysia({
             userId: t.String()
         })
     })
+
     .post("/change-password", async ({ body, request: { headers } }) => {
         const { userId, newPassword } = body
 

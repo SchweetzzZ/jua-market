@@ -1,5 +1,4 @@
-import { pgTable, varchar, uuid, timestamp, text, boolean, index, numeric }
-    from "drizzle-orm/pg-core";
+import { pgTable, uuid, timestamp, text, numeric } from "drizzle-orm/pg-core";
 import { user } from "./auth-schema"
 import { tablecategories } from "./category_schema"
 

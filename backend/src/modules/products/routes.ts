@@ -8,8 +8,7 @@ type User = typeof auth.$Infer.Session.user
 
 export const productsRoutes = new Elysia()
     .use(authMacro)
-    //.use(sellerGuard) - Desabilitado em favor do controle granular
-    .post("/products", async ({ body, set, user }: { body: any, set: any, user: User }) => {
+    .post("/products", async ({ body, set, user }) => {
         const allowed = checkPermission(user.role, "products", "create")
         if (!allowed) {
             set.status = 403
@@ -32,7 +31,8 @@ export const productsRoutes = new Elysia()
             price: t.String(),
         })
     })
-    .put("/products/:id", async ({ body, params, set, user }: { body: any, params: any, set: any, user: User }) => {
+
+    .put("/products/:id", async ({ body, params, set, user }) => {
         const allowed = checkPermission(user.role, "products", "update")
         if (!allowed) {
             set.status = 403
@@ -53,7 +53,8 @@ export const productsRoutes = new Elysia()
             })
         )
     })
-    .delete("/products/:id", async ({ params, user, set }: { params: any, user: User, set: any }) => {
+
+    .delete("/products/:id", async ({ params, user, set }) => {
         const allowed = checkPermission(user.role, "products", "delete")
         if (!allowed) {
             set.status = 403
@@ -69,9 +70,9 @@ export const productsRoutes = new Elysia()
     }, {
         auth: true
     })
-    //para admin
-    .get("/products", async ({ set, user }: { set: any, user: User }) => {
-        // Apenas quem pode criar (sellers/admins) pode ver "meus produtos"
+
+    //para admin    
+    .get("/products", async ({ set, user }) => {
         const allowed = checkPermission(user.role, "products", "read")
         if (!allowed) {
             set.status = 403
@@ -87,6 +88,7 @@ export const productsRoutes = new Elysia()
     }, {
         auth: true
     })
+
     .get("/products/all", async ({ set, user }: { set: any, user: User }) => {
         const allowed = checkPermission(user.role, "products", "read")
         if (!allowed) {

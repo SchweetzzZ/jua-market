@@ -109,3 +109,15 @@ export const getAllServices = async () => {
 
     return { success: true, message: "Services retrieved successfully", data: getAllServices }
 }
+
+export const getServiceById = async (id: string) => {
+    const service = await db.select().from(table_servicos).where(
+        eq(table_servicos.id, id)
+    ).limit(1)
+
+    if (!service || service.length === 0) {
+        return { success: false, message: "Service not found" }
+    }
+
+    return { success: true, message: "Service retrieved successfully", data: service[0] }
+}

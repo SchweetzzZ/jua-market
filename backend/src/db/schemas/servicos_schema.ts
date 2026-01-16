@@ -1,8 +1,5 @@
-import { db } from "../../db";
-import { pgTable, varchar, uuid, timestamp, text, boolean, index, numeric } from "drizzle-orm/pg-core";
-import { table_products } from "../../db/schemas/products_schemas";
+import { pgTable, uuid, timestamp, text, numeric } from "drizzle-orm/pg-core";
 import { user } from "../../db/schemas/auth-schema"
-import { eq, and } from "drizzle-orm"
 import { tablecategories } from "./category_schema"
 
 export const table_servicos = pgTable("servicos", {
