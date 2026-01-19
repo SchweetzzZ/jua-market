@@ -101,14 +101,32 @@ export const getByUserId = async (user_id: string) => {
 }
 
 export const getAllProducts = async () => {
-    const getProducts = await db.select().from(table_products)
-    if (!getProducts || getProducts.length === 0) {
-        return { success: false, message: "Erro ao buscar produtos" }
-    }
-    return {
-        success: true,
-        message: "Produtos buscados com sucesso",
-        data: getProducts
+    try {
+        console.log('Buscando produtos do banco...')
+        const getProducts = await db.select().from(table_products)
+
+        console.log('Produtos encontrados no banco:', getProducts)
+
+        if (!getProducts || getProducts.length === 0) {
+            console.log('Nenhum produto encontrado no banco')
+            return {
+                success: true,
+                message: "Nenhum produto encontrado",
+                data: []
+            }
+        }
+
+        return {
+            success: true,
+            message: "Produtos buscados com sucesso",
+            data: getProducts
+        }
+    } catch (error) {
+        console.error('Erro ao buscar produtos:', error)
+        return {
+            success: false,
+            message: "Erro ao buscar produtos"
+        }
     }
 }
 

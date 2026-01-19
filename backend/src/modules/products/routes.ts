@@ -15,12 +15,12 @@ export const productsRoutes = new Elysia()
             return { success: false, message: "Sem permissão para criar produtos" }
         }
         const data = await createProduct(user.id, body)
-        if (!data) {
+        if (!data || !data.success) {
             set.status = 404
             return { success: false, message: "Erro ao criar produto" }
         }
         set.status = 201
-        return { success: true, data }
+        return data
     }, {
         auth: true,
         body: t.Object({
@@ -39,8 +39,12 @@ export const productsRoutes = new Elysia()
             return { success: false, message: "Sem permissão para atualizar produtos" }
         }
         const data = await updateProduct(params.id, user.id, body)
+        if (!data || !data.success) {
+            set.status = 404
+            return { success: false, message: "Erro ao atualizar produto" }
+        }
         set.status = 200
-        return { success: true, data }
+        return data
     }, {
         auth: true,
         body: t.Partial(
@@ -61,12 +65,12 @@ export const productsRoutes = new Elysia()
             return { success: false, message: "Sem permissão para deletar produtos" }
         }
         const data = await deleteProduct(params.id, user.id)
-        if (!data) {
+        if (!data || !data.success) {
             set.status = 404
             return { success: false, message: "Produto não encontrado" }
         }
         set.status = 200
-        return { success: true, data }
+        return data
     }, {
         auth: true
     })
@@ -79,9 +83,9 @@ export const productsRoutes = new Elysia()
             return { success: false, message: "Acesso negado" }
         }
         const result = await getByUserId(user.id)
-        if (!result.success) {
+        if (!result || !result.success) {
             set.status = 404
-            return result
+            return { success: false, message: "Erro ao buscar produtos" }
         }
         set.status = 200
         return result
@@ -89,19 +93,19 @@ export const productsRoutes = new Elysia()
         auth: true
     })
 
-    .get("/products/all", async ({ set, user }: { set: any, user: User }) => {
+    .get("/products/all", async ({ set, user }) => {
         const allowed = checkPermission(user.role, "products", "read")
         if (!allowed) {
             set.status = 403
             return { success: false, message: "Sem permissão para ver produtos" }
         }
         const data = await getAllProducts()
-        if (!data) {
+        if (!data || !data.success) {
             set.status = 404
             return { success: false, message: "Nenhum produto encontrado" }
         }
         set.status = 200
-        return { success: true, data }
+        return data
     }, {
         auth: true
     })

@@ -103,7 +103,7 @@ export const servicesRoutes = new Elysia()
             return { success: false, message: "Servico não encontrado" }
         }
         set.status = 200
-        return { success: true, data }
+        return data
     }, {
         auth: true
     })
