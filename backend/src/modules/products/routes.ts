@@ -93,12 +93,7 @@ export const productsRoutes = new Elysia()
         auth: true
     })
 
-    .get("/products/all", async ({ set, user }) => {
-        const allowed = checkPermission(user.role, "products", "read")
-        if (!allowed) {
-            set.status = 403
-            return { success: false, message: "Sem permissão para ver produtos" }
-        }
+    .get("/products/all", async ({ set }) => {
         const data = await getAllProducts()
         if (!data || !data.success) {
             set.status = 404
@@ -106,6 +101,4 @@ export const productsRoutes = new Elysia()
         }
         set.status = 200
         return data
-    }, {
-        auth: true
     })

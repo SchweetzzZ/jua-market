@@ -103,11 +103,7 @@ export const getByUserId = async (userId: string) => {
 export const getAllServices = async () => {
     const getAllServices = await db.select().from(table_servicos)
 
-    if (!getAllServices || getAllServices.length === 0) {
-        return { success: false, message: "Failed to get services" }
-    }
-
-    return { success: true, message: "Services retrieved successfully", data: getAllServices }
+    return { success: true, message: "Services retrieved successfully", data: getAllServices || [] }
 }
 
 export const getServiceById = async (id: string) => {

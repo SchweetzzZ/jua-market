@@ -6,43 +6,6 @@ import { checkPermission } from "../../modules/access-control/access-control"
 export const servicesRoutes = new Elysia()
     .use(authMacro)
 
-    // Rota pública: Listar todos
-    .get("/servicos/all", async ({ set }) => {
-        const data = await getAllServices()
-        set.status = 200
-        return { success: true, data }
-    })
-
-    // Rota pública: Detalhes de um serviço
-    .get("/servicos/:id", async ({ params, set }) => {
-        const data = await getServiceById(params.id)
-        if (!data.success) {
-            set.status = 404
-            return data
-        }
-        set.status = 200
-        return data
-    })
-
-    // Rotas protegidas (Meus Serviços)
-    .get("/servicos/me", async ({ set, user }) => {
-        const allowed = checkPermission(user.role, "services", "read")
-        if (!allowed) {
-            set.status = 403
-            return { success: false, message: "Acesso negado" }
-        }
-        const result = await getByUserId(user.id)
-        if (!result.success) {
-            set.status = 404
-            return result
-        }
-        set.status = 200
-        return result
-    }, {
-        auth: true
-    })
-
-    // Criar (Auth)
     .post("/servicos", async ({ body, set, user }) => {
         const allowed = checkPermission(user.role, "services", "create")
         if (!allowed) {
@@ -67,7 +30,6 @@ export const servicesRoutes = new Elysia()
         })
     })
 
-    // Atualizar (Auth)
     .put("/servicos/:id", async ({ body, params, set, user }) => {
         const allowed = checkPermission(user.role, "services", "update")
         if (!allowed) {
@@ -90,7 +52,6 @@ export const servicesRoutes = new Elysia()
         )
     })
 
-    // Deletar (Auth)
     .delete("/servicos/:id", async ({ params, user, set }) => {
         const allowed = checkPermission(user.role, "services", "delete")
         if (!allowed) {
@@ -104,6 +65,39 @@ export const servicesRoutes = new Elysia()
         }
         set.status = 200
         return data
+    }, {
+        auth: true
+    })
+
+    .get("/servicos/all", async ({ set }) => {
+        const result = await getAllServices()
+        set.status = 200
+        return result
+    })
+
+    .get("/servicos/:id", async ({ params, set }) => {
+        const data = await getServiceById(params.id)
+        if (!data.success) {
+            set.status = 404
+            return data
+        }
+        set.status = 200
+        return data
+    })
+
+    .get("/servicos/me", async ({ set, user }) => {
+        const allowed = checkPermission(user.role, "services", "read")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado" }
+        }
+        const result = await getByUserId(user.id)
+        if (!result.success) {
+            set.status = 404
+            return result
+        }
+        set.status = 200
+        return result
     }, {
         auth: true
     })

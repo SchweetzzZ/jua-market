@@ -26,37 +26,39 @@ export default function CadastroPage() {
     }
 
     return (
-        <div>
-            <h1>Cadastro</h1>
+        <div className="bg-slate-50 h-screen flex items-center justify-center p-4">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <img className="h-14 mx-auto mb-8 block object-contain" src="src/assets/logo-h.png" alt="" />
+                <form onSubmit={handleSubmit}>
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                    />
 
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                />
+                    <input
+                        type="password"
+                        placeholder="Senha"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                    />
 
-                <input
-                    type="password"
-                    placeholder="Senha"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                />
+                    <input
+                        type="text"
+                        placeholder="Nome"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                    />
 
-                <input
-                    type="text"
-                    placeholder="Nome"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                />
+                    <button type="submit" disabled={isLoading}>
+                        {isLoading ? "Cadastrando..." : "Cadastrar"}
+                    </button>
+                </form>
 
-                <button type="submit" disabled={isLoading}>
-                    {isLoading ? "Cadastrando..." : "Cadastrar"}
-                </button>
-            </form>
-
-            {error && <p>{error}</p>}
+                {error && <p>{error}</p>}
+            </div>
+            <p>Torne-se um vendedor()</p>
         </div>
     )
 }
