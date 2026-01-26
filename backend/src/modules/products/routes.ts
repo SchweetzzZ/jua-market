@@ -1,4 +1,4 @@
-import { createProduct, updateProduct, deleteProduct, getByUserId, getAllProducts } from "./service"
+import { createProduct, updateProduct, deleteProduct, getByUserId, getAllProducts, getProductById } from "./service"
 import { Elysia, t } from "elysia"
 import { authMacro } from "../../modules/auth/macro"
 import { checkPermission } from "../../modules/access-control/access-control"
@@ -98,6 +98,25 @@ export const productsRoutes = new Elysia()
         if (!data || !data.success) {
             set.status = 404
             return { success: false, message: "Nenhum produto encontrado" }
+        }
+        set.status = 200
+        return data
+    })
+    .get("/products/:id", async ({ params, set }) => {
+        const data = await getProductById(params.id)
+        if (!data || !data.success) {
+            set.status = 404
+            return { success: false, message: "Produto não encontrado" }
+        }
+        set.status = 200
+        return data
+    })
+    .get("/productsId/:id", async ({ params, set }) => {
+        console.log("teste")
+        const data = await getProductById(params.id)
+        if (!data || !data.success) {
+            set.status = 404
+            return { success: false, message: "Produto não encontrado" }
         }
         set.status = 200
         return data

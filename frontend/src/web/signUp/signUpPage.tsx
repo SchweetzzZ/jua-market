@@ -26,32 +26,44 @@ export default function CadastroPage() {
     }
 
     return (
-        <div className="bg-slate-50 h-screen flex items-center justify-center p-4">
-            <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="flex flex-col items-center justify-center h-screen">
+            <div className="w-full max-w-md">
                 <img className="h-14 mx-auto mb-8 block object-contain" src="src/assets/logo-h.png" alt="" />
-                <form onSubmit={handleSubmit}>
+                <form className="flex flex-col rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.30)] h-full gap-2 p-10"
+                    onSubmit={handleSubmit}>
+                    <label htmlFor="email">E-mail*</label>
                     <input
+                        className="w-full rounded-xl border border-gray-300 p-3 outline-none 
+                        focus:border-sky-600 focus:ring-2 focus:ring-sky-300 transition"
                         type="email"
                         placeholder="Email"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                     />
 
+                    <label htmlFor="password">Senha*</label>
                     <input
+                        className="w-full rounded-xl border border-gray-300 p-3 outline-none 
+                        focus:border-sky-600 focus:ring-2 focus:ring-sky-300 transition"
                         type="password"
                         placeholder="Senha"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                     />
 
+                    <label htmlFor="name">Nome*</label>
                     <input
+                        className="w-full rounded-xl border border-gray-300 p-3 outline-none 
+                        focus:border-sky-600 focus:ring-2 focus:ring-sky-300 transition"
                         type="text"
                         placeholder="Nome"
                         value={name}
                         onChange={e => setName(e.target.value)}
                     />
 
-                    <button type="submit" disabled={isLoading}>
+                    <button type="submit" disabled={isLoading}
+                        className="w-full rounded-xl bg-blue-500 text-white font-bold py-3"
+                    >
                         {isLoading ? "Cadastrando..." : "Cadastrar"}
                     </button>
                 </form>

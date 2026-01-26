@@ -25,13 +25,13 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="bg-slate-50 h-screen flex items-center justify-center p-4">
+        <div className="bg-slate-50 h-screen flex items-center justify-center p-10">
             <div className="w-full max-w-md">
                 <img className="h-14 mx-auto mb-8 block object-contain"
                     src="src/assets/logo-h.png"
                     alt="Logo"
                 />
-                <form className="bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-10 flex flex-col gap-6"
+                <form className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.30)] p-15 flex flex-col gap-6"
                     onSubmit={handleSubmit}
                 >
                     <div className="text-center mb-2">

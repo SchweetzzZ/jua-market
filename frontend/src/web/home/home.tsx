@@ -24,12 +24,8 @@ type Tab = "produtos" | "servicos";
 
 export default function Home() {
     const { products, isLoading, error, fetchProducts } = useHome();
-    const {
-        servicos,
-        isLoading: isLoadingServicos,
-        error: errorServicos,
-        fetchServicos,
-    } = useServicos();
+    const { servicos, isLoading: isLoadingServicos, error: errorServicos, fetchServicos, }
+        = useServicos();
 
     const [search, setSearch] = useState("");
     const [activeTab, setActiveTab] = useState<Tab>("produtos");
@@ -69,7 +65,6 @@ export default function Home() {
 
     return (
         <div className="p-10 relative">
-            {/* SEARCH */}
             <div className="flex justify-center">
                 <input
                     type="text"
@@ -81,7 +76,6 @@ export default function Home() {
                 />
             </div>
 
-            {/* LOGIN / CADASTRO */}
             <div className="absolute top-10 right-10 flex gap-4">
                 <button
                     onClick={() => navigate("/sign-up")}
@@ -97,7 +91,7 @@ export default function Home() {
                 </button>
             </div>
 
-            {/* TABS */}
+
             <div className="flex justify-center mb-7 mt-5">
                 <p
                     className={`mr-10 cursor-pointer ${activeTab === "produtos" ? "font-bold text-blue-600" : ""
@@ -116,14 +110,12 @@ export default function Home() {
                 </p>
             </div>
 
-            {/* CONTADOR */}
             <div className="text-sm text-gray-500 mb-4">
                 {activeTab === "produtos"
                     ? `Total de produtos: ${filteredProducts.length}`
                     : `Total de serviços: ${filteredServicos.length}`}
             </div>
 
-            {/* LISTAGEM */}
             {activeTab === "produtos" && (
                 <>
                     {filteredProducts.length === 0 ? (

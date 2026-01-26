@@ -129,5 +129,22 @@ export const getAllProducts = async () => {
         }
     }
 }
+export const getProductById = async (id: string) => {
+    try {
+        console.log('Buscando produto do banco...')
+        const getProductById = await db.select().from(table_products).where(eq(table_products.id, id))
+        return {
+            success: true,
+            message: "Produto buscado com sucesso",
+            data: getProductById
+        }
+    } catch (error) {
+        console.error('Erro ao buscar produto:', error)
+        return {
+            success: false,
+            message: "Erro ao buscar produto"
+        }
+    }
+}
 
 
