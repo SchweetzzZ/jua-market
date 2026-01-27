@@ -40,6 +40,15 @@ export default function CadastroPage() {
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                     />
+                    <label htmlFor="name">Nome*</label>
+                    <input
+                        className="w-full rounded-xl border border-gray-300 p-3 outline-none 
+                        focus:border-sky-600 focus:ring-2 focus:ring-sky-300 transition"
+                        type="text"
+                        placeholder="Nome"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                    />
 
                     <label htmlFor="password">Senha*</label>
                     <input
@@ -51,15 +60,6 @@ export default function CadastroPage() {
                         onChange={e => setPassword(e.target.value)}
                     />
 
-                    <label htmlFor="name">Nome*</label>
-                    <input
-                        className="w-full rounded-xl border border-gray-300 p-3 outline-none 
-                        focus:border-sky-600 focus:ring-2 focus:ring-sky-300 transition"
-                        type="text"
-                        placeholder="Nome"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                    />
 
                     <button type="submit" disabled={isLoading}
                         className="w-full rounded-xl bg-blue-500 text-white font-bold py-3"

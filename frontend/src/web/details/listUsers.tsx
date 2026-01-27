@@ -1,26 +1,23 @@
 import { useState, useCallback } from "react"
 
-type Product = {
+export type User = {
     id: string
     name: string
-    description: string
-    price: string
-    image: string
-    user_id: string
+    history: string
 }
 
-export const useDetails = () => {
-    const [product, setProduct] = useState<Product | null>(null)
+export const useUsers = () => {
+    const [user, setUser] = useState<User | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const fetchProductById = useCallback(async (id: string) => {
+    const fetchUser = useCallback(async (userId: string) => {
         setIsLoading(true)
         setError(null)
 
         try {
             const response = await fetch(
-                `http://localhost:3000/productsId/${id}`,
+                `http://localhost:3000/users/${userId}`,
                 {
                     credentials: "include",
                     headers: { Accept: "application/json" },
@@ -34,21 +31,21 @@ export const useDetails = () => {
             const result = await response.json()
 
             if (result?.success) {
-                setProduct(result.data as Product)
+                setUser(result.data)
             } else {
-                setError(result?.message ?? "Produto não encontrado")
+                setError(result?.message ?? "Usuário não encontrado")
             }
         } catch {
-            setError("Erro ao buscar produto")
+            setError("Erro ao buscar usuário")
         } finally {
             setIsLoading(false)
         }
     }, [])
 
     return {
-        product,
+        user,
         isLoading,
         error,
-        fetchProductById,
+        fetchUser,
     }
 }

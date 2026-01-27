@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useHome } from "./homeHooks";
 import { useServicos } from "../servicos/servicosHooks";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 interface Product {
     id: string | number;
@@ -68,8 +69,7 @@ export default function Home() {
             <div className="flex justify-center">
                 <input
                     type="text"
-                    placeholder={`Procurar ${activeTab === "produtos" ? "produto" : "serviço"
-                        }...`}
+                    placeholder={`Procurar ${activeTab === "produtos" ? "produto" : "serviço"}...`}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="w-[500px] p-3 rounded-lg border border-black text-black placeholder-black"
@@ -94,26 +94,16 @@ export default function Home() {
 
             <div className="flex justify-center mb-7 mt-5">
                 <p
-                    className={`mr-10 cursor-pointer ${activeTab === "produtos" ? "font-bold text-blue-600" : ""
-                        }`}
-                    onClick={() => setActiveTab("produtos")}
-                >
-                    produtos
-                </p>
+                    className={`mr-10 cursor-pointer ${activeTab === "produtos" ? "font-bold text-blue-600" : ""}`}
+                    onClick={() => setActiveTab("produtos")}>produtos</p>
 
                 <p
-                    className={`cursor-pointer ${activeTab === "servicos" ? "font-bold text-blue-600" : ""
-                        }`}
-                    onClick={() => setActiveTab("servicos")}
-                >
-                    serviços
-                </p>
+                    className={`cursor-pointer ${activeTab === "servicos" ? "font-bold text-blue-600" : ""}`}
+                    onClick={() => setActiveTab("servicos")}>serviços</p>
             </div>
 
             <div className="text-sm text-gray-500 mb-4">
-                {activeTab === "produtos"
-                    ? `Total de produtos: ${filteredProducts.length}`
-                    : `Total de serviços: ${filteredServicos.length}`}
+                {activeTab === "produtos" ? `Total de produtos: ${filteredProducts.length}` : `Total de serviços: ${filteredServicos.length}`}
             </div>
 
             {activeTab === "produtos" && (
@@ -161,9 +151,11 @@ export default function Home() {
                                         </span>
                                     )}
 
-                                    <button className="w-full mt-auto py-2 bg-blue-400 text-white rounded hover:bg-blue-700 transition">
-                                        Ver Detalhes
-                                    </button>
+                                    <Link to={`/details/${product.id}`} className="w-full">
+                                        <button className="w-full mt-auto py-2 bg-blue-400 text-white rounded hover:bg-blue-700 transition">
+                                            Ver Detalhe
+                                        </button>
+                                    </Link>
                                 </div>
                             ))}
                         </div>

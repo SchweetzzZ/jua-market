@@ -1,11 +1,14 @@
 import { useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { useDetails } from "./detalshooks"
+import { useUsers } from "./listUsers"
 
 export default function DetailsPage() {
     const { id } = useParams<{ id: string }>()
-    console.log("ID from params:", id)
+
     const { product, isLoading, error, fetchProductById } = useDetails()
+    const { user, fetchUser } = useUsers()
+
 
     useEffect(() => {
         if (id) {
@@ -13,16 +16,53 @@ export default function DetailsPage() {
         }
     }, [id, fetchProductById])
 
+    useEffect(() => {
+        if (product?.user_id) {
+            fetchUser(product.user_id)
+        }
+    }, [product, fetchUser])
+
     if (isLoading) return <p>Carregando...</p>
     if (error) return <p>{error}</p>
     if (!product) return <p>Produto não encontrado</p>
 
     return (
-        <div>
-            <p>oi</p>
-            <h1>{product?.name}</h1>
-            <p>{product?.description}</p>
-            <p>{product?.price}</p>
+        <div className="min-h-screen px-40 py-30 flex items-start">
+            <div className="flex flex-row gap-12">
+
+                <img
+                    className="h-170 w-150 object-cover rounded-xl"
+                    src={product.image}
+                    alt={product.name}
+                />
+
+                <div className="flex flex-col gap-6 max-w-md">
+                    <h1 className="text-3xl font-semibold">{product.name}</h1>
+
+                    <p className="text-xl font-bold text-green-600">
+                        R$ {product.price}
+                    </p>
+
+                    <p className="text-gray-600">
+                        {product.description}
+                    </p>
+
+                    {user && (
+                        <p className="text-gray-500 text-sm">
+                            Vendido por: <strong>{user.name}</strong>
+                        </p>
+                    )}
+
+                    {user?.history && (
+                        <p className="text-gray-500 text-sm italic">
+                            "{user.history}"
+                        </p>
+                    )}
+                    <button className="mt-4 bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition">
+                        Compre diretamente com o vendedor
+                    </button>
+                </div>
+            </div>
         </div>
     )
 }

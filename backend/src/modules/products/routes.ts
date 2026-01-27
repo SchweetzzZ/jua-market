@@ -1,8 +1,9 @@
-import { createProduct, updateProduct, deleteProduct, getByUserId, getAllProducts, getProductById } from "./service"
+import { createProduct, updateProduct, deleteProduct, getByUserId, getAllProducts, getProductById, getUsers, getUserById } from "./service"
 import { Elysia, t } from "elysia"
 import { authMacro } from "../../modules/auth/macro"
 import { checkPermission } from "../../modules/access-control/access-control"
 import { auth } from "../../modules/auth/auth"
+import { db } from "../../db"
 
 type User = typeof auth.$Infer.Session.user
 
@@ -98,6 +99,7 @@ export const productsRoutes = new Elysia()
         if (!data || !data.success) {
             set.status = 404
             return { success: false, message: "Nenhum produto encontrado" }
+
         }
         set.status = 200
         return data
@@ -118,6 +120,29 @@ export const productsRoutes = new Elysia()
             set.status = 404
             return { success: false, message: "Produto não encontrado" }
         }
+        set.status = 200
+        return data
+    })
+    //rota para pegar usuarios(nao era pra estar aqui mas ok)
+    .get("/users", async ({ set }) => {
+        const data = await getUsers()
+        if (!data || !data.success) {
+            set.status = 404
+            return { success: false, message: "Nenhum usuário encontrado" }
+        }
+        set.status = 200
+        return data
+    })
+    .get("/users/:id", async ({ params, set }) => {
+        const { id } = params
+
+        const data = await getUserById(id)
+
+        if (!data || !data.success) {
+            set.status = 404
+            return { success: false, message: "Usuário não encontrado" }
+        }
+
         set.status = 200
         return data
     })

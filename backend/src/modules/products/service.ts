@@ -2,6 +2,7 @@ import { db } from "../../db";
 import { table_products } from "../../db/schemas/products_schemas";
 import { tablecategories } from "../../db/schemas/category_schema"
 import { eq, and } from "drizzle-orm"
+import { user } from "../../db/schemas/auth-schema"
 
 interface createProductInput {
     name: string;
@@ -132,11 +133,19 @@ export const getAllProducts = async () => {
 export const getProductById = async (id: string) => {
     try {
         console.log('Buscando produto do banco...')
-        const getProductById = await db.select().from(table_products).where(eq(table_products.id, id))
+        const [product] = await db.select().from(table_products).where(eq(table_products.id, id)).limit(1)
+
+        if (!product) {
+            return {
+                success: false,
+                message: "Produto não encontrado"
+            }
+        }
+
         return {
             success: true,
             message: "Produto buscado com sucesso",
-            data: getProductById
+            data: product
         }
     } catch (error) {
         console.error('Erro ao buscar produto:', error)
@@ -146,5 +155,45 @@ export const getProductById = async (id: string) => {
         }
     }
 }
+export const getUsers = async () => {
+    try {
+        const getUsers = await db.select().from(user)
+
+        console.log('Usuários encontrados no banco:', getUsers)
+
+        if (!getUsers || getUsers.length === 0) {
+            console.log('Nenhum usuário encontrado no banco')
+            return {
+                success: true,
+                message: "Nenhum usuário encontrado",
+                data: []
+            }
+        }
+
+        return {
+            success: true,
+            message: "Usuários buscados com sucesso",
+            data: getUsers
+        }
+    } catch (error) {
+        console.error('Erro ao buscar usuários:', error)
+        return {
+            success: false,
+            message: "Erro ao buscar usuários"
+        }
+    }
+}
+export const getUserById = async (id: string) => {
+    const getuser = await db
+        .select()
+        .from(user)
+        .where(eq(user.id, id))
+        .limit(1)
+
+    if (!getuser.length) return { success: false }
+
+    return { success: true, data: getuser[0] }
+}
+
 
 
