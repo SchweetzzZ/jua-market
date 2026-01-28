@@ -4,6 +4,7 @@ export type User = {
     id: string
     name: string
     history: string
+    phone: string
 }
 
 export const useUsers = () => {

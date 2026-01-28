@@ -25,7 +25,7 @@ export const createAdmin = async () => {
             email,
             password,
             role: "admin",
-            name: "Admin"
+            name: "Admin",
         }
     })
 

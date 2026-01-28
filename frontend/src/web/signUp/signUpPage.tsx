@@ -62,13 +62,13 @@ export default function CadastroPage() {
 
 
                     <button type="submit" disabled={isLoading}
-                        className="w-full rounded-xl bg-blue-500 text-white font-bold py-3"
+                        className="w-full rounded-xl bg-blue-600 text-white font-bold py-3"
                     >
                         {isLoading ? "Cadastrando..." : "Cadastrar"}
                     </button>
+                    {error && <p className="text-red-800">{error}</p>}
                 </form>
 
-                {error && <p>{error}</p>}
             </div>
             <p>Torne-se um vendedor()</p>
         </div>

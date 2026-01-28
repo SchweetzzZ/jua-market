@@ -32,8 +32,7 @@ export default function DetailsPage() {
 
                 <img
                     className="h-170 w-150 object-cover rounded-xl"
-                    src={product.image}
-                    alt={product.name}
+                    src={product.image} alt={product.name}
                 />
 
                 <div className="flex flex-col gap-6 max-w-md">
@@ -58,9 +57,17 @@ export default function DetailsPage() {
                             "{user.history}"
                         </p>
                     )}
-                    <button className="mt-4 bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition">
+                    <a
+                        href={`https://wa.me/${user?.phone}?text=${encodeURIComponent(
+                            `Olá, tenho interesse no produto "${product.name}". Ainda está disponível?`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-4 bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition text-center"
+                    >
                         Compre diretamente com o vendedor
-                    </button>
+                    </a>
+
                 </div>
             </div>
         </div>
