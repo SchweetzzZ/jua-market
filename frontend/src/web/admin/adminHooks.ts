@@ -32,7 +32,6 @@ export const useAdminUsers = () => {
                 return
             }
 
-            // Type guard to ensure data has the users property
             if (data && typeof data === 'object' && 'users' in data && Array.isArray(data.users)) {
                 setUsers(data.users as unknown as AdminUser[])
             } else if (data && typeof data === 'object' && 'success' in data && !(data as any).success) {
@@ -60,7 +59,6 @@ export const useAdminUsers = () => {
                 throw new Error(error.value?.message || "Erro ao banir usuário")
             }
 
-            // Refresh list or update local state
             await fetchUsers()
             return data
         } catch (err: any) {
@@ -78,13 +76,13 @@ export const useAdminUsers = () => {
                 throw new Error(error.value?.message || "Erro ao desbanir usuário")
             }
 
-            // Refresh list or update local state
             await fetchUsers()
             return data
         } catch (err: any) {
             throw new Error(err.message || "Erro ao desbanir usuário")
         }
     }
+
 
     return {
         users,

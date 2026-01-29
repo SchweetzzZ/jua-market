@@ -96,13 +96,13 @@ export default function Home() {
                         })()}
                         <button
                             onClick={() => navigate("/sign-up")}
-                            className="px-4 py-2 text-blue-700 font-semibold hover:bg-blue-200/50 rounded-lg transition"
+                            className="px-4 py-2 bg-blue-700 text-white font-semibold hover:bg-blue-900 rounded-lg transition shadow-md"
                         >
                             Cadastrar
                         </button>
                         <button
                             onClick={() => navigate("/login")}
-                            className="px-6 py-2 bg-blue-600 text-white font-bold hover:bg-blue-700 rounded-lg shadow-md transition"
+                            className="px-6 py-2 bg-blue-600 text-white font-semibold hover:bg-blue-900 rounded-lg shadow-md transition"
                         >
                             Login
                         </button>
@@ -176,7 +176,7 @@ export default function Home() {
                                             </span>
                                         )}
 
-                                        <Link to={`/details/${product.id}`} className="w-full">
+                                        <Link to={`/produtos/${product.id}`} className="w-full">
                                             <button className="w-full mt-auto py-2 bg-blue-400 text-white rounded hover:bg-blue-700 transition">
                                                 Ver Detalhe
                                             </button>
@@ -188,53 +188,51 @@ export default function Home() {
                     </>
                 )}
 
-                {activeTab === "servicos" && (
-                    <>
-                        {filteredServicos.length === 0 ? (
-                            <p>Nenhum serviço encontrado</p>
-                        ) : (
-                            <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
-                                {filteredServicos.map((servico: Servico) => (
-                                    <div
-                                        key={servico.id}
-                                        className="border rounded-lg p-4 bg-white shadow-sm flex flex-col"
-                                    >
-                                        {servico.image && (
-                                            <div className="w-full h-52 mb-4 overflow-hidden rounded">
-                                                <img
-                                                    src={servico.image}
-                                                    alt={servico.name}
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) =>
-                                                    (e.currentTarget.src =
-                                                        "https://placehold.co/300x200?text=Sem+Imagem")
-                                                    }
-                                                />
-                                            </div>
-                                        )}
-
-                                        <h3 className="mb-2 font-semibold">{servico.name}</h3>
-
-                                        {servico.description && (
-                                            <p className="text-sm text-gray-600 mb-2">
-                                                {servico.description}
-                                            </p>
-                                        )}
-
-                                        {servico.price && (
-                                            <p className="text-lg font-bold mb-2">
-                                                R$ {Number(servico.price).toFixed(2)}
-                                            </p>
-                                        )}
-
-                                        <button className="w-full mt-auto py-2 bg-blue-400 text-white rounded hover:bg-blue-700 transition">
-                                            Ver Serviço
-                                        </button>
+                {activeTab === "servicos" && (<> {filteredServicos.length === 0 ? (
+                    <p>Nenhum serviço encontrado</p>) : (
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
+                        {filteredServicos.map((servico: Servico) => (
+                            <div
+                                key={servico.id}
+                                className="border rounded-lg p-4 bg-white shadow-sm flex flex-col"
+                            >
+                                {servico.image && (
+                                    <div className="w-full h-52 mb-4 overflow-hidden rounded">
+                                        <img
+                                            src={servico.image}
+                                            alt={servico.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) =>
+                                            (e.currentTarget.src =
+                                                "https://placehold.co/300x200?text=Sem+Imagem")
+                                            }
+                                        />
                                     </div>
-                                ))}
+                                )}
+
+                                <h3 className="mb-2 font-semibold">{servico.name}</h3>
+
+                                {servico.description && (
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        {servico.description}
+                                    </p>
+                                )}
+
+                                {servico.price && (
+                                    <p className="text-lg font-bold mb-2">
+                                        R$ {Number(servico.price).toFixed(2)}
+                                    </p>
+                                )}
+                                <Link to={`/servicos/${servico.id}`} className="w-full">
+                                    <button className="w-full mt-auto py-2 bg-blue-400 text-white rounded hover:bg-blue-700 transition">
+                                        Ver Detalhes
+                                    </button>
+                                </Link>
                             </div>
-                        )}
-                    </>
+                        ))}
+                    </div>
+                )}
+                </>
                 )}
             </div>
         </div>

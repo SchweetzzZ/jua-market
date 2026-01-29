@@ -3,12 +3,12 @@ import { useParams } from "react-router-dom"
 import { useDetails } from "./detalshooks"
 import { useUsers } from "./listUsers"
 
-export default function DetailsPage() {
+export default function ProductDetailsPage() {
     const { id } = useParams<{ id: string }>()
 
     const { product, isLoading, error, fetchProductById } = useDetails()
-    const { user, fetchUser } = useUsers()
 
+    const { user, fetchUser } = useUsers()
 
     useEffect(() => {
         if (id) {
@@ -27,7 +27,7 @@ export default function DetailsPage() {
     if (!product) return <p>Produto não encontrado</p>
 
     return (
-        <div className="min-h-screen px-40 py-30 flex items-start">
+        <div className="min-h-screen px-40 py-30 flex items-start bg-rose-100">
             <div className="flex flex-row gap-12">
 
                 <img
