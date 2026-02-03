@@ -20,25 +20,25 @@ export const createProduct = async (user_id: string, input: createProductInput) 
         .limit(1)
 
     if (!categoryExists.length) {
-        return { success: false, message: "Categoria não encontrada" }
+        return { success: false, message: "Categoria não encontrada", data: null }
     }
     const existingProduct = await db.select().from(table_products).where(
         eq(table_products.user_id, user_id)).limit(1)
 
     if (existingProduct.length) {
-        return { success: false, message: "Usuário já possui um produto" }
+        return { success: false, message: "Usuário já possui um produto", data: null }
     }
 
     const [create] = await db.insert(table_products).values({
         user_id: user_id,
-        category_name: input.category,
+        category: input.category,
         name: input.name,
         description: input.description,
-        image: input.image,
+        imageUrl: input.image,
         price: input.price,
     }).returning()
     if (!create) {
-        return { success: false, message: "Erro ao criar produto" }
+        return { success: false, message: "Erro ao criar produto", data: null }
     }
     return { success: true, message: "Produto criado com sucesso", data: create }
 }
@@ -50,7 +50,7 @@ export const updateProduct = async (id: string, user_id: string,
 
     if (input.name !== undefined) { updateData.name = input.name }
     if (input.description !== undefined) { updateData.description = input.description }
-    if (input.image !== undefined) { updateData.image = input.image }
+    if (input.image !== undefined) { updateData.imageUrl = input.image }
     if (input.price !== undefined) { updateData.price = input.price }
     if (input.category !== undefined) {
         const categoryExists = await db.select().from(tablecategories)
@@ -58,10 +58,10 @@ export const updateProduct = async (id: string, user_id: string,
             .limit(1)
 
         if (!categoryExists.length) {
-            return { success: false, message: "Categoria não encontrada" }
+            return { success: false, message: "Categoria não encontrada", data: null }
         }
 
-        updateData.category_name = input.category
+        updateData.category = input.category
     }
 
     const update = await db.update(table_products).set({
@@ -70,7 +70,7 @@ export const updateProduct = async (id: string, user_id: string,
         eq(table_products.user_id, user_id))).returning()
 
     if (!update || update.length === 0) {
-        return { success: false, message: "Erro ao atualizar produto" }
+        return { success: false, message: "Erro ao atualizar produto", data: null }
     }
     return {
         success: true,
@@ -85,9 +85,9 @@ export const deleteProduct = async (id: string, user_id: string) => {
         eq(table_products.user_id, user_id)
     )).returning()
     if (!deleteProduct || deleteProduct.length === 0) {
-        return { success: false, message: "Erro ao deletar produto" }
+        return { success: false, message: "Erro ao deletar produto", data: null }
     }
-    return { success: true, message: "Produto deletado com sucesso" }
+    return { success: true, message: "Produto deletado com sucesso", data: deleteProduct }
 }
 
 export const getByUserId = async (user_id: string) => {
@@ -113,7 +113,7 @@ export const getAllProducts = async () => {
             return {
                 success: true,
                 message: "Nenhum produto encontrado",
-                data: []
+                data: null
             }
         }
 
@@ -126,7 +126,8 @@ export const getAllProducts = async () => {
         console.error('Erro ao buscar produtos:', error)
         return {
             success: false,
-            message: "Erro ao buscar produtos"
+            message: "Erro ao buscar produtos",
+            data: null
         }
     }
 }
@@ -138,7 +139,8 @@ export const getProductById = async (id: string) => {
         if (!product) {
             return {
                 success: false,
-                message: "Produto não encontrado"
+                message: "Produto não encontrado",
+                data: null
             }
         }
 
@@ -151,7 +153,8 @@ export const getProductById = async (id: string) => {
         console.error('Erro ao buscar produto:', error)
         return {
             success: false,
-            message: "Erro ao buscar produto"
+            message: "Erro ao buscar produto",
+            data: null
         }
     }
 }
@@ -179,7 +182,8 @@ export const getUsers = async () => {
         console.error('Erro ao buscar usuários:', error)
         return {
             success: false,
-            message: "Erro ao buscar usuários"
+            message: "Erro ao buscar usuários",
+            data: null
         }
     }
 }
@@ -190,9 +194,9 @@ export const getUserById = async (id: string) => {
         .where(eq(user.id, id))
         .limit(1)
 
-    if (!getuser.length) return { success: false }
+    if (!getuser.length) return { success: false, message: "Usuário não encontrado", data: null }
 
-    return { success: true, data: getuser[0] }
+    return { success: true, message: "Usuário buscado com sucesso", data: getuser[0] }
 }
 
 

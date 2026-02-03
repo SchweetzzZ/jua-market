@@ -9,7 +9,7 @@ export const adminGuard = (app: Elysia) => app
 
         if (!session) {
             set.status = 401
-            return { success: false, message: "Unauthorized" }
+            return { success: false, message: "Unauthorized", data: null }
         }
 
         return {
@@ -26,6 +26,6 @@ export const adminGuard = (app: Elysia) => app
 
         if (!isAdmin) {
             set.status = 403
-            return { success: false, message: "Forbidden: Admin access required" }
+            return { success: false, message: "Forbidden: Admin access required", data: null }
         }
     })

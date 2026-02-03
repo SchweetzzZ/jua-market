@@ -17,7 +17,7 @@ export const createServico = async (userId: string, input: createServicoInput) =
         .limit(1)
 
     if (existingServico.length) {
-        return { success: false, message: "User already has a service" }
+        return { success: false, message: "User already has a service", data: null }
     }
 
     const categoryExists = await db.select().from(tablecategories)
@@ -25,20 +25,20 @@ export const createServico = async (userId: string, input: createServicoInput) =
         .limit(1)
 
     if (!categoryExists.length) {
-        return { success: false, message: "Category not found" }
+        return { success: false, message: "Category not found", data: null }
     }
 
     const servico = await db.insert(table_servicos).values({
         user_id: userId,
-        category_name: input.category,
+        category: input.category,
         name: input.name,
         description: input.description,
-        image: input.image,
+        imageUrl: input.image,
         price: input.price,
     }).returning()
 
     if (!servico || servico.length === 0) {
-        return { success: false, message: "Failed to create service" }
+        return { success: false, message: "Failed to create service", data: null }
     }
 
     return { success: true, message: "Service created successfully", data: servico }
@@ -50,17 +50,17 @@ export const updateService = async (id: string, userId: string, input: Partial<c
 
     if (input.name !== undefined) { updateData.name = input.name }
     if (input.description !== undefined) { updateData.description = input.description }
-    if (input.image !== undefined) { updateData.image = input.image }
+    if (input.image !== undefined) { updateData.imageUrl = input.image }
     if (input.price !== undefined) { updateData.price = input.price }
     if (input.category !== undefined) {
         const categoryExists = await db.select().from(tablecategories).where(
             eq(tablecategories.name, input.category)).limit(1)
 
         if (!categoryExists.length) {
-            return { success: false, message: "Category not found" }
+            return { success: false, message: "Category not found", data: null }
         }
 
-        updateData.category_name = input.category
+        updateData.category = input.category
 
     }
 
@@ -70,7 +70,7 @@ export const updateService = async (id: string, userId: string, input: Partial<c
         eq(table_servicos.user_id, userId))).returning()
 
     if (!update || update.length === 0) {
-        return { success: false, message: "Failed to update service" }
+        return { success: false, message: "Failed to update service", data: null }
     }
 
     return { success: true, message: "Service updated successfully", data: update }
@@ -83,10 +83,10 @@ export const deletService = async (id: string, userId: string) => {
     )).returning()
 
     if (!deleteService || deleteService.length === 0) {
-        return { success: false, message: "Failed to delete service" }
+        return { success: false, message: "Failed to delete service", data: null }
     }
 
-    return { success: true, message: "Service deleted successfully" }
+    return { success: true, message: "Service deleted successfully", data: deleteService }
 }
 
 export const getByUserId = async (userId: string) => {
@@ -94,7 +94,7 @@ export const getByUserId = async (userId: string) => {
         eq(table_servicos.user_id, userId))
 
     if (!getByUserId || getByUserId.length === 0) {
-        return { success: false, message: "Failed to get service" }
+        return { success: false, message: "Failed to get service", data: null }
     }
 
     return { success: true, message: "Service retrieved successfully", data: getByUserId }
@@ -103,7 +103,7 @@ export const getByUserId = async (userId: string) => {
 export const getAllServices = async () => {
     const getAllServices = await db.select().from(table_servicos)
 
-    return { success: true, message: "Services retrieved successfully", data: getAllServices || [] }
+    return { success: true, message: "Services retrieved successfully", data: getAllServices }
 }
 
 export const getServiceById = async (id: string) => {
@@ -112,8 +112,8 @@ export const getServiceById = async (id: string) => {
     ).limit(1)
 
     if (!service || service.length === 0) {
-        return { success: false, message: "Service not found" }
+        return { success: false, message: "Service not found", data: null }
     }
 
-    return { success: true, message: "Service retrieved successfully", data: service[0] }
+    return { success: true, message: "Service retrieved successfully", data: service }
 }

@@ -1,11 +1,16 @@
 import { Elysia, t } from "elysia"
 import { adminGuard } from "./admin-guard"
 import { auth } from "../auth/auth"
+import { authMacro } from "../auth/macro"
+import { checkPermission } from "../access-control/access-control"
+import { getAllProducts } from "../products/service"
+import { deleteProduct } from "../products/service"
 
 export const adminRoutes = new Elysia({
     prefix: "/admin"
 })
     .use(adminGuard)
+    .use(authMacro)
 
     .get("/users", async ({ request: { headers } }) => {
         return await auth.api.listUsers({
@@ -13,6 +18,45 @@ export const adminRoutes = new Elysia({
             headers: await headers
         })
     })
+
+    .get("/products", async ({ set, user }) => {
+        const allowed = checkPermission(user.role, "products", "read")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado", data: null }
+        }
+
+        const data = await getAllProducts()
+
+        if (!data?.success) {
+            set.status = 404
+            return { success: false, message: "Nenhum produto encontrado", data: null }
+        }
+
+        return data
+    }, { auth: true })
+
+    .delete("/products/:id", async ({ params, user, set }) => {
+        if (!user) {
+            set.status = 401
+            return { success: false, message: "Usuário não autenticado", data: null }
+        }
+        const allowed = checkPermission(user.role, "products", "delete")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado", data: null }
+        }
+
+        const data = await deleteProduct(params.id, user.id)
+
+        if (!data.success) {
+            set.status = 404
+            return { success: false, message: "Produto não encontrado", data: null }
+        }
+
+        return data
+    })
+
 
     .post("/ban-user", async ({ body, request: { headers } }) => {
         const { userId, reason } = body

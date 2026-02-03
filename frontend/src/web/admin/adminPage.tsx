@@ -3,12 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { AdminSidebar, UserTable, MetricCard } from "./adminComponents";
 import { useAdminUsers } from "./adminHooks";
 import { useSession } from "../../../auth-client";
+import { AdminProductTable } from "./adminProdComponet";
+import { useAdminProducts } from "./adminProductsHooks";
 
 export default function AdminPage() {
     const navigate = useNavigate();
     const { data: session, isPending } = useSession();
     const [activeSection, setActiveSection] = useState("overview");
     const { users, isLoading, error, fetchUsers, banUser, unbanUser } = useAdminUsers();
+    const { products, isLoading: productsLoading, error: productsError, fetchProducts, deleteProduct } = useAdminProducts();
 
     useEffect(() => {
         if (!isPending) {
@@ -96,7 +99,7 @@ export default function AdminPage() {
                 {error && (
                     <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded shadow-sm">
                         <div className="flex items-center">
-                            <span className="text-red-500 mr-3 text-xl">⚠️</span>
+                            <span className="text-red-500 mr-3 text-xl"></span>
                             <p className="text-red-700 font-medium">{error}</p>
                         </div>
                     </div>
@@ -113,7 +116,7 @@ export default function AdminPage() {
 
                         <section>
                             <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center">
-                                <span className="mr-2">🕒</span> Usuários Recentes
+                                <span className="mr-2"></span> Usuários Recentes
                             </h2>
                             <UserTable
                                 users={users.slice(0, 5)}
@@ -134,9 +137,17 @@ export default function AdminPage() {
                     />
                 )}
 
-                {(activeSection === "products" || activeSection === "settings") && (
+                {activeSection === "products" && (
+                    <AdminProductTable
+                        products={products}
+                        isLoading={isLoading}
+                        error={error}
+                        fetchProducts={fetchProducts}
+                        deleteProduct={deleteProduct}
+                    />
+                )}
+                {activeSection === "settings" && (
                     <div className="bg-white p-20 rounded-2xl shadow-sm border border-slate-100 text-center">
-                        <div className="text-6xl mb-6">🚧</div>
                         <h2 className="text-2xl font-bold text-slate-800 mb-2">Em Construção</h2>
                         <p className="text-slate-500">Esta funcionalidade está sendo implementada e estará disponível em breve.</p>
                     </div>

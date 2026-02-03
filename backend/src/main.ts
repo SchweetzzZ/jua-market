@@ -26,7 +26,7 @@ export const createCoreApi = () => {
     .onError(({ code, error, set }) => {
       if (code === 'NOT_FOUND') {
         set.status = 404
-        return { success: false, message: 'Rota não encontrada' }
+        return { success: false, message: 'Rota não encontrada', data: null }
       }
 
       if (code === 'VALIDATION') {
@@ -34,7 +34,7 @@ export const createCoreApi = () => {
         return {
           success: false,
           message: 'Dados inválidos',
-          errors: error.all
+          data: error.all
         }
       }
 
@@ -43,7 +43,8 @@ export const createCoreApi = () => {
       set.status = 500
       return {
         success: false,
-        message: "Ocorreu um erro interno no servidor."
+        message: "Ocorreu um erro interno no servidor.",
+        data: null
       }
     })
     .mount(auth.handler)

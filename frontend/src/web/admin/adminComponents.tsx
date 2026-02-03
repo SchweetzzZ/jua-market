@@ -39,7 +39,7 @@ export const AdminSidebar: React.FC<SidebarProps> = ({ activeSection, setActiveS
                     onClick={() => window.location.href = "/home"}
                     className="w-full text-slate-400 hover:text-white flex items-center transition"
                 >
-                    <span className="mr-2">🏠</span> Sair do Painel
+                    <span className="mr-2"></span> Sair do Painel
                 </button>
             </div>
         </div>

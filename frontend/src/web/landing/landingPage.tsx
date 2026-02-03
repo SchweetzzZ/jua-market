@@ -19,7 +19,7 @@ export default function LandingPage() {
                         onClick={() => navigate('/home')}
                         className="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 
                                    transition shadow-lg">
-                        🛍️ Ver Produtos e Serviços
+                        Ver Produtos e Serviços
                     </button>
 
                     <button
@@ -27,7 +27,7 @@ export default function LandingPage() {
                         className="px-8 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:bg-gray-50 
                                    transition shadow-lg border-2 border-blue-600"
                     >
-                        💼 Quero Ser Vendedor
+                        Quero Ser Vendedor
                     </button>
                 </div>
 
