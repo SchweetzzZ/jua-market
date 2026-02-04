@@ -11,6 +11,7 @@ export const AdminSidebar: React.FC<SidebarProps> = ({ activeSection, setActiveS
         { id: "overview", label: "Visão Geral", icon: "📊" },
         { id: "users", label: "Usuários", icon: "👥" },
         { id: "products", label: "Produtos", icon: "📦" },
+        { id: "services", label: "Serviços", icon: "🔧" },
         { id: "settings", label: "Configurações", icon: "⚙️" },
     ];
 
@@ -71,76 +72,138 @@ interface UserTableProps {
     isLoading: boolean;
     onBan: (userId: string) => void;
     onUnban: (userId: string) => void;
+    totalUsers: number;
+    page: number;
+    onPageChange: (page: number) => void;
+    searchQuery: string;
+    onSearchChange: (query: string) => void;
 }
 
-export const UserTable: React.FC<UserTableProps> = ({ users, isLoading, onBan, onUnban }) => {
-    if (isLoading) return <div className="p-10 text-center text-slate-500">Carregando usuários...</div>;
+export const UserTable: React.FC<UserTableProps> = ({
+    users,
+    isLoading,
+    onBan,
+    onUnban,
+    totalUsers,
+    page,
+    onPageChange,
+    searchQuery,
+    onSearchChange
+}) => {
+    const totalPages = Math.ceil(totalUsers / 10);
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 border-b border-slate-100">
-                    <tr>
-                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Usuário</th>
-                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Email</th>
-                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Papel</th>
-                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Ações</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                    {users.map((user) => (
-                        <tr key={user.id} className="hover:bg-slate-50/50 transition">
-                            <td className="px-6 py-4">
-                                <div className="flex items-center">
-                                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-3">
-                                        {user.name ? user.name[0].toUpperCase() : "U"}
-                                    </div>
-                                    <span className="font-semibold text-slate-700">{user.name || "Sem nome"}</span>
-                                </div>
-                            </td>
-                            <td className="px-6 py-4 text-slate-600">{user.email}</td>
-                            <td className="px-6 py-4">
-                                <span className={`px-2 py-1 rounded-md text-xs font-bold ${user.role === "admin" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
-                                    }`}>
-                                    {user.role}
-                                </span>
-                            </td>
-                            <td className="px-6 py-4">
-                                {user.banned ? (
-                                    <span className="flex items-center text-red-600 text-sm font-medium">
-                                        <span className="h-2 w-2 bg-red-600 rounded-full mr-2"></span> Banido
-                                    </span>
-                                ) : (
-                                    <span className="flex items-center text-green-600 text-sm font-medium">
-                                        <span className="h-2 w-2 bg-green-600 rounded-full mr-2"></span> Ativo
-                                    </span>
-                                )}
-                            </td>
-                            <td className="px-6 py-4 text-right">
-                                {user.banned ? (
-                                    <button
-                                        onClick={() => onUnban(user.id)}
-                                        className="text-blue-600 hover:text-blue-800 font-bold text-sm"
-                                    >
-                                        Desbanir
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={() => onBan(user.id)}
-                                        className="text-red-600 hover:text-red-800 font-bold text-sm"
-                                    >
-                                        Banir
-                                    </button>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            {users.length === 0 && (
-                <div className="p-10 text-center text-slate-400">Nenhum usuário encontrado.</div>
-            )}
+        <div className="space-y-4">
+            <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                <div className="relative w-full max-w-md">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">🔍</span>
+                    <input
+                        type="text"
+                        placeholder="Buscar por email..."
+                        value={searchQuery}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                    />
+                </div>
+                <div className="text-sm text-slate-500 font-medium">
+                    Total: <span className="text-slate-900">{totalUsers}</span> usuários
+                </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                </div>
+
+                {isLoading ? (
+                    <div className="p-20 text-center">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent mb-4"></div>
+                        <p className="text-slate-500 font-medium">Carregando usuários...</p>
+                    </div>
+                ) : (
+                    <>
+                        <table className="w-full text-left border-collapse">
+                            {/* ... existing table header ... */}
+                            <thead className="bg-slate-50 border-b border-slate-100">
+                                <tr>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Usuário</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Email</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Papel</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {users.map((user) => (
+                                    <tr key={user.id} className="hover:bg-slate-50/50 transition">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center">
+                                                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-3">
+                                                    {user.name ? user.name[0].toUpperCase() : "U"}
+                                                </div>
+                                                <span className="font-semibold text-slate-700">{user.name || "Sem nome"}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-slate-600">{user.email}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2 py-1 rounded-md text-xs font-bold ${user.role === "admin" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}`}>
+                                                {user.role}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {user.banned ? (
+                                                <span className="flex items-center text-red-600 text-sm font-medium">
+                                                    <span className="h-2 w-2 bg-red-600 rounded-full mr-2"></span> Banido
+                                                </span>
+                                            ) : (
+                                                <span className="flex items-center text-green-600 text-sm font-medium">
+                                                    <span className="h-2 w-2 bg-green-600 rounded-full mr-2"></span> Ativo
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            {user.banned ? (
+                                                <button onClick={() => onUnban(user.id)} className="text-blue-600 hover:text-blue-800 font-bold text-sm">Desbanir</button>
+                                            ) : (
+                                                <button onClick={() => onBan(user.id)} className="text-red-600 hover:text-red-800 font-bold text-sm">Banir</button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        {users.length === 0 && (
+                            <div className="p-20 text-center text-slate-400">
+                                <span className="text-4xl mb-4 block">🔍</span>
+                                <p className="font-medium">Nenhum usuário encontrado.</p>
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {totalPages > 1 && (
+                    <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                        <p className="text-sm text-slate-500">
+                            Página <span className="font-bold text-slate-900">{page}</span> de <span className="font-bold text-slate-900">{totalPages}</span>
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => onPageChange(page - 1)}
+                                disabled={page === 1}
+                                className="px-4 py-2 text-sm font-bold bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                            >
+                                Anterior
+                            </button>
+                            <button
+                                onClick={() => onPageChange(page + 1)}
+                                disabled={page === totalPages}
+                                className="px-4 py-2 text-sm font-bold bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                            >
+                                Próximo
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

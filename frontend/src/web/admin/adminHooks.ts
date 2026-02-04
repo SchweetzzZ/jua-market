@@ -19,12 +19,28 @@ export const useAdminUsers = () => {
     const [users, setUsers] = useState<AdminUser[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [totalUsers, setTotalUsers] = useState(0)
+    const [page, setPage] = useState(1)
+    const [limit] = useState(10)
+    const [searchQuery, setSearchQuery] = useState("")
 
-    const fetchUsers = useCallback(async () => {
+    const fetchUsers = useCallback(async (options?: { page?: number; search?: string }) => {
         setIsLoading(true)
         setError(null)
+
+        const currentPage = options?.page ?? page
+        const currentSearch = options?.search ?? searchQuery
+        const offset = (currentPage - 1) * limit
+
         try {
-            const { data, error } = await api.admin.users.get()
+            // @ts-ignore - a api tipagem as vezes não reconhece queries customizadas se não estiverem no schema
+            const { data, error } = await api.admin.users.get({
+                query: {
+                    limit,
+                    offset,
+                    search: currentSearch
+                }
+            })
 
             if (error) {
                 console.error("Error fetching users:", error)
@@ -34,6 +50,9 @@ export const useAdminUsers = () => {
 
             if (data && typeof data === 'object' && 'users' in data && Array.isArray(data.users)) {
                 setUsers(data.users as unknown as AdminUser[])
+                if ('total' in data) {
+                    setTotalUsers(data.total as number)
+                }
             } else if (data && typeof data === 'object' && 'success' in data && !(data as any).success) {
                 setError((data as any).message || "Acesso negado")
                 setUsers([])
@@ -46,7 +65,7 @@ export const useAdminUsers = () => {
         } finally {
             setIsLoading(false)
         }
-    }, [])
+    }, [page, limit, searchQuery])
 
     const banUser = async (userId: string, reason?: string) => {
         try {
@@ -88,6 +107,11 @@ export const useAdminUsers = () => {
         users,
         isLoading,
         error,
+        totalUsers,
+        page,
+        setPage,
+        searchQuery,
+        setSearchQuery,
         fetchUsers,
         banUser,
         unbanUser

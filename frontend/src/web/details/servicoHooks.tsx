@@ -5,7 +5,7 @@ type Servico = {
     name: string
     description: string
     price: string
-    image: string
+    imageUrl: string
     user_id: string
 }
 

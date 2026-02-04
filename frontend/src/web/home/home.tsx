@@ -10,7 +10,7 @@ interface Product {
     name: string;
     description?: string;
     price?: number | string;
-    image?: string;
+    imageUrl?: string;
     category_name?: string;
 }
 
@@ -19,15 +19,14 @@ interface Servico {
     name: string;
     description?: string;
     price?: number | string;
-    image?: string;
+    imageUrl?: string;
 }
 
 type Tab = "produtos" | "servicos";
 
 export default function Home() {
     const { products, isLoading, error, fetchProducts } = useHome();
-    const { servicos, isLoading: isLoadingServicos, error: errorServicos, fetchServicos, }
-        = useServicos();
+    const { servicos, isLoading: isLoadingServicos, error: errorServicos, fetchServicos } = useServicos();
 
     const [search, setSearch] = useState("");
     const [activeTab, setActiveTab] = useState<Tab>("produtos");
@@ -142,10 +141,10 @@ export default function Home() {
                                         key={product.id}
                                         className="border rounded-lg p-4 bg-white shadow-sm flex flex-col"
                                     >
-                                        {product.image && (
+                                        {product.imageUrl && (
                                             <div className="w-full h-52 mb-4 overflow-hidden rounded">
                                                 <img
-                                                    src={product.image}
+                                                    src={product.imageUrl}
                                                     alt={product.name}
                                                     className="w-full h-full object-cover"
                                                     onError={(e) =>
@@ -196,10 +195,10 @@ export default function Home() {
                                 key={servico.id}
                                 className="border rounded-lg p-4 bg-white shadow-sm flex flex-col"
                             >
-                                {servico.image && (
+                                {servico.imageUrl && (
                                     <div className="w-full h-52 mb-4 overflow-hidden rounded">
                                         <img
-                                            src={servico.image}
+                                            src={servico.imageUrl}
                                             alt={servico.name}
                                             className="w-full h-full object-cover"
                                             onError={(e) =>

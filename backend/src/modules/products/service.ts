@@ -8,7 +8,7 @@ interface createProductInput {
     name: string;
     description: string;
     category: string
-    image: string;
+    imageUrl: string;
     price: string;
 
 }
@@ -34,7 +34,7 @@ export const createProduct = async (user_id: string, input: createProductInput) 
         category: input.category,
         name: input.name,
         description: input.description,
-        imageUrl: input.image,
+        imageUrl: input.imageUrl,
         price: input.price,
     }).returning()
     if (!create) {
@@ -50,7 +50,7 @@ export const updateProduct = async (id: string, user_id: string,
 
     if (input.name !== undefined) { updateData.name = input.name }
     if (input.description !== undefined) { updateData.description = input.description }
-    if (input.image !== undefined) { updateData.imageUrl = input.image }
+    if (input.imageUrl !== undefined) { updateData.imageUrl = input.imageUrl }
     if (input.price !== undefined) { updateData.price = input.price }
     if (input.category !== undefined) {
         const categoryExists = await db.select().from(tablecategories)
@@ -110,25 +110,14 @@ export const getAllProducts = async () => {
 
         if (!getProducts || getProducts.length === 0) {
             console.log('Nenhum produto encontrado no banco')
-            return {
-                success: true,
-                message: "Nenhum produto encontrado",
-                data: null
-            }
+            return { success: true, message: "Nenhum produto encontrado", data: null }
         }
 
-        return {
-            success: true,
-            message: "Produtos buscados com sucesso",
-            data: getProducts
-        }
+        return { success: true, message: "Produtos buscados com sucesso", data: getProducts }
+
     } catch (error) {
         console.error('Erro ao buscar produtos:', error)
-        return {
-            success: false,
-            message: "Erro ao buscar produtos",
-            data: null
-        }
+        return { success: false, message: "Erro ao buscar produtos", data: null }
     }
 }
 export const getProductById = async (id: string) => {
@@ -137,25 +126,15 @@ export const getProductById = async (id: string) => {
         const [product] = await db.select().from(table_products).where(eq(table_products.id, id)).limit(1)
 
         if (!product) {
-            return {
-                success: false,
-                message: "Produto não encontrado",
-                data: null
-            }
+            return { success: false, message: "Produto não encontrado", data: null }
         }
 
-        return {
-            success: true,
-            message: "Produto buscado com sucesso",
-            data: product
-        }
+        return { success: true, message: "Produto buscado com sucesso", data: product }
+
     } catch (error) {
         console.error('Erro ao buscar produto:', error)
-        return {
-            success: false,
-            message: "Erro ao buscar produto",
-            data: null
-        }
+
+        return { success: false, message: "Erro ao buscar produto", data: null }
     }
 }
 export const getUsers = async () => {
@@ -166,25 +145,15 @@ export const getUsers = async () => {
 
         if (!getUsers || getUsers.length === 0) {
             console.log('Nenhum usuário encontrado no banco')
-            return {
-                success: true,
-                message: "Nenhum usuário encontrado",
-                data: []
-            }
+
+            return { success: true, message: "Nenhum usuário encontrado", data: [] }
         }
 
-        return {
-            success: true,
-            message: "Usuários buscados com sucesso",
-            data: getUsers
-        }
+        return { success: true, message: "Usuários buscados com sucesso", data: getUsers }
+
     } catch (error) {
         console.error('Erro ao buscar usuários:', error)
-        return {
-            success: false,
-            message: "Erro ao buscar usuários",
-            data: null
-        }
+        return { success: false, message: "Erro ao buscar usuários", data: null }
     }
 }
 export const getUserById = async (id: string) => {

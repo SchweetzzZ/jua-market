@@ -5,13 +5,21 @@ import { useAdminUsers } from "./adminHooks";
 import { useSession } from "../../../auth-client";
 import { AdminProductTable } from "./adminProdComponet";
 import { useAdminProducts } from "./adminProductsHooks";
+import { useAdminServices } from "./adminServHooks";
+import { AdminServiceTable } from "./adminServComponents";
+
 
 export default function AdminPage() {
     const navigate = useNavigate();
     const { data: session, isPending } = useSession();
     const [activeSection, setActiveSection] = useState("overview");
-    const { users, isLoading, error, fetchUsers, banUser, unbanUser } = useAdminUsers();
+    const {
+        users, isLoading, error, fetchUsers, banUser, unbanUser,
+        totalUsers, page, setPage, searchQuery, setSearchQuery
+    } = useAdminUsers();
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const { products, isLoading: productsLoading, error: productsError, fetchProducts, deleteProduct } = useAdminProducts();
+    const { services, isLoading: servicesLoading, error: servicesError, fetchServices, deleteService } = useAdminServices();
 
     useEffect(() => {
         if (!isPending) {
@@ -32,16 +40,35 @@ export default function AdminPage() {
         }
     }, [session, isPending, navigate]);
 
+    // Unified effect for data fetching
     useEffect(() => {
         const role = session?.user?.role;
         const isAdmin = role === "admin" || (Array.isArray(role) && role.includes("admin"));
 
         if (isAdmin) {
-            if (activeSection === "users" || activeSection === "overview") {
-                fetchUsers();
+            if (activeSection === "users") {
+                fetchUsers({ page, search: debouncedSearch });
+            } else if (activeSection === "overview") {
+                fetchUsers({ page: 1, search: "" });
             }
+
+            if (activeSection === "products") fetchProducts();
+            if (activeSection === "services") fetchServices();
         }
-    }, [activeSection, fetchUsers, session]);
+    }, [activeSection, page, debouncedSearch, session, fetchUsers, fetchProducts, fetchServices]);
+
+    // Separate debounce for search query only
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setPage(1);
+            setDebouncedSearch(searchQuery);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery, setPage]);
+
+    const handlePageChange = (newPage: number) => {
+        setPage(newPage);
+    };
 
     if (isPending) {
         return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 font-medium">Verificando permissões...</div>;
@@ -84,8 +111,9 @@ export default function AdminPage() {
                         <h1 className="text-3xl font-bold text-slate-800">
                             {activeSection === "overview" && "Painel de Controle"}
                             {activeSection === "users" && "Gerenciamento de Usuários"}
-                            {activeSection === "products" && "Produtos e Serviços"}
+                            {activeSection === "products" && "Produtos"}
                             {activeSection === "settings" && "Configurações do Sistema"}
+                            {activeSection === "services" && "Serviços"}
                         </h1>
                         <p className="text-slate-500 mt-2">Bem-vindo ao centro administrativo do Market Jua.</p>
                     </div>
@@ -123,6 +151,11 @@ export default function AdminPage() {
                                 isLoading={isLoading}
                                 onBan={handleBan}
                                 onUnban={handleUnban}
+                                totalUsers={users.length}
+                                page={1}
+                                onPageChange={() => { }}
+                                searchQuery=""
+                                onSearchChange={() => { }}
                             />
                         </section>
                     </div>
@@ -134,16 +167,29 @@ export default function AdminPage() {
                         isLoading={isLoading}
                         onBan={handleBan}
                         onUnban={handleUnban}
+                        totalUsers={totalUsers}
+                        page={page}
+                        onPageChange={handlePageChange}
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
                     />
                 )}
 
                 {activeSection === "products" && (
                     <AdminProductTable
                         products={products}
-                        isLoading={isLoading}
-                        error={error}
+                        isLoading={productsLoading}
+                        error={productsError}
                         fetchProducts={fetchProducts}
                         deleteProduct={deleteProduct}
+                    />
+                )}
+                {activeSection === "services" && (
+                    <AdminServiceTable
+                        services={services}
+                        isLoading={servicesLoading}
+                        error={servicesError}
+                        deleteService={deleteService}
                     />
                 )}
                 {activeSection === "settings" && (

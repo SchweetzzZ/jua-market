@@ -7,7 +7,7 @@ interface createServicoInput {
     name: string;
     description: string;
     category: string
-    image: string;
+    imageUrl: string;
     price: string;
 }
 
@@ -33,7 +33,7 @@ export const createServico = async (userId: string, input: createServicoInput) =
         category: input.category,
         name: input.name,
         description: input.description,
-        imageUrl: input.image,
+        imageUrl: input.imageUrl,
         price: input.price,
     }).returning()
 
@@ -50,7 +50,7 @@ export const updateService = async (id: string, userId: string, input: Partial<c
 
     if (input.name !== undefined) { updateData.name = input.name }
     if (input.description !== undefined) { updateData.description = input.description }
-    if (input.image !== undefined) { updateData.imageUrl = input.image }
+    if (input.imageUrl !== undefined) { updateData.imageUrl = input.imageUrl }
     if (input.price !== undefined) { updateData.price = input.price }
     if (input.category !== undefined) {
         const categoryExists = await db.select().from(tablecategories).where(

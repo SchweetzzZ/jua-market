@@ -30,7 +30,7 @@ export default function ServicosDetailsPage() {
             <div className="flex flex-row gap-12">
                 <img
                     className="h-170 w-150 object-cover rounded-xl"
-                    src={servico.image} alt={servico.name}
+                    src={servico.imageUrl} alt={servico.name}
                 />
 
                 <div className="flex flex-col gap-6 max-w-md">

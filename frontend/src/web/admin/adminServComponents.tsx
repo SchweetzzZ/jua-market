@@ -1,25 +1,30 @@
-import type { AdminProduct } from "./adminProductsHooks"
+import type { AdminService } from "./adminServHooks"
 
-interface AdminProductTableProps {
-    products: AdminProduct[]
+interface AdminServiceTableProps {
+    services: AdminService[]
     isLoading: boolean
     error: string | null
-    fetchProducts: () => Promise<void>
-    deleteProduct: (productId: string) => Promise<void>
+    deleteService: (serviceId: string) => Promise<void>
 }
 
-export const AdminProductTable = ({ products, isLoading, error, deleteProduct }: AdminProductTableProps) => {
+export const AdminServiceTable = ({
+    services,
+    isLoading,
+    error,
+    deleteService,
+}: AdminServiceTableProps) => {
     if (isLoading) {
         return (
             <div className="p-10 text-center text-slate-500">
-                Carregando produtos...
+                Carregando serviços...
             </div>
         )
     }
+
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <h2 className="px-6 py-4 text-lg font-bold text-slate-800 border-b border-slate-100">
-                Produtos
+                Serviços
             </h2>
 
             {error && (
@@ -47,26 +52,26 @@ export const AdminProductTable = ({ products, isLoading, error, deleteProduct }:
                 </thead>
 
                 <tbody className="divide-y divide-slate-100">
-                    {products.map((product) => (
+                    {services.map((service) => (
                         <tr
-                            key={product.id}
+                            key={service.id}
                             className="hover:bg-slate-50/50 transition"
                         >
                             <td className="px-6 py-4 font-semibold text-slate-700">
-                                {product.name}
+                                {service.name}
                             </td>
 
                             <td className="px-6 py-4 text-slate-600">
-                                {product.category}
+                                {service.category}
                             </td>
 
                             <td className="px-6 py-4 text-slate-600">
-                                R$ {Number(product.price).toFixed(2)}
+                                R$ {Number(service.price).toFixed(2)}
                             </td>
 
                             <td className="px-6 py-4 text-right">
                                 <button
-                                    onClick={() => deleteProduct(product.id)}
+                                    onClick={() => deleteService(service.id)}
                                     className="text-red-600 hover:text-red-800 font-bold text-sm"
                                 >
                                     Deletar
@@ -77,12 +82,11 @@ export const AdminProductTable = ({ products, isLoading, error, deleteProduct }:
                 </tbody>
             </table>
 
-            {products.length === 0 && !error && (
+            {services.length === 0 && !error && (
                 <div className="p-10 text-center text-slate-400">
-                    Nenhum produto encontrado.
+                    Nenhum serviço encontrado.
                 </div>
             )}
         </div>
     )
 }
-

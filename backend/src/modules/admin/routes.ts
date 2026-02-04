@@ -5,6 +5,8 @@ import { authMacro } from "../auth/macro"
 import { checkPermission } from "../access-control/access-control"
 import { getAllProducts } from "../products/service"
 import { deleteProduct } from "../products/service"
+import { getAllServices } from "../servicos/service"
+import { deletService } from "../servicos/service"
 
 export const adminRoutes = new Elysia({
     prefix: "/admin"
@@ -12,9 +14,17 @@ export const adminRoutes = new Elysia({
     .use(adminGuard)
     .use(authMacro)
 
-    .get("/users", async ({ request: { headers } }) => {
+    .get("/users", async ({ query, request: { headers } }) => {
+        const { limit = 10, offset = 0, search = "" } = query as any;
+
         return await auth.api.listUsers({
-            query: { limit: 10 },
+            query: {
+                limit: Number(limit),
+                offset: Number(offset),
+                filterField: search ? "email" : undefined,
+                filterValue: search || undefined,
+                filterOperator: "contains"
+            },
             headers: await headers
         })
     })
@@ -31,6 +41,44 @@ export const adminRoutes = new Elysia({
         if (!data?.success) {
             set.status = 404
             return { success: false, message: "Nenhum produto encontrado", data: null }
+        }
+
+        return data
+    }, { auth: true })
+
+    .get("/services", async ({ set, user }) => {
+        const allowed = checkPermission(user.role, "services", "read")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado", data: null }
+        }
+
+        const data = await getAllServices()
+
+        if (!data?.success) {
+            set.status = 404
+            return { success: false, message: "Nenhum serviço encontrado", data: null }
+        }
+
+        return data
+    }, { auth: true })
+
+    .delete("/services/:id", async ({ params, user, set }) => {
+        if (!user) {
+            set.status = 401
+            return { success: false, message: "Usuário não autenticado", data: null }
+        }
+        const allowed = checkPermission(user.role, "services", "delete")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado", data: null }
+        }
+
+        const data = await deletService(params.id, user.id)
+
+        if (!data.success) {
+            set.status = 404
+            return { success: false, message: "Serviço não encontrado", data: null }
         }
 
         return data
@@ -55,8 +103,7 @@ export const adminRoutes = new Elysia({
         }
 
         return data
-    })
-
+    }, { auth: true })
 
     .post("/ban-user", async ({ body, request: { headers } }) => {
         const { userId, reason } = body

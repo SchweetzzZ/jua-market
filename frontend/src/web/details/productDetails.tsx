@@ -32,7 +32,7 @@ export default function ProductDetailsPage() {
 
                 <img
                     className="h-170 w-150 object-cover rounded-xl"
-                    src={product.image} alt={product.name}
+                    src={product.imageUrl} alt={product.name}
                 />
 
                 <div className="flex flex-col gap-6 max-w-md">

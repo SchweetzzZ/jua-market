@@ -25,7 +25,7 @@ export const servicesRoutes = new Elysia()
             name: t.String(),
             description: t.String(),
             category: t.String(),
-            image: t.String(),
+            imageUrl: t.String(),
             price: t.String(),
         })
     })
@@ -46,7 +46,7 @@ export const servicesRoutes = new Elysia()
                 name: t.String(),
                 description: t.String(),
                 category: t.String(),
-                image: t.String(),
+                imageUrl: t.String(),
                 price: t.String(),
             })
         )

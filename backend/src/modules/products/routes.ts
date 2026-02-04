@@ -3,9 +3,6 @@ import { Elysia, t } from "elysia"
 import { authMacro } from "../../modules/auth/macro"
 import { checkPermission } from "../../modules/access-control/access-control"
 import { auth } from "../../modules/auth/auth"
-import { db } from "../../db"
-
-type User = typeof auth.$Infer.Session.user
 
 export const productsRoutes = new Elysia()
     .use(authMacro)
@@ -28,7 +25,7 @@ export const productsRoutes = new Elysia()
             name: t.String(),
             description: t.String(),
             category: t.String(),
-            image: t.String(),
+            imageUrl: t.String(),
             price: t.String(),
         })
     })
@@ -53,7 +50,7 @@ export const productsRoutes = new Elysia()
                 name: t.String(),
                 description: t.String(),
                 category: t.String(),
-                image: t.String(),
+                imageUrl: t.String(),
                 price: t.String(),
             })
         )
