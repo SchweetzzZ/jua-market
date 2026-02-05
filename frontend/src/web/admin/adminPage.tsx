@@ -13,13 +13,17 @@ export default function AdminPage() {
     const navigate = useNavigate();
     const { data: session, isPending } = useSession();
     const [activeSection, setActiveSection] = useState("overview");
-    const {
-        users, isLoading, error, fetchUsers, banUser, unbanUser,
-        totalUsers, page, setPage, searchQuery, setSearchQuery
-    } = useAdminUsers();
+    const { users, isLoading, error, fetchUsers, banUser, unbanUser, totalUsers, page, setPage,
+        searchQuery, setSearchQuery } = useAdminUsers();
     const [debouncedSearch, setDebouncedSearch] = useState("");
-    const { products, isLoading: productsLoading, error: productsError, fetchProducts, deleteProduct } = useAdminProducts();
-    const { services, isLoading: servicesLoading, error: servicesError, fetchServices, deleteService } = useAdminServices();
+
+    const { products, isLoading: productsLoading, error: productsError, fetchProducts, deleteProduct, totalProducts,
+        page: prodPage, setPage: setProdPage, searchQuery: prodSearch, setSearchQuery: setProdSearch } = useAdminProducts();
+    const [debouncedProdSearch, setDebouncedProdSearch] = useState("");
+
+    const { services, isLoading: servicesLoading, error: servicesError, fetchServices, deleteService, totalServices,
+        page: servPage, setPage: setServPage, searchQuery: servSearch, setSearchQuery: setServSearch } = useAdminServices();
+    const [debouncedServSearch, setDebouncedServSearch] = useState("");
 
     useEffect(() => {
         if (!isPending) {
@@ -40,7 +44,6 @@ export default function AdminPage() {
         }
     }, [session, isPending, navigate]);
 
-    // Unified effect for data fetching
     useEffect(() => {
         const role = session?.user?.role;
         const isAdmin = role === "admin" || (Array.isArray(role) && role.includes("admin"));
@@ -52,12 +55,15 @@ export default function AdminPage() {
                 fetchUsers({ page: 1, search: "" });
             }
 
-            if (activeSection === "products") fetchProducts();
-            if (activeSection === "services") fetchServices();
+            if (activeSection === "products") {
+                fetchProducts({ page: prodPage, search: debouncedProdSearch });
+            }
+            if (activeSection === "services") {
+                fetchServices({ page: servPage, search: debouncedServSearch });
+            }
         }
-    }, [activeSection, page, debouncedSearch, session, fetchUsers, fetchProducts, fetchServices]);
+    }, [activeSection, page, debouncedSearch, prodPage, debouncedProdSearch, servPage, debouncedServSearch, session, fetchUsers, fetchProducts, fetchServices]);
 
-    // Separate debounce for search query only
     useEffect(() => {
         const timer = setTimeout(() => {
             setPage(1);
@@ -65,6 +71,22 @@ export default function AdminPage() {
         }, 500);
         return () => clearTimeout(timer);
     }, [searchQuery, setPage]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setProdPage(1);
+            setDebouncedProdSearch(prodSearch);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [prodSearch, setProdPage]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setServPage(1);
+            setDebouncedServSearch(servSearch);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [servSearch, setServPage]);
 
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
@@ -136,9 +158,8 @@ export default function AdminPage() {
                 {activeSection === "overview" && (
                     <div className="space-y-10">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <MetricCard title="Total de Usuários" value={users.length} icon="👥" trend="+12% este mês" />
-                            <MetricCard title="Vendas Hoje" value="R$ 1.250,00" icon="💰" trend="+5% vs ontem" />
-                            <MetricCard title="Novos Produtos" value="24" icon="📦" trend="+8% esta semana" />
+                            <MetricCard title="Total de Usuários" value={totalUsers} icon="👥" />
+                            <MetricCard title="Novos Produtos" value="24" icon="📦" />
                             <MetricCard title="Suporte Aberto" value="3" icon="🎧" />
                         </div>
 
@@ -180,7 +201,11 @@ export default function AdminPage() {
                         products={products}
                         isLoading={productsLoading}
                         error={productsError}
-                        fetchProducts={fetchProducts}
+                        totalProducts={totalProducts}
+                        page={prodPage}
+                        onPageChange={setProdPage}
+                        searchQuery={prodSearch}
+                        onSearchChange={setProdSearch}
                         deleteProduct={deleteProduct}
                     />
                 )}
@@ -189,6 +214,11 @@ export default function AdminPage() {
                         services={services}
                         isLoading={servicesLoading}
                         error={servicesError}
+                        totalServices={totalServices}
+                        page={servPage}
+                        onPageChange={setServPage}
+                        searchQuery={servSearch}
+                        onSearchChange={setServSearch}
                         deleteService={deleteService}
                     />
                 )}

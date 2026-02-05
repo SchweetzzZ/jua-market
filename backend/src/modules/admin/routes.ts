@@ -4,9 +4,10 @@ import { auth } from "../auth/auth"
 import { authMacro } from "../auth/macro"
 import { checkPermission } from "../access-control/access-control"
 import { getAllProducts } from "../products/service"
-import { deleteProduct } from "../products/service"
+import { deleteProductAdmin } from "../products/service"
 import { getAllServices } from "../servicos/service"
 import { deletService } from "../servicos/service"
+import { createProductAdmin } from "../products/service"
 
 export const adminRoutes = new Elysia({
     prefix: "/admin"
@@ -14,56 +15,38 @@ export const adminRoutes = new Elysia({
     .use(adminGuard)
     .use(authMacro)
 
-    .get("/users", async ({ query, request: { headers } }) => {
-        const { limit = 10, offset = 0, search = "" } = query as any;
+    .post("/products", async ({ body, user, set }) => {
+        if (!user) {
+            set.status = 401
+            return { success: false, message: "Usuário não autenticado", data: null }
+        }
+        const allowed = checkPermission(user.role, "products", "create")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado", data: null }
+        }
 
-        return await auth.api.listUsers({
-            query: {
-                limit: Number(limit),
-                offset: Number(offset),
-                filterField: search ? "email" : undefined,
-                filterValue: search || undefined,
-                filterOperator: "contains"
-            },
-            headers: await headers
+        const data = await createProductAdmin(body, user.id)
+
+        if (!data.success) {
+            set.status = 404
+            return { success: false, message: "Erro ao criar produto", data: null }
+        }
+
+        return data
+    }, {
+        auth: true,
+        body: t.Object({
+            name: t.String(),
+            description: t.String(),
+            category: t.String(),
+            imageUrl: t.String(),
+            price: t.String(),
         })
     })
 
-    .get("/products", async ({ set, user }) => {
-        const allowed = checkPermission(user.role, "products", "read")
-        if (!allowed) {
-            set.status = 403
-            return { success: false, message: "Acesso negado", data: null }
-        }
-
-        const data = await getAllProducts()
-
-        if (!data?.success) {
-            set.status = 404
-            return { success: false, message: "Nenhum produto encontrado", data: null }
-        }
-
-        return data
-    }, { auth: true })
-
-    .get("/services", async ({ set, user }) => {
-        const allowed = checkPermission(user.role, "services", "read")
-        if (!allowed) {
-            set.status = 403
-            return { success: false, message: "Acesso negado", data: null }
-        }
-
-        const data = await getAllServices()
-
-        if (!data?.success) {
-            set.status = 404
-            return { success: false, message: "Nenhum serviço encontrado", data: null }
-        }
-
-        return data
-    }, { auth: true })
-
     .delete("/services/:id", async ({ params, user, set }) => {
+        console.log("DELETE PRODUCT HIT:", params.id)
         if (!user) {
             set.status = 401
             return { success: false, message: "Usuário não autenticado", data: null }
@@ -95,7 +78,7 @@ export const adminRoutes = new Elysia({
             return { success: false, message: "Acesso negado", data: null }
         }
 
-        const data = await deleteProduct(params.id, user.id)
+        const data = await deleteProductAdmin(params.id)
 
         if (!data.success) {
             set.status = 404
@@ -187,4 +170,65 @@ export const adminRoutes = new Elysia({
         })
     })
 
+    .get("/users", async ({ query, request: { headers } }) => {
+        const { limit = 10, offset = 0, search = "" } = query as any;
+
+        // Determine if search is email or name
+        const isEmail = search.includes("@");
+
+        return await auth.api.listUsers({
+            query: {
+                limit: Number(limit),
+                offset: Number(offset),
+                filterField: isEmail ? "email" : "name",
+                filterValue: search || undefined,
+                filterOperator: "contains"
+            },
+            headers: await headers
+        })
+    })
+
+    .get("/products", async ({ set, user, query }) => {
+        const { limit = 10, offset = 0, search = "" } = query as any;
+        const allowed = checkPermission(user.role, "products", "read")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado", data: null }
+        }
+
+        const data = await getAllProducts({
+            limit: Number(limit),
+            offset: Number(offset),
+            search
+        })
+
+        if (!data?.success) {
+            set.status = 404
+            return { success: false, message: "Erro ao buscar produtos", data: null }
+        }
+
+        return data
+    }, { auth: true })
+
+    .get("/services", async ({ set, user, query }) => {
+        const { limit = 10, offset = 0, search = "" } = query as any;
+        const allowed = checkPermission(user.role, "services", "read")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado", data: null }
+        }
+
+        const data = await getAllServices({
+            limit: Number(limit),
+            offset: Number(offset),
+            search
+        })
+
+        if (!data?.success) {
+            set.status = 404
+            return { success: false, message: "Erro ao buscar serviços", data: null }
+        }
+
+        return data
+    }, { auth: true })
 

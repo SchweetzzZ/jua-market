@@ -5,9 +5,11 @@ import { auth } from "../auth/auth"
 
 export const createAdmin = async () => {
     const email = process.env.ADMIN_EMAIL
+    const name = process.env.ADMIN_NAME
     const password = process.env.ADMIN_PASSWORD
 
-    if (!email || !password) {
+
+    if (!email || !password || !name) {
         console.log("email ou senha nao fornecidos")
         return
     }
@@ -22,10 +24,10 @@ export const createAdmin = async () => {
 
     await auth.api.createUser({
         body: {
+            name,
             email,
             password,
             role: "admin",
-            name: "Admin",
         }
     })
 
