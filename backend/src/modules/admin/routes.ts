@@ -3,17 +3,47 @@ import { adminGuard } from "./admin-guard"
 import { auth } from "../auth/auth"
 import { authMacro } from "../auth/macro"
 import { checkPermission } from "../access-control/access-control"
-import { getAllProducts } from "../products/service"
-import { deleteProductAdmin } from "../products/service"
-import { getAllServices } from "../servicos/service"
-import { deletService } from "../servicos/service"
-import { createProductAdmin } from "../products/service"
+import { getAllProducts, deleteProductAdmin, createProductAdmin, updateProduct } from "../products/service"
+import { getAllServices, deletService, createServicoAdmin, updateService } from "../servicos/service"
 
 export const adminRoutes = new Elysia({
     prefix: "/admin"
 })
     .use(adminGuard)
     .use(authMacro)
+
+    .post("/services", async ({ body, user, set }) => {
+        console.log("entrou na rota")
+        if (!user) {
+            set.status = 401
+            return { success: false, message: "Usuário não autenticado", data: null }
+        }
+        const allowed = checkPermission(user.role, "services", "create")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado", data: null }
+        }
+        console.log("passou do alowed")
+
+        const data = await createServicoAdmin(user.id, body)
+        console.log("depoiis daqui é o if que ta dano")
+        if (!data.success) {
+            set.status = 404
+            return { success: false, message: "Erro ao criar serviço", data: null }
+        }
+        console.log("teste")
+
+        return data
+    }, {
+        auth: true,
+        body: t.Object({
+            name: t.String(),
+            description: t.String(),
+            category: t.String(),
+            imageUrl: t.String(),
+            price: t.String(),
+        })
+    })
 
     .post("/products", async ({ body, user, set }) => {
         if (!user) {
@@ -43,6 +73,66 @@ export const adminRoutes = new Elysia({
             imageUrl: t.String(),
             price: t.String(),
         })
+    })
+
+    .put("/products/:id", async ({ body, params, user, set }) => {
+        if (!user) {
+            set.status = 401
+            return { success: false, message: "Usuário não autenticado", data: null }
+        }
+        const allowed = checkPermission(user.role, "products", "update")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado", data: null }
+        }
+
+        const data = await updateProduct(params.id, user.id, body)
+
+        if (!data.success) {
+            set.status = 404
+            return { success: false, message: "Erro ao atualizar produto", data: null }
+        }
+
+        return data
+    }, {
+        auth: true,
+        body: t.Partial(t.Object({
+            name: t.String(),
+            description: t.String(),
+            category: t.String(),
+            imageUrl: t.String(),
+            price: t.String(),
+        }))
+    })
+
+    .put("/services/:id", async ({ body, params, user, set }) => {
+        if (!user) {
+            set.status = 401
+            return { success: false, message: "Usuário não autenticado", data: null }
+        }
+        const allowed = checkPermission(user.role, "services", "update")
+        if (!allowed) {
+            set.status = 403
+            return { success: false, message: "Acesso negado", data: null }
+        }
+
+        const data = await updateService(params.id, user.id, body)
+
+        if (!data.success) {
+            set.status = 404
+            return { success: false, message: "Erro ao atualizar serviço", data: null }
+        }
+
+        return data
+    }, {
+        auth: true,
+        body: t.Partial(t.Object({
+            name: t.String(),
+            description: t.String(),
+            category: t.String(),
+            imageUrl: t.String(),
+            price: t.String(),
+        }))
     })
 
     .delete("/services/:id", async ({ params, user, set }) => {

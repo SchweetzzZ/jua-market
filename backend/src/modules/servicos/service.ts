@@ -10,6 +10,34 @@ interface createServicoInput {
     imageUrl: string;
     price: string;
 }
+//para admin
+export const createServicoAdmin = async (userId: string, input: createServicoInput) => {
+    console.log("PASSOU???")
+
+    const categoryExists = await db.select().from(tablecategories)
+        .where(eq(tablecategories.name, input.category))
+        .limit(1)
+
+    if (!categoryExists.length) {
+        return { success: false, message: "Category not found", data: null }
+    }
+
+    const servico = await db.insert(table_servicos).values({
+        user_id: userId,
+        category: input.category,
+        name: input.name,
+        description: input.description,
+        imageUrl: input.imageUrl,
+        price: input.price,
+    }).returning()
+
+    if (!servico || servico.length === 0) {
+        return { success: false, message: "Failed to create service", data: null }
+    }
+
+    return { success: true, message: "Service created successfully", data: servico }
+}
+
 
 export const createServico = async (userId: string, input: createServicoInput) => {
     const existingServico = await db.select().from(table_servicos).where(

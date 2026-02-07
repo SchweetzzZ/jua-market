@@ -3,6 +3,8 @@ import { user } from "../../db/schemas/auth-schema"
 import { eq } from "drizzle-orm"
 import { auth } from "../auth/auth"
 
+type Role = "user" | "admin" | "seller"
+
 export const createAdmin = async () => {
     const email = process.env.ADMIN_EMAIL
     const name = process.env.ADMIN_NAME
@@ -33,3 +35,4 @@ export const createAdmin = async () => {
 
     return { message: "Admin criado com sucesso" }
 }
+
