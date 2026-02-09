@@ -11,7 +11,9 @@ export default function LandingPage() {
                 <img src="src/assets/logo-h.png" alt="Market Jua" className="h-20 mx-auto mb-8" />
 
                 <h1 className="text-5xl font-bold text-gray-800 mb-4">Market Jua</h1>
-
+                <p className="text-xl text-slate-600 mb-12 leading-relaxed">
+                    O melhor marketplace regional para serviços e produtos exclusivos. Qualidade e confiança em um só lugar.
+                </p>
                 <p className="text-xl text-gray-600 mb-12">Conectando compradores e vendedores em sua região</p>
 
                 <div className="flex gap-6 justify-center mb-12">

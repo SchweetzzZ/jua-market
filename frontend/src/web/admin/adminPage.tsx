@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { AdminSidebar, UserTable, MetricCard } from "./adminComponents";
 import { useAdminUsers } from "./adminHooks";
 import { useSession } from "../../../auth-client";
-import { AdminProductTable } from "./adminProdComponet";
-import { useAdminProducts } from "./adminProductsHooks";
-import { useAdminServices } from "./adminServHooks";
-import { AdminServiceTable } from "./adminServComponents";
+import { AdminProductTable } from "./admin-products/adminProdComponet";
+import { useAdminProducts } from "./admin-products/adminProductsHooks";
+import { useAdminServices } from "./admin-service/adminServHooks";
+import { AdminServiceTable } from "./admin-service/adminServComponents";
 
 
 export default function AdminPage() {
@@ -17,11 +17,11 @@ export default function AdminPage() {
         searchQuery, setSearchQuery } = useAdminUsers();
     const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    const { products, isLoading: productsLoading, error: productsError, fetchProducts, deleteProduct, totalProducts,
+    const { products, isLoading: productsLoading, error: productsError, fetchProducts, deleteProduct, createProduct, updateProduct, totalProducts,
         page: prodPage, setPage: setProdPage, searchQuery: prodSearch, setSearchQuery: setProdSearch } = useAdminProducts();
     const [debouncedProdSearch, setDebouncedProdSearch] = useState("");
 
-    const { services, isLoading: servicesLoading, error: servicesError, fetchServices, deleteService, totalServices,
+    const { services, isLoading: servicesLoading, error: servicesError, fetchServices, deleteService, createService, updateService, totalServices,
         page: servPage, setPage: setServPage, searchQuery: servSearch, setSearchQuery: setServSearch } = useAdminServices();
     const [debouncedServSearch, setDebouncedServSearch] = useState("");
 
@@ -207,6 +207,8 @@ export default function AdminPage() {
                         searchQuery={prodSearch}
                         onSearchChange={setProdSearch}
                         deleteProduct={deleteProduct}
+                        createProduct={createProduct}
+                        updateProduct={updateProduct}
                     />
                 )}
                 {activeSection === "services" && (
@@ -220,6 +222,8 @@ export default function AdminPage() {
                         searchQuery={servSearch}
                         onSearchChange={setServSearch}
                         deleteService={deleteService}
+                        createService={createService}
+                        updateService={updateService}
                     />
                 )}
                 {activeSection === "settings" && (

@@ -94,11 +94,6 @@ export default function ServicosDetailsPage() {
                                 alt={servico.name}
                                 onError={(e) => (e.currentTarget.src = "https://placehold.co/600x800?text=Serviço")}
                             />
-                            <div className="absolute top-8 left-8">
-                                <span className="bg-white/90 backdrop-blur-md text-indigo-600 px-4 py-2 rounded-2xl text-xs font-black shadow-lg uppercase tracking-widest">
-                                    Serviço Profissional
-                                </span>
-                            </div>
                         </div>
                     </div>
 
@@ -135,7 +130,7 @@ export default function ServicosDetailsPage() {
                                     </div>
                                 </div>
                                 {user.history && (
-                                    <div className="bg-slate-50 p-4 rounded-2xl mb-6 relative italic text-slate-600 text-sm">
+                                    <div className="bg-slate-50 p-4 rounded-2xl mb-6 relative italic text-slate-600 text-sm break-words">
                                         <span className="absolute -top-3 -left-1 text-4xl text-indigo-200 opacity-50 font-serif">“</span>
                                         {user.history}
                                     </div>

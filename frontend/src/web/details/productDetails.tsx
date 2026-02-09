@@ -130,7 +130,7 @@ export default function ProductDetailsPage() {
                                     </div>
                                 </div>
                                 {user.history && (
-                                    <div className="bg-slate-50 p-4 rounded-2xl mb-6 relative italic text-slate-600 text-sm">
+                                    <div className="bg-slate-50 p-4 rounded-2xl mb-6 relative italic text-slate-600 text-sm break-words">
                                         <span className="absolute -top-3 -left-1 text-4xl text-indigo-200 opacity-50 font-serif">“</span>
                                         {user.history}
                                     </div>

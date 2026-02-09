@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import { api } from "../../lib/api"
+import { api } from "../../../lib/api"
 
 export interface AdminService {
     id: string
@@ -76,6 +76,46 @@ export const useAdminServices = () => {
         await fetchServices()
     }
 
+    const createService = async (serviceData: {
+        name: string
+        description: string
+        category: string
+        imageUrl: string
+        price: string
+    }): Promise<void> => {
+        const { error } = await api.admin.services.post(serviceData)
+
+        if (error) {
+            const errorMessage =
+                typeof error.value === "string"
+                    ? error.value
+                    : (error.value as any)?.message || "Erro ao criar serviço"
+            throw new Error(errorMessage)
+        }
+
+        await fetchServices()
+    }
+
+    const updateService = async (serviceId: string, serviceData: {
+        name: string
+        description: string
+        category: string
+        imageUrl: string
+        price: string
+    }): Promise<void> => {
+        const { error } = await api.admin.services({ id: serviceId }).put(serviceData)
+
+        if (error) {
+            const errorMessage =
+                typeof error.value === "string"
+                    ? error.value
+                    : (error.value as any)?.message || "Erro ao atualizar serviço"
+            throw new Error(errorMessage)
+        }
+
+        await fetchServices()
+    }
+
     return {
         services,
         isLoading,
@@ -86,6 +126,8 @@ export const useAdminServices = () => {
         searchQuery,
         setSearchQuery,
         fetchServices,
-        deleteService: deleteAdminService
+        deleteService: deleteAdminService,
+        createService,
+        updateService
     }
 }

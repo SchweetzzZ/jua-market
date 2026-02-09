@@ -6,6 +6,7 @@ import ProductDetailsPage from '../details/productDetails'
 import ServicosDetailsPage from '../details/servicosDetails'
 import LandingPage from '../landing/landingPage'
 import AdminPage from '../admin/adminPage'
+import FavoritesPage from '../favorites/favoritesPage'
 
 export default function AppRoutes() {
     return (
@@ -18,6 +19,7 @@ export default function AppRoutes() {
                 <Route path="/produtos/:id" element={<ProductDetailsPage />} />
                 <Route path="/servicos/:id" element={<ServicosDetailsPage />} />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/favoritos" element={<FavoritesPage />} />
             </Routes>
         </BrowserRouter>
     )

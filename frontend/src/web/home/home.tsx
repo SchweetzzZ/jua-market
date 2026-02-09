@@ -3,6 +3,7 @@ import { useHome } from "./homeHooks";
 import { useServicos } from "../servicos/servicosHooks";
 import { useNavigate } from "react-router-dom";
 import { useSession, authClient } from "../../../auth-client";
+import { useFavorites } from "../favorites/favoritesHooks";
 
 interface Product {
     id: string | number;
@@ -32,6 +33,7 @@ export default function Home() {
     const [search, setSearch] = useState("");
     const [activeTab, setActiveTab] = useState<Tab>("produtos");
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
     useEffect(() => {
         fetchProducts();
@@ -111,12 +113,40 @@ export default function Home() {
                                 </>
                             ) : (
                                 <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-3 bg-slate-100 p-1 pr-4 rounded-full">
-                                        <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold uppercase">
-                                            {session.user.name?.[0] || "U"}
-                                        </div>
-                                        <span className="text-sm font-semibold text-slate-700">{session.user.name}</span>
+                                    {/* User Dropdown */}
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                                            className="flex items-center gap-3 bg-slate-100 p-1 pr-4 rounded-full hover:bg-slate-200 transition"
+                                        >
+                                            <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold uppercase">
+                                                {session.user.name?.[0] || "U"}
+                                            </div>
+                                            <span className="text-sm font-semibold text-slate-700">{session.user.name}</span>
+                                            <svg className={`w-4 h-4 text-slate-600 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+
+                                        {/* Dropdown Menu */}
+                                        {userDropdownOpen && (
+                                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50">
+                                                <button
+                                                    onClick={() => {
+                                                        navigate("/favoritos");
+                                                        setUserDropdownOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-2 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition flex items-center gap-2"
+                                                >
+                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                                                    </svg>
+                                                    Favoritos
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
+
                                     <button
                                         onClick={async () => {
                                             await authClient.signOut();
@@ -169,6 +199,15 @@ export default function Home() {
                                         <p className="text-xs text-slate-500">{session.user.email}</p>
                                     </div>
                                 </div>
+                                <button
+                                    onClick={() => { navigate("/favoritos"); setIsMobileMenuOpen(false); }}
+                                    className="w-full text-left text-slate-700 hover:text-indigo-600 font-medium py-2 flex items-center gap-2"
+                                >
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                                    </svg>
+                                    Meus Favoritos
+                                </button>
                                 <button
                                     onClick={async () => {
                                         await authClient.signOut();
@@ -280,11 +319,57 @@ export default function Home() {
 }
 
 function ProductCard({ item, navigate }: { item: Product; navigate: any }) {
+    const [isFavorite, setIsFavorite] = useState(false);
+    const { addFavorite, removeFavorite, checkFavorite } = useFavorites();
+    const { data: session } = useSession();
+
+    useEffect(() => {
+        if (session) {
+            checkFavorite(String(item.id), "product").then((result) => {
+                setIsFavorite(result.isFavorite);
+            });
+        }
+    }, [item.id, session]);
+
+    const handleFavoriteClick = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!session) {
+            navigate("/login");
+            return;
+        }
+
+        try {
+            if (isFavorite) {
+                await removeFavorite(String(item.id), "product");
+                setIsFavorite(false);
+            } else {
+                await addFavorite(String(item.id), "product");
+                setIsFavorite(true);
+            }
+        } catch (error) {
+            console.error("Erro ao gerenciar favorito:", error);
+        }
+    };
+
     return (
         <div
             onClick={() => navigate(`/produtos/${item.id}`)}
-            className="group bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col"
+            className="group bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col relative"
         >
+            {/* Botão de favoritar */}
+            <button
+                onClick={handleFavoriteClick}
+                className={`absolute top-4 right-4 z-10 p-2 rounded-full shadow-lg transition-all hover:scale-110 ${isFavorite
+                    ? "bg-red-500 text-white"
+                    : "bg-white/90 backdrop-blur-sm text-slate-400 hover:text-red-500"
+                    }`}
+                title={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+            >
+                <svg className="w-5 h-5" fill={isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+            </button>
+
             <div className="relative h-64 overflow-hidden">
                 <img
                     src={item.imageUrl || "https://placehold.co/600x400?text=Sem+Imagem"}
@@ -326,11 +411,57 @@ function ProductCard({ item, navigate }: { item: Product; navigate: any }) {
 }
 
 function ServiceCard({ item, navigate }: { item: Servico; navigate: any }) {
+    const [isFavorite, setIsFavorite] = useState(false);
+    const { addFavorite, removeFavorite, checkFavorite } = useFavorites();
+    const { data: session } = useSession();
+
+    useEffect(() => {
+        if (session) {
+            checkFavorite(String(item.id), "service").then((result) => {
+                setIsFavorite(result.isFavorite);
+            });
+        }
+    }, [item.id, session]);
+
+    const handleFavoriteClick = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!session) {
+            navigate("/login");
+            return;
+        }
+
+        try {
+            if (isFavorite) {
+                await removeFavorite(String(item.id), "service");
+                setIsFavorite(false);
+            } else {
+                await addFavorite(String(item.id), "service");
+                setIsFavorite(true);
+            }
+        } catch (error) {
+            console.error("Erro ao gerenciar favorito:", error);
+        }
+    };
+
     return (
         <div
             onClick={() => navigate(`/servicos/${item.id}`)}
-            className="group bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col"
+            className="group bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col relative"
         >
+            {/* Botão de favoritar */}
+            <button
+                onClick={handleFavoriteClick}
+                className={`absolute top-4 right-4 z-10 p-2 rounded-full shadow-lg transition-all hover:scale-110 ${isFavorite
+                    ? "bg-red-500 text-white"
+                    : "bg-white/90 backdrop-blur-sm text-slate-400 hover:text-red-500"
+                    }`}
+                title={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+            >
+                <svg className="w-5 h-5" fill={isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+            </button>
+
             <div className="relative h-64 overflow-hidden bg-slate-100">
                 <img
                     src={item.imageUrl || "https://placehold.co/600x400?text=Serviço"}
@@ -338,11 +469,6 @@ function ServiceCard({ item, navigate }: { item: Servico; navigate: any }) {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => (e.currentTarget.src = "https://placehold.co/600x400?text=Serviço")}
                 />
-                <div className="absolute top-4 left-4">
-                    <span className="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                        Serviço Profissional
-                    </span>
-                </div>
             </div>
 
             <div className="p-6 flex flex-col flex-1">

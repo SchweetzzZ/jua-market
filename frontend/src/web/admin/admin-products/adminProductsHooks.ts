@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import { api } from "../../lib/api"
+import { api } from "../../../lib/api"
 
 export interface AdminProduct {
     id: string
@@ -78,6 +78,46 @@ export const useAdminProducts = () => {
         await fetchProducts()
     }
 
+    const createProduct = async (productData: {
+        name: string
+        description: string
+        category: string
+        imageUrl: string
+        price: string
+    }): Promise<void> => {
+        const { error } = await api.admin.products.post(productData)
+
+        if (error) {
+            const errorMessage =
+                typeof error.value === "string"
+                    ? error.value
+                    : (error.value as any)?.message || "Erro ao criar produto"
+            throw new Error(errorMessage)
+        }
+
+        await fetchProducts()
+    }
+
+    const updateProduct = async (productId: string, productData: {
+        name: string
+        description: string
+        category: string
+        imageUrl: string
+        price: string
+    }): Promise<void> => {
+        const { error } = await api.admin.products({ id: productId }).put(productData)
+
+        if (error) {
+            const errorMessage =
+                typeof error.value === "string"
+                    ? error.value
+                    : (error.value as any)?.message || "Erro ao atualizar produto"
+            throw new Error(errorMessage)
+        }
+
+        await fetchProducts()
+    }
+
     return {
         products,
         isLoading,
@@ -88,6 +128,8 @@ export const useAdminProducts = () => {
         searchQuery,
         setSearchQuery,
         fetchProducts,
-        deleteProduct: deleteAdminProduct
+        deleteProduct: deleteAdminProduct,
+        createProduct,
+        updateProduct
     }
 }

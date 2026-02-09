@@ -8,6 +8,7 @@ import { categoryRoutes } from "./modules/category/routes";
 import { adminRoutes } from "./modules/admin/routes";
 import { createAdmin } from "./modules/admin/create-admin";
 import { swaggerModules } from "./modules/swagger";
+import { favoritesRoutes } from "./modules/favorites/favorites";
 
 async function createAdm() {
   await createAdmin()
@@ -54,6 +55,7 @@ export const createCoreApi = () => {
     .use(productsRoutes)
     .use(categoryRoutes)
     .use(servicesRoutes)
+    .use(favoritesRoutes)
     .get("/teste", () => "Hello Elysia")
     .get("/", () => "Hello Elysia")
 
