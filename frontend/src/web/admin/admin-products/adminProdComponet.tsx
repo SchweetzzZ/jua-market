@@ -17,6 +17,7 @@ interface AdminProductTableProps {
         category: string
         imageUrl: string
         price: string
+        userId?: string
     }) => Promise<void>
     updateProduct: (productId: string, productData: {
         name: string
@@ -49,7 +50,8 @@ export const AdminProductTable = ({
         description: "",
         category: "",
         imageUrl: "",
-        price: ""
+        price: "",
+        userId: ""
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -62,7 +64,8 @@ export const AdminProductTable = ({
                 description: "",
                 category: "",
                 imageUrl: "",
-                price: ""
+                price: "",
+                userId: ""
             });
             alert("Produto criado com sucesso!");
         } catch (err: any) {
@@ -284,6 +287,16 @@ export const AdminProductTable = ({
                                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                     className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="0.00"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">ID do Usuário (Opcional)</label>
+                                <input
+                                    type="text"
+                                    value={formData.userId}
+                                    onChange={(e) => setFormData({ ...formData, userId: e.target.value })}
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Deixe vazio para você mesmo"
                                 />
                             </div>
                             <div className="flex gap-2 pt-2">

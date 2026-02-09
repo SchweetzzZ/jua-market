@@ -47,12 +47,6 @@ export const createProduct = async (user_id: string, input: createProductInput) 
     if (!categoryExists.length) {
         return { success: false, message: "Categoria não encontrada", data: null }
     }
-    const existingProduct = await db.select().from(table_products).where(
-        eq(table_products.user_id, user_id)).limit(1)
-
-    if (existingProduct.length) {
-        return { success: false, message: "Usuário já possui um produto", data: null }
-    }
 
     const [create] = await db.insert(table_products).values({
         user_id: user_id,

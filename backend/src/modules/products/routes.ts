@@ -2,7 +2,6 @@ import { createProduct, updateProduct, deleteProduct, getByUserId, getAllProduct
 import { Elysia, t } from "elysia"
 import { authMacro } from "../../modules/auth/macro"
 import { checkPermission } from "../../modules/access-control/access-control"
-import { auth } from "../../modules/auth/auth"
 
 export const productsRoutes = new Elysia()
     .use(authMacro)

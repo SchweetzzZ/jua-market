@@ -7,6 +7,7 @@ import ServicosDetailsPage from '../details/servicosDetails'
 import LandingPage from '../landing/landingPage'
 import AdminPage from '../admin/adminPage'
 import FavoritesPage from '../favorites/favoritesPage'
+import SellerPage from '../seller/sellerPage'
 
 export default function AppRoutes() {
     return (
@@ -20,6 +21,7 @@ export default function AppRoutes() {
                 <Route path="/servicos/:id" element={<ServicosDetailsPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/favoritos" element={<FavoritesPage />} />
+                <Route path="/seller" element={<SellerPage />} />
             </Routes>
         </BrowserRouter>
     )

@@ -52,6 +52,7 @@ export default function Home() {
 
     const role = session?.user?.role;
     const isAdmin = role === "admin" || (Array.isArray(role) && role.includes("admin"));
+    const isSeller = role === "seller" || (Array.isArray(role) && role.includes("seller"));
 
     if (isLoading || isLoadingServicos || sessionPending) {
         return (
@@ -130,7 +131,23 @@ export default function Home() {
 
                                         {/* Dropdown Menu */}
                                         {userDropdownOpen && (
-                                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50">
+                                            <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50">
+                                                {/* Opção Vendedor */}
+                                                {(isSeller || isAdmin) && (
+                                                    <button
+                                                        onClick={() => {
+                                                            navigate("/seller");
+                                                            setUserDropdownOpen(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-2 text-indigo-600 hover:bg-indigo-50 font-bold transition flex items-center gap-2 border-b border-slate-50 mb-1"
+                                                    >
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                        </svg>
+                                                        Painel do Vendedor
+                                                    </button>
+                                                )}
+
                                                 <button
                                                     onClick={() => {
                                                         navigate("/favoritos");
@@ -208,6 +225,17 @@ export default function Home() {
                                     </svg>
                                     Meus Favoritos
                                 </button>
+                                {(isSeller || isAdmin) && (
+                                    <button
+                                        onClick={() => { navigate("/seller"); setIsMobileMenuOpen(false); }}
+                                        className="w-full text-left text-indigo-600 hover:bg-indigo-50 font-bold py-2 flex items-center gap-2"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        Painel do Vendedor
+                                    </button>
+                                )}
                                 <button
                                     onClick={async () => {
                                         await authClient.signOut();

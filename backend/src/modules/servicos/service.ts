@@ -12,7 +12,6 @@ interface createServicoInput {
 }
 //para admin
 export const createServicoAdmin = async (userId: string, input: createServicoInput) => {
-    console.log("PASSOU???")
 
     const categoryExists = await db.select().from(tablecategories)
         .where(eq(tablecategories.name, input.category))

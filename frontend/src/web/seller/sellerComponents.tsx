@@ -1,12 +1,12 @@
 import React from "react";
-import type { AdminUser } from "./adminHooks";
+import type { AdminUser } from "../admin/adminHooks";
 
 interface SidebarProps {
     activeSection: string;
     setActiveSection: (section: string) => void;
 }
 
-export const AdminSidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) => {
+export const SellerSidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) => {
     const menuItems = [
         { id: "overview", label: "Visão Geral", icon: "📊" },
         { id: "products", label: "Produtos", icon: "📦" },
@@ -17,7 +17,7 @@ export const AdminSidebar: React.FC<SidebarProps> = ({ activeSection, setActiveS
     return (
         <div className="w-64 bg-slate-900 text-white min-h-screen flex flex-col shadow-xl">
             <div className="p-6 border-b border-slate-800">
-                <h2 className="text-xl font-bold tracking-wider text-blue-400">Admin Jua</h2>
+                <h2 className="text-xl font-bold tracking-wider text-blue-400">Painel do Vendedor</h2>
             </div>
             <nav className="flex-1 mt-6">
                 {menuItems.map((item) => (

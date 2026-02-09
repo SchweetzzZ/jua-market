@@ -82,6 +82,7 @@ export const useAdminServices = () => {
         category: string
         imageUrl: string
         price: string
+        userId?: string
     }): Promise<void> => {
         const { error } = await api.admin.services.post(serviceData)
 

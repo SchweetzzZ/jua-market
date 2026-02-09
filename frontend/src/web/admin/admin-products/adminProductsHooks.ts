@@ -84,6 +84,7 @@ export const useAdminProducts = () => {
         category: string
         imageUrl: string
         price: string
+        userId?: string
     }): Promise<void> => {
         const { error } = await api.admin.products.post(productData)
 

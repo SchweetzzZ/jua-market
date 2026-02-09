@@ -13,7 +13,6 @@ export const adminRoutes = new Elysia({
     .use(authMacro)
 
     .post("/services", async ({ body, user, set }) => {
-        console.log("entrou na rota")
         if (!user) {
             set.status = 401
             return { success: false, message: "Usuário não autenticado", data: null }
@@ -23,15 +22,15 @@ export const adminRoutes = new Elysia({
             set.status = 403
             return { success: false, message: "Acesso negado", data: null }
         }
-        console.log("passou do alowed")
 
-        const data = await createServicoAdmin(user.id, body)
-        console.log("depoiis daqui é o if que ta dano")
+        // Se body.userId for informado, usa ele, senão usa o id do admin
+        const ownerId = body.userId || user.id
+        const data = await createServicoAdmin(ownerId, body)
+
         if (!data.success) {
             set.status = 404
             return { success: false, message: "Erro ao criar serviço", data: null }
         }
-        console.log("teste")
 
         return data
     }, {
@@ -42,6 +41,7 @@ export const adminRoutes = new Elysia({
             category: t.String(),
             imageUrl: t.String(),
             price: t.String(),
+            userId: t.Optional(t.String()), // Adicionado id opcional
         })
     })
 
@@ -56,7 +56,9 @@ export const adminRoutes = new Elysia({
             return { success: false, message: "Acesso negado", data: null }
         }
 
-        const data = await createProductAdmin(body, user.id)
+        // Se body.userId for informado, usa ele, senão usa o id do admin
+        const ownerId = body.userId || user.id
+        const data = await createProductAdmin(body, ownerId)
 
         if (!data.success) {
             set.status = 404
@@ -72,6 +74,7 @@ export const adminRoutes = new Elysia({
             category: t.String(),
             imageUrl: t.String(),
             price: t.String(),
+            userId: t.Optional(t.String()), // Adicionado id opcional
         })
     })
 

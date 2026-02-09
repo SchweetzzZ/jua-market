@@ -101,7 +101,7 @@ export default function ServicosDetailsPage() {
                     <div className="flex flex-col">
                         <div className="mb-8">
                             <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-black uppercase tracking-widest mb-4">
-                                Detalhes do Serviço
+                                Serviço
                             </div>
                             <h1 className="text-4xl md:text-5xl font-black text-slate-900 leading-tight mb-4 tracking-tight">
                                 {servico.name}
