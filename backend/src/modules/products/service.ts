@@ -126,14 +126,36 @@ export const deleteProduct = async (id: string, user_id: string) => {
     return { success: true, message: "Produto deletado com sucesso", data: deleteProduct }
 }
 
-export const getByUserId = async (user_id: string) => {
-    const getByUserIdProducts = await db.select().from(table_products).where(
-        eq(table_products.user_id, user_id))
+export const getByUserId = async (user_id: string, options?: { search?: string; limit?: number; offset?: number }) => {
+    try {
+        const { search = "", limit = 10, offset = 0 } = options || {}
 
-    return {
-        success: true,
-        message: "Produtos buscados com sucesso",
-        data: getByUserIdProducts
+        let query = db.select().from(table_products).where(eq(table_products.user_id, user_id))
+
+        if (search) {
+            // @ts-ignore
+            query = query.where(and(eq(table_products.user_id, user_id), ilike(table_products.name, `%${search}%`)))
+        }
+
+        const productsRows = await query.limit(limit).offset(offset)
+
+        // Get total count for this user
+        let countQuery = db.select({ count: sql<number>`count(*)` }).from(table_products).where(eq(table_products.user_id, user_id))
+        if (search) {
+            // @ts-ignore
+            countQuery = countQuery.where(and(eq(table_products.user_id, user_id), ilike(table_products.name, `%${search}%`)))
+        }
+        const [totalCount] = await countQuery
+
+        return {
+            success: true,
+            message: "Produtos buscados com sucesso",
+            data: productsRows,
+            total: Number(totalCount.count)
+        }
+    } catch (error) {
+        console.error('Erro ao buscar produtos do usuário:', error)
+        return { success: false, message: "Erro ao buscar produtos", data: null }
     }
 }
 

@@ -159,8 +159,8 @@ export default function AdminPage() {
                     <div className="space-y-10">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <MetricCard title="Total de Usuários" value={totalUsers} icon="👥" />
-                            <MetricCard title="Novos Produtos" value="24" icon="📦" />
-                            <MetricCard title="Suporte Aberto" value="3" icon="🎧" />
+                            <MetricCard title="Novos Produtos" value={totalProducts} icon="📦" />
+                            <MetricCard title="Novos " value={totalServices} icon="🎧" />
                         </div>
 
                         <section>

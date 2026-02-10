@@ -1,28 +1,24 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { SellerSidebar, UserTable, MetricCard } from "../seller/sellerComponents";
-import { useAdminUsers } from "../admin/adminHooks";
+import { SellerSidebar, MetricCard } from "../seller/sellerComponents";
 import { useSession } from "../../../auth-client";
-import { AdminProductTable } from "../admin/admin-products/adminProdComponet";
-import { useAdminProducts } from "../admin/admin-products/adminProductsHooks";
-import { useAdminServices } from "../admin/admin-service/adminServHooks";
-import { AdminServiceTable } from "../admin/admin-service/adminServComponents";
+import { SellerProductTable } from "../seller/seller-products/sellerProductsComponents";
+import { useSellerProducts } from "../seller/seller-products/sellerProductsHooks";
+import { useSellerServices } from "../seller/seller-service/sellerServiceHooks";
+import { SellerServiceTable } from "../seller/seller-service/sellerServiceComponents";
 
 
 export default function SellerPage() {
     const navigate = useNavigate();
     const { data: session, isPending } = useSession();
     const [activeSection, setActiveSection] = useState("overview");
-    const { users, isLoading, error, fetchUsers, banUser, unbanUser, totalUsers, page, setPage,
-        searchQuery, setSearchQuery } = useAdminUsers();
-    const [debouncedSearch, setDebouncedSearch] = useState("");
 
     const { products, isLoading: productsLoading, error: productsError, fetchProducts, deleteProduct, createProduct, updateProduct, totalProducts,
-        page: prodPage, setPage: setProdPage, searchQuery: prodSearch, setSearchQuery: setProdSearch } = useAdminProducts();
+        page: prodPage, setPage: setProdPage, searchQuery: prodSearch, setSearchQuery: setProdSearch } = useSellerProducts();
     const [debouncedProdSearch, setDebouncedProdSearch] = useState("");
 
     const { services, isLoading: servicesLoading, error: servicesError, fetchServices, deleteService, createService, updateService, totalServices,
-        page: servPage, setPage: setServPage, searchQuery: servSearch, setSearchQuery: setServSearch } = useAdminServices();
+        page: servPage, setPage: setServPage, searchQuery: servSearch, setSearchQuery: setServSearch } = useSellerServices();
     const [debouncedServSearch, setDebouncedServSearch] = useState("");
 
     useEffect(() => {
@@ -49,10 +45,10 @@ export default function SellerPage() {
         const isAuthorized = role === "admin" || role === "seller" || (Array.isArray(role) && (role.includes("admin") || role.includes("seller")));
 
         if (isAuthorized) {
-            if (activeSection === "users") {
-                fetchUsers({ page, search: debouncedSearch });
-            } else if (activeSection === "overview") {
-                fetchUsers({ page: 1, search: "" });
+            if (activeSection === "overview") {
+                // Pre-fetch for dashboard if needed
+                fetchProducts({ page: 1, search: "" });
+                fetchServices({ page: 1, search: "" });
             }
 
             if (activeSection === "products") {
@@ -62,15 +58,7 @@ export default function SellerPage() {
                 fetchServices({ page: servPage, search: debouncedServSearch });
             }
         }
-    }, [activeSection, page, debouncedSearch, prodPage, debouncedProdSearch, servPage, debouncedServSearch, session, fetchUsers, fetchProducts, fetchServices]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setPage(1);
-            setDebouncedSearch(searchQuery);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchQuery, setPage]);
+    }, [activeSection, prodPage, debouncedProdSearch, servPage, debouncedServSearch, session, fetchProducts, fetchServices]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -88,10 +76,6 @@ export default function SellerPage() {
         return () => clearTimeout(timer);
     }, [servSearch, setServPage]);
 
-    const handlePageChange = (newPage: number) => {
-        setPage(newPage);
-    };
-
     if (isPending) {
         return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 font-medium">Verificando permissões...</div>;
     }
@@ -102,7 +86,6 @@ export default function SellerPage() {
     if (!session || !isAdminOrSeller) {
         return null;
     }
-
 
     return (
         <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900">
@@ -117,7 +100,7 @@ export default function SellerPage() {
                             {activeSection === "settings" && "Configurações do Sistema"}
                             {activeSection === "services" && "Serviços"}
                         </h1>
-                        <p className="text-slate-500 mt-2">Bem-vindo ao centro administrativo do Market Jua.</p>
+                        <p className="text-slate-500 mt-2">Bem-vindo ao centro de vendedores Market Jua.</p>
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm text-sm font-medium">
@@ -126,11 +109,11 @@ export default function SellerPage() {
                     </div>
                 </header>
 
-                {error && (
+                {(productsError || servicesError) && (
                     <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded shadow-sm">
                         <div className="flex items-center">
                             <span className="text-red-500 mr-3 text-xl"></span>
-                            <p className="text-red-700 font-medium">{error}</p>
+                            <p className="text-red-700 font-medium">{productsError || servicesError}</p>
                         </div>
                     </div>
                 )}
@@ -138,7 +121,8 @@ export default function SellerPage() {
                 {activeSection === "overview" && (
                     <div className="space-y-10">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <MetricCard title="Novos Produtos" value="24" icon="📦" />
+                            <MetricCard title="Total Produtos" value={totalProducts} icon="📦" />
+                            <MetricCard title="Total Serviços" value={totalServices} icon="🔧" />
                             <MetricCard title="Suporte Aberto" value="3" icon="🎧" />
                         </div>
 
@@ -149,7 +133,7 @@ export default function SellerPage() {
                 )}
 
                 {activeSection === "products" && (
-                    <AdminProductTable
+                    <SellerProductTable
                         products={products}
                         isLoading={productsLoading}
                         error={productsError}
@@ -164,7 +148,7 @@ export default function SellerPage() {
                     />
                 )}
                 {activeSection === "services" && (
-                    <AdminServiceTable
+                    <SellerServiceTable
                         services={services}
                         isLoading={servicesLoading}
                         error={servicesError}

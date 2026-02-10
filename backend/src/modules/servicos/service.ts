@@ -39,13 +39,6 @@ export const createServicoAdmin = async (userId: string, input: createServicoInp
 
 
 export const createServico = async (userId: string, input: createServicoInput) => {
-    const existingServico = await db.select().from(table_servicos).where(
-        eq(table_servicos.user_id, userId))
-        .limit(1)
-
-    if (existingServico.length) {
-        return { success: false, message: "User already has a service", data: null }
-    }
 
     const categoryExists = await db.select().from(tablecategories)
         .where(eq(tablecategories.name, input.category))
@@ -117,15 +110,36 @@ export const deletService = async (id: string, userId: string) => {
     return { success: true, message: "Service deleted successfully", data: deleteService }
 }
 
-export const getByUserId = async (userId: string) => {
-    const getByUserId = await db.select().from(table_servicos).where(
-        eq(table_servicos.user_id, userId))
+export const getByUserId = async (userId: string, options?: { search?: string; limit?: number; offset?: number }) => {
+    try {
+        const { search = "", limit = 10, offset = 0 } = options || {}
 
-    if (!getByUserId || getByUserId.length === 0) {
-        return { success: false, message: "Failed to get service", data: null }
+        let query = db.select().from(table_servicos).where(eq(table_servicos.user_id, userId))
+
+        if (search) {
+            // @ts-ignore
+            query = query.where(and(eq(table_servicos.user_id, userId), ilike(table_servicos.name, `%${search}%`)))
+        }
+
+        const servicesRows = await query.limit(limit).offset(offset)
+
+        let countQuery = db.select({ count: sql<number>`count(*)` }).from(table_servicos).where(eq(table_servicos.user_id, userId))
+        if (search) {
+            // @ts-ignore
+            countQuery = countQuery.where(and(eq(table_servicos.user_id, userId), ilike(table_servicos.name, `%${search}%`)))
+        }
+        const [totalCount] = await countQuery
+
+        return {
+            success: true,
+            message: "Services retrieved successfully",
+            data: servicesRows,
+            total: Number(totalCount.count)
+        }
+    } catch (error) {
+        console.error('Erro ao buscar serviços do usuário:', error)
+        return { success: false, message: "Erro ao buscar serviços", data: null }
     }
-
-    return { success: true, message: "Service retrieved successfully", data: getByUserId }
 }
 
 export const getAllServices = async (options?: { search?: string; limit?: number; offset?: number }) => {
