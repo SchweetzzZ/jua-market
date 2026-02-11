@@ -59,7 +59,7 @@ export default function ServicosDetailsPage() {
                     <div className="flex justify-between h-16 items-center">
                         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/home")}>
                             <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">M</div>
-                            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
+                            <span className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-indigo-600 to-violet-600">
                                 Market Jua
                             </span>
                         </div>
@@ -87,7 +87,7 @@ export default function ServicosDetailsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                     {/* Image Section */}
                     <div className="relative group">
-                        <div className="aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-indigo-100 shadow-2xl border border-slate-100">
+                        <div className="aspect-4/5 overflow-hidden rounded-[2.5rem] bg-indigo-100 shadow-2xl border border-slate-100">
                             <img
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 src={itemImageUrl(servico.imageUrl)}
@@ -119,7 +119,7 @@ export default function ServicosDetailsPage() {
 
                         {/* Professional/Seller Card */}
                         {user && (
-                            <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm mb-8">
+                            <div className="bg-white p-8 rounded-4xl border border-slate-100 shadow-sm mb-8">
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="h-14 w-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-xl font-black shadow-lg shadow-indigo-200">
                                         {user.name?.[0] || "P"}
@@ -130,7 +130,7 @@ export default function ServicosDetailsPage() {
                                     </div>
                                 </div>
                                 {user.history && (
-                                    <div className="bg-slate-50 p-4 rounded-2xl mb-6 relative italic text-slate-600 text-sm break-words">
+                                    <div className="bg-slate-50 p-4 rounded-2xl mb-6 relative italic text-slate-600 text-sm wrap-break-word">
                                         <span className="absolute -top-3 -left-1 text-4xl text-indigo-200 opacity-50 font-serif">“</span>
                                         {user.history}
                                     </div>

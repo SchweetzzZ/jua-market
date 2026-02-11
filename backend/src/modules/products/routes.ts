@@ -32,7 +32,6 @@ export const productsRoutes = new Elysia()
         if (!data || !data.success) {
             set.status = 404
             return { success: false, message: "Nenhum produto encontrado", data: null }
-
         }
         set.status = 200
         return data
@@ -61,7 +60,6 @@ export const productsRoutes = new Elysia()
             price: t.String(),
         })
     })
-
     .put("/products/:id", async ({ body, params, set, user }) => {
         const allowed = checkPermission(user.role, "products", "update")
         if (!allowed) {
