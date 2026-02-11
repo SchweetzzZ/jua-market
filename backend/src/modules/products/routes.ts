@@ -27,6 +27,17 @@ export const productsRoutes = new Elysia()
     }, {
         auth: true
     })
+    .get("/products/all", async ({ set }) => {
+        const data = await getAllProducts()
+        if (!data || !data.success) {
+            set.status = 404
+            return { success: false, message: "Nenhum produto encontrado", data: null }
+
+        }
+        set.status = 200
+        return data
+    })
+    .use(sellerGuard)
     .post("/products", async ({ body, set, user }) => {
         const allowed = checkPermission(user.role, "products", "create")
         if (!allowed) {
@@ -94,17 +105,6 @@ export const productsRoutes = new Elysia()
         auth: true
     })
 
-
-    .get("/products/all", async ({ set }) => {
-        const data = await getAllProducts()
-        if (!data || !data.success) {
-            set.status = 404
-            return { success: false, message: "Nenhum produto encontrado", data: null }
-
-        }
-        set.status = 200
-        return data
-    })
     .get("/products/:id", async ({ params, set }) => {
         const data = await getProductById(params.id)
         if (!data || !data.success) {

@@ -28,6 +28,20 @@ export const servicesRoutes = new Elysia()
     }, {
         auth: true
     })
+    .get("/servicos/all", async ({ set, query }) => {
+        const { limit = 10, offset = 0, search = "" } = query as any
+        const data = await getAllServices({
+            limit: Number(limit),
+            offset: Number(offset),
+            search: search
+        })
+        if (!data || !data.success) {
+            set.status = 404
+            return { success: false, message: "Nenhum serviço encontrado", data: null }
+        }
+        set.status = 200
+        return data
+    })
     .use(sellerGuard)
     .post("/servicos", async ({ body, set, user }) => {
         const allowed = checkPermission(user.role, "services", "create")
@@ -103,13 +117,18 @@ export const servicesRoutes = new Elysia()
         return data
     })
 
-    .get("/servicos/me", async ({ set, user }) => {
+    .get("/servicos/me", async ({ set, user, query }) => {
+        const { limit = 10, offset = 0, search = "" } = query as any
         const allowed = checkPermission(user.role, "services", "read")
         if (!allowed) {
             set.status = 403
             return { success: false, message: "Acesso negado", data: null }
         }
-        const result = await getByUserId(user.id)
+        const result = await getByUserId(user.id, {
+            limit: Number(limit),
+            offset: Number(offset),
+            search: search
+        })
         if (!result.success) {
             set.status = 404
             return result

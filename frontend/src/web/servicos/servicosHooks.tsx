@@ -19,7 +19,7 @@ export const useServicos = () => {
 
         try {
             const response = await fetch(
-                "http://localhost:3000/servicos",
+                "http://localhost:3000/servicos/all",
                 {
                     credentials: "include",
                     headers: {

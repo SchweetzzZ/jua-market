@@ -64,187 +64,166 @@ export default function Home() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
+        <div className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900 scroll-smooth">
             {/* Navbar */}
-            <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+            <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-indigo-100/20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16 items-center">
-                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/home")}>
-                            <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">M</div>
-                            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
-                                Market Jua
+                    <div className="flex justify-between h-20 items-center">
+                        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate("/home")}>
+                            <div className="h-10 w-10 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform duration-300">J</div>
+                            <span className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
+                                Juá Market
                             </span>
                         </div>
 
-                        {/* Mobile Menu Button */}
-                        <div className="md:hidden flex items-center">
-                            <button
-                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                className="text-slate-600 p-2 hover:bg-slate-100 rounded-lg transition"
-                            >
-                                <span className="text-2xl">{isMobileMenuOpen ? "✕" : "☰"}</span>
-                            </button>
-                        </div>
-
                         {/* Desktop Menu */}
-                        <div className="hidden md:flex items-center gap-4">
+                        <div className="hidden md:flex items-center gap-8">
+                            <div className="flex items-center gap-6 mr-6 border-r border-slate-200 pr-6">
+                                <button onClick={() => setActiveTab("produtos")} className={`font-semibold transition-colors ${activeTab === 'produtos' ? 'text-indigo-600' : 'text-slate-500 hover:text-indigo-400'}`}>Produtos</button>
+                                <button onClick={() => setActiveTab("servicos")} className={`font-semibold transition-colors ${activeTab === 'servicos' ? 'text-indigo-600' : 'text-slate-500 hover:text-indigo-400'}`}>Serviços</button>
+                            </div>
+
                             {isAdmin && (
                                 <button
                                     onClick={() => navigate("/admin")}
-                                    className="text-slate-600 hover:text-indigo-600 font-medium px-3 py-2 transition"
+                                    className="text-slate-600 hover:text-indigo-600 font-semibold transition-all hover:scale-105"
                                 >
-                                    Painel Admin
+                                    Admin
                                 </button>
                             )}
 
                             {!session ? (
-                                <>
+                                <div className="flex items-center gap-3">
                                     <button
                                         onClick={() => navigate("/login")}
-                                        className="text-slate-600 hover:text-indigo-600 font-medium px-3 py-2 transition"
+                                        className="text-slate-700 hover:text-indigo-600 font-bold px-4 py-2 transition"
                                     >
                                         Entrar
                                     </button>
                                     <button
                                         onClick={() => navigate("/sign-up")}
-                                        className="bg-indigo-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200"
+                                        className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-indigo-700 transition shadow-xl shadow-indigo-200 hover:-translate-y-0.5"
                                     >
                                         Cadastrar
                                     </button>
-                                </>
+                                </div>
                             ) : (
                                 <div className="flex items-center gap-4">
-                                    {/* User Dropdown */}
                                     <div className="relative">
                                         <button
                                             onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                                            className="flex items-center gap-3 bg-slate-100 p-1 pr-4 rounded-full hover:bg-slate-200 transition"
+                                            className="flex items-center gap-3 bg-white border border-slate-200 p-1.5 pr-4 rounded-full hover:border-indigo-300 transition-all hover:shadow-md"
                                         >
-                                            <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold uppercase">
+                                            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center text-white text-xs font-bold uppercase ring-2 ring-white shadow-sm">
                                                 {session.user.name?.[0] || "U"}
                                             </div>
-                                            <span className="text-sm font-semibold text-slate-700">{session.user.name}</span>
-                                            <svg className={`w-4 h-4 text-slate-600 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            <span className="text-sm font-bold text-slate-700">{session.user.name.split(' ')[0]}</span>
+                                            <svg className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${userDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </button>
 
-                                        {/* Dropdown Menu */}
                                         {userDropdownOpen && (
-                                            <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50">
-                                                {/* Opção Vendedor */}
+                                            <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 py-3 z-50">
+                                                <div className="px-4 py-2 border-b border-slate-50 mb-2">
+                                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Conta</p>
+                                                    <p className="text-sm font-bold text-slate-800 truncate">{session.user.email}</p>
+                                                </div>
+
                                                 {(isSeller || isAdmin) && (
                                                     <button
-                                                        onClick={() => {
-                                                            navigate("/seller");
-                                                            setUserDropdownOpen(false);
-                                                        }}
-                                                        className="w-full text-left px-4 py-2 text-indigo-600 hover:bg-indigo-50 font-bold transition flex items-center gap-2 border-b border-slate-50 mb-1"
+                                                        onClick={() => { navigate("/seller"); setUserDropdownOpen(false); }}
+                                                        className="w-full text-left px-4 py-2.5 text-indigo-600 hover:bg-indigo-50 font-bold transition flex items-center gap-3"
                                                     >
-                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                        </svg>
-                                                        Painel do Vendedor
+                                                        <div className="p-1.5 bg-indigo-100 rounded-lg">
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                            </svg>
+                                                        </div>
+                                                        Painel Vendedor
                                                     </button>
                                                 )}
 
                                                 <button
-                                                    onClick={() => {
-                                                        navigate("/favoritos");
-                                                        setUserDropdownOpen(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-2 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition flex items-center gap-2"
+                                                    onClick={() => { navigate("/favoritos"); setUserDropdownOpen(false); }}
+                                                    className="w-full text-left px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition flex items-center gap-3"
                                                 >
-                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                                                    </svg>
-                                                    Favoritos
+                                                    <div className="p-1.5 bg-slate-100 rounded-lg">
+                                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                    Meus Favoritos
+                                                </button>
+
+                                                <div className="h-px bg-slate-100 my-2 mx-4"></div>
+
+                                                <button
+                                                    onClick={async () => {
+                                                        await authClient.signOut();
+                                                        window.location.reload();
+                                                    }}
+                                                    className="w-full text-left px-4 py-2.5 text-red-500 hover:bg-red-50 font-bold transition flex items-center gap-3"
+                                                >
+                                                    <div className="p-1.5 bg-red-100 rounded-lg">
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                                        </svg>
+                                                    </div>
+                                                    Encerrar Sessão
                                                 </button>
                                             </div>
                                         )}
                                     </div>
-
-                                    <button
-                                        onClick={async () => {
-                                            await authClient.signOut();
-                                            window.location.reload();
-                                        }}
-                                        className="text-red-500 hover:text-red-700 font-medium text-sm px-2 py-1 transition"
-                                    >
-                                        Sair
-                                    </button>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Mobile Menu Button */}
+                        <div className="md:hidden text-slate-600 bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm active:scale-95 transition-all" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                            <span className="text-2xl font-bold">{isMobileMenuOpen ? "✕" : "☰"}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Mobile Menu Content */}
                 {isMobileMenuOpen && (
-                    <div className="md:hidden bg-white border-t border-slate-100 px-4 py-6 space-y-4 shadow-xl">
-                        {isAdmin && (
-                            <button
-                                onClick={() => { navigate("/admin"); setIsMobileMenuOpen(false); }}
-                                className="block w-full text-left text-slate-600 font-medium py-2"
-                            >
-                                Painel Admin
-                            </button>
-                        )}
+                    <div className="md:hidden bg-white border-t border-slate-100 px-6 py-8 space-y-6 shadow-2xl h-[calc(100vh-80px)] overflow-y-auto">
+                        <div className="grid grid-cols-2 gap-4">
+                            <button onClick={() => { setActiveTab("produtos"); setIsMobileMenuOpen(false); }} className={`p-4 rounded-2xl font-bold text-center transition-all ${activeTab === 'produtos' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-slate-50 text-slate-600'}`}>Produtos</button>
+                            <button onClick={() => { setActiveTab("servicos"); setIsMobileMenuOpen(false); }} className={`p-4 rounded-2xl font-bold text-center transition-all ${activeTab === 'servicos' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-slate-50 text-slate-600'}`}>Serviços</button>
+                        </div>
+
                         {!session ? (
-                            <div className="space-y-4">
-                                <button
-                                    onClick={() => { navigate("/login"); setIsMobileMenuOpen(false); }}
-                                    className="block w-full text-left text-slate-600 font-medium py-2"
-                                >
-                                    Login
-                                </button>
-                                <button
-                                    onClick={() => { navigate("/sign-up"); setIsMobileMenuOpen(false); }}
-                                    className="block w-full text-center bg-indigo-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-indigo-700 transition"
-                                >
-                                    Cadastrar
-                                </button>
+                            <div className="space-y-4 pt-4">
+                                <button onClick={() => { navigate("/login"); setIsMobileMenuOpen(false); }} className="w-full py-4 text-slate-700 font-bold border border-slate-200 rounded-2xl">Entrar</button>
+                                <button onClick={() => { navigate("/sign-up"); setIsMobileMenuOpen(false); }} className="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-xl shadow-indigo-100">Criar conta</button>
                             </div>
                         ) : (
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl">
-                                    <div className="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold uppercase">
+                            <div className="space-y-6 pt-4">
+                                <div className="flex items-center gap-4 bg-indigo-50/50 p-4 rounded-3xl border border-indigo-100">
+                                    <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center text-white text-xl font-black shadow-md">
                                         {session.user.name?.[0] || "U"}
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-slate-900">{session.user.name}</p>
-                                        <p className="text-xs text-slate-500">{session.user.email}</p>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-black text-slate-900 truncate">{session.user.name}</p>
+                                        <p className="text-xs font-medium text-slate-500 truncate">{session.user.email}</p>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => { navigate("/favoritos"); setIsMobileMenuOpen(false); }}
-                                    className="w-full text-left text-slate-700 hover:text-indigo-600 font-medium py-2 flex items-center gap-2"
-                                >
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                                    </svg>
-                                    Meus Favoritos
-                                </button>
-                                {(isSeller || isAdmin) && (
-                                    <button
-                                        onClick={() => { navigate("/seller"); setIsMobileMenuOpen(false); }}
-                                        className="w-full text-left text-indigo-600 hover:bg-indigo-50 font-bold py-2 flex items-center gap-2"
-                                    >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                        Painel do Vendedor
+
+                                <div className="grid grid-cols-1 gap-2">
+                                    <button onClick={() => { navigate("/favoritos"); setIsMobileMenuOpen(false); }} className="flex items-center gap-4 p-4 text-slate-700 font-bold hover:bg-slate-50 rounded-2xl transition-colors">
+                                        ❤️ Meus Favoritos
                                     </button>
-                                )}
-                                <button
-                                    onClick={async () => {
-                                        await authClient.signOut();
-                                        window.location.reload();
-                                    }}
-                                    className="w-full text-center text-red-500 font-bold py-2"
-                                >
-                                    Sair da conta
-                                </button>
+                                    {(isSeller || isAdmin) && (
+                                        <button onClick={() => { navigate("/seller"); setIsMobileMenuOpen(false); }} className="flex items-center gap-4 p-4 text-indigo-600 font-bold bg-indigo-50/50 hover:bg-indigo-50 rounded-2xl transition-colors">
+                                            💼 Painel Vendedor
+                                        </button>
+                                    )}
+                                    <button onClick={async () => { await authClient.signOut(); window.location.reload(); }} className="flex items-center gap-4 p-4 text-red-500 font-bold hover:bg-red-50 rounded-2xl transition-colors mt-4">
+                                        🚪 Sair da conta
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -252,80 +231,116 @@ export default function Home() {
             </nav>
 
             {/* Hero Section */}
-            <div className="relative overflow-hidden bg-white pt-16 pb-32 border-b border-slate-100">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-50 rounded-full blur-[120px] opacity-60"></div>
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-blue-50 rounded-full blur-[100px] opacity-60"></div>
+            <div className="relative pt-20 pb-40 overflow-hidden bg-white">
+                {/* Decorative Blobs - Simplified with static opacity to avoid custom animation */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none overflow-visible">
+                    <div className="absolute top-[10%] right-[-5%] w-96 h-96 bg-indigo-100/50 rounded-full blur-[100px]"></div>
+                    <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] bg-violet-100/50 rounded-full blur-[120px]"></div>
+                    <div className="absolute bottom-[0%] right-[20%] w-72 h-72 bg-blue-50 rounded-full blur-[80px]"></div>
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-                    <div className="text-center max-w-3xl mx-auto">
-                        <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6">
-                            Encontre tudo o que <span className="text-indigo-600">você precisa</span> aqui.
+                    <div className="max-w-4xl mx-auto text-center">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 mb-8">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                            </span>
+                            <span className="text-xs font-black text-indigo-600 uppercase tracking-widest">Marketplace do Juazeiro</span>
+                        </div>
+
+                        <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.9]">
+                            Encontre o <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">melhor</span><br />
+                            da sua região.
                         </h1>
-                        <p className="text-lg text-slate-600 mb-10 leading-relaxed">
-                            O melhor marketplace regional para serviços e produtos exclusivos. Qualidade e confiança em um só lugar.
+
+                        <p className="text-xl md:text-2xl text-slate-500 mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
+                            Conectamos você aos serviços e produtos mais exclusivos do Juazeiro. Qualidade local com a praticidade digital.
                         </p>
 
                         <div className="relative max-w-2xl mx-auto group">
-                            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-                                <span className="text-slate-400 group-focus-within:text-indigo-500 transition-colors text-xl"></span>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-[28px] blur-sm opacity-20 group-focus-within:opacity-40 transition-opacity"></div>
+                            <div className="relative flex items-center bg-white rounded-[24px] shadow-2xl overflow-hidden border border-slate-100">
+                                <input
+                                    type="text"
+                                    placeholder={`O que você busca hoje? (${activeTab})`}
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="w-full py-6 px-4 focus:outline-none text-slate-800 text-lg font-semibold"
+                                />
+                                <div className="pr-4">
+                                    <button className="bg-slate-900 text-white px-8 py-3.5 rounded-2xl font-bold hover:bg-slate-800 transition-colors">
+                                        Buscar
+                                    </button>
+                                </div>
                             </div>
-                            <input
-                                type="text"
-                                placeholder={`Procurar ${activeTab === "produtos" ? "um produto incrível..." : "um serviço profissional..."}`}
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="w-full pl-14 pr-6 py-4 rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 text-lg"
-                            />
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Tabs & Filters */}
-                <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-                    <div className="flex bg-slate-200/50 p-1 rounded-xl">
-                        <button
-                            onClick={() => setActiveTab("produtos")}
-                            className={`px-8 py-2.5 rounded-lg font-bold transition-all ${activeTab === "produtos" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-                        >
-                            Produtos
-                        </button>
-                        <button
-                            onClick={() => setActiveTab("servicos")}
-                            className={`px-8 py-2.5 rounded-lg font-bold transition-all ${activeTab === "servicos" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-                        >
-                            Serviços
-                        </button>
+            {/* Main Content Area */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+                {/* Tabs & Stats */}
+                <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                    <div className="space-y-4">
+                        <h2 className="text-4xl font-black text-slate-900 tracking-tight">
+                            Explore por <span className="text-indigo-600 capitalize">{activeTab}</span>
+                        </h2>
+                        <div className="flex bg-slate-200/50 p-1.5 rounded-2xl w-fit border border-slate-200/50">
+                            <button
+                                onClick={() => setActiveTab("produtos")}
+                                className={`px-10 py-3 rounded-xl font-black text-sm transition-all ${activeTab === "produtos" ? "bg-white text-indigo-600 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
+                            >
+                                PRODUTOS
+                            </button>
+                            <button
+                                onClick={() => setActiveTab("servicos")}
+                                className={`px-10 py-3 rounded-xl font-black text-sm transition-all ${activeTab === "servicos" ? "bg-white text-indigo-600 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
+                            >
+                                SERVIÇOS
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="text-sm font-medium text-slate-500 bg-white px-4 py-2 rounded-full border border-slate-100 shadow-sm">
-                        Total: <span className="text-indigo-600">{activeTab === "produtos" ? filteredProducts.length : filteredServicos.length}</span> {activeTab}
+                    <div className="hidden md:flex items-center gap-4 bg-white px-6 py-4 rounded-[2rem] border border-slate-100 shadow-lg shadow-slate-200/40">
+                        <div className="bg-indigo-50 p-3 rounded-2xl">
+                            <div className="text-indigo-600 font-black text-2xl">{activeTab === "produtos" ? filteredProducts.length : filteredServicos.length}</div>
+                        </div>
+                        <div>
+                            <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Encontrados</div>
+                            <div className="text-slate-800 font-bold text-lg capitalize">{activeTab} Ativos</div>
+                        </div>
                     </div>
                 </div>
 
                 {error || errorServicos ? (
-                    <div className="bg-red-50 border border-red-100 p-6 rounded-2xl text-center">
-                        <p className="text-red-600 font-medium">Ops! {error || errorServicos}</p>
+                    <div className="bg-red-50/50 border-2 border-red-100 p-12 rounded-[3rem] text-center max-w-2xl mx-auto transition-all">
+                        <div className="text-5xl mb-6">⚠️</div>
+                        <h3 className="text-2xl font-black text-red-800 mb-2">Ops! Algo deu errado</h3>
+                        <p className="text-red-600 font-medium">{error || errorServicos}</p>
+                        <button onClick={() => window.location.reload()} className="mt-8 bg-red-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg hover:bg-red-700 transition-all">Tentar novamente</button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
                         {activeTab === "produtos" ? (
                             filteredProducts.length === 0 ? (
-                                <EmptyState message="Nenhum produto encontrado" />
+                                <EmptyState message="Desculpe, não encontramos este produto no momento." />
                             ) : (
                                 filteredProducts.map((p: Product) => (
-                                    <ProductCard key={p.id} item={p} navigate={navigate} />
+                                    <div key={p.id} className="transition-all duration-300">
+                                        <ProductCard item={p} navigate={navigate} />
+                                    </div>
                                 ))
                             )
                         ) : (
                             filteredServicos.length === 0 ? (
-                                <EmptyState message="Nenhum serviço encontrado" />
+                                <EmptyState message="Nenhum profissional disponível para esta busca." />
                             ) : (
                                 filteredServicos.map((s: Servico) => (
-                                    <ServiceCard key={s.id} item={s} navigate={navigate} />
+                                    <div key={s.id} className="transition-all duration-300">
+                                        <ServiceCard item={s} navigate={navigate} />
+                                    </div>
                                 ))
                             )
                         )}
@@ -333,13 +348,55 @@ export default function Home() {
                 )}
             </div>
 
-            <footer className="bg-white border-t border-slate-200 py-12 mt-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="h-6 w-6 bg-slate-400 rounded flex items-center justify-center text-white font-bold text-sm">M</div>
-                        <span className="font-bold text-slate-500">Market Jua</span>
+            <footer className="bg-white border-t border-slate-100 pt-24 pb-12 relative overflow-hidden">
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-500"></div>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-12 border-b border-slate-50 pb-16 mb-12">
+                        <div className="flex flex-col items-center md:items-start max-w-sm">
+                            <div className="flex items-center gap-3 mb-6 bg-slate-50 p-2 pr-6 rounded-2xl border border-slate-100 w-fit">
+                                <div className="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg">J</div>
+                                <span className="text-2xl font-black text-slate-800 tracking-tight">Market Juá</span>
+                            </div>
+                            <p className="text-slate-500 text-center md:text-left font-medium leading-relaxed">
+                                Transformando a economia local através da tecnologia. O seu marketplace de confiança no coração do Juazeiro.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-12 text-sm">
+                            <div className="space-y-4">
+                                <p className="font-black text-slate-900 uppercase tracking-widest text-[10px]">Marketplace</p>
+                                <ul className="space-y-3 font-bold text-slate-500">
+                                    <li><button onClick={() => setActiveTab('produtos')} className="hover:text-indigo-600 transition-colors">Produtos</button></li>
+                                    <li><button onClick={() => setActiveTab('servicos')} className="hover:text-indigo-600 transition-colors">Serviços</button></li>
+                                    <li className="hover:text-indigo-600 transition-colors cursor-pointer">Favoritos</li>
+                                </ul>
+                            </div>
+                            <div className="space-y-4">
+                                <p className="font-black text-slate-900 uppercase tracking-widest text-[10px]">Legal</p>
+                                <ul className="space-y-3 font-bold text-slate-500">
+                                    <li className="hover:text-indigo-600 transition-colors cursor-pointer">Privacidade</li>
+                                    <li className="hover:text-indigo-600 transition-colors cursor-pointer">Termos de uso</li>
+                                </ul>
+                            </div>
+                            <div className="col-span-2 sm:col-span-1 space-y-4">
+                                <p className="font-black text-slate-900 uppercase tracking-widest text-[10px]">Comunidade</p>
+                                <div className="flex gap-4">
+                                    <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-white hover:bg-slate-700 transition-all cursor-pointer">i</div>
+                                    <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-white hover:bg-slate-700 transition-all cursor-pointer">f</div>
+                                    <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-white hover:bg-slate-700 transition-all cursor-pointer">t</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <p className="text-slate-400 text-sm">© {new Date().getFullYear()} Todos os direitos reservados.</p>
+
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                        <p className="text-slate-400 text-sm font-bold">© {new Date().getFullYear()} Juá Marketplace Tecnologia LTDA.</p>
+                        <div className="flex gap-8 text-xs font-black text-slate-400 uppercase tracking-widest">
+                            <span className="hover:text-indigo-500 cursor-pointer transition-colors">Segurança</span>
+                            <span className="hover:text-indigo-500 cursor-pointer transition-colors">Acessibilidade</span>
+                            <span className="hover:text-indigo-500 cursor-pointer transition-colors">Suporte</span>
+                        </div>
+                    </div>
                 </div>
             </footer>
         </div>
