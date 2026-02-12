@@ -48,8 +48,8 @@ export const useAdminUsers = () => {
                 return
             }
 
-            if (data && typeof data === 'object' && 'users' in data && Array.isArray(data.users)) {
-                setUsers(data.users as unknown as AdminUser[])
+            if (data?.success && data.data) {
+                setUsers(data.data as AdminUser[])
                 if ('total' in data) {
                     setTotalUsers(data.total as number)
                 }
@@ -73,13 +73,15 @@ export const useAdminUsers = () => {
                 userId,
                 reason
             })
-
             if (error) {
-                throw new Error(error.value?.message || "Erro ao banir usuário")
+                throw new Error((error.value as any)?.message || "Erro ao banir usuário")
+            }
+            if (data?.success === false) {
+                throw new Error(data.message || "Erro ao banir usuário")
             }
 
             await fetchUsers()
-            return data
+            return { success: true, message: data?.message || "Usuário banido com sucesso", data }
         } catch (err: any) {
             throw new Error(err.message || "Erro ao banir usuário")
         }
@@ -90,18 +92,20 @@ export const useAdminUsers = () => {
             const { data, error } = await api.admin["unban-user"].post({
                 userId
             })
-
             if (error) {
-                throw new Error(error.value?.message || "Erro ao desbanir usuário")
+                throw new Error((error.value as any)?.message || "Erro ao desbanir usuário")
+            }
+
+            if (data?.success === false) {
+                throw new Error(data.message || "Erro ao desbanir usuário")
             }
 
             await fetchUsers()
-            return data
+            return { success: true, message: data?.message || "Usuário desbanido com sucesso", data }
         } catch (err: any) {
             throw new Error(err.message || "Erro ao desbanir usuário")
         }
     }
-
 
     return {
         users,

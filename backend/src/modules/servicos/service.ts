@@ -10,18 +10,18 @@ interface createServicoInput {
     imageUrl: string;
     price: string;
 }
-//para admin
-export const createServicoAdmin = async (userId: string, input: createServicoInput) => {
 
+//*******create para admin******/
+export const createServicoAdmin = async (userId: string, input: createServicoInput) => {
     const categoryExists = await db.select().from(tablecategories)
         .where(eq(tablecategories.name, input.category))
         .limit(1)
 
     if (!categoryExists.length) {
-        return { success: false, message: "Category not found", data: null }
+        throw new Error("Category not found")
     }
 
-    const servico = await db.insert(table_servicos).values({
+    const [servico] = await db.insert(table_servicos).values({
         user_id: userId,
         category: input.category,
         name: input.name,
@@ -30,25 +30,23 @@ export const createServicoAdmin = async (userId: string, input: createServicoInp
         price: input.price,
     }).returning()
 
-    if (!servico || servico.length === 0) {
-        return { success: false, message: "Failed to create service", data: null }
+    if (!servico) {
+        throw new Error("Failed to create service")
     }
 
-    return { success: true, message: "Service created successfully", data: servico }
+    return servico
 }
 
-
 export const createServico = async (userId: string, input: createServicoInput) => {
-
     const categoryExists = await db.select().from(tablecategories)
         .where(eq(tablecategories.name, input.category))
         .limit(1)
 
     if (!categoryExists.length) {
-        return { success: false, message: "Category not found", data: null }
+        throw new Error("Category not found")
     }
 
-    const servico = await db.insert(table_servicos).values({
+    const [servico] = await db.insert(table_servicos).values({
         user_id: userId,
         category: input.category,
         name: input.name,
@@ -57,12 +55,41 @@ export const createServico = async (userId: string, input: createServicoInput) =
         price: input.price,
     }).returning()
 
-    if (!servico || servico.length === 0) {
-        return { success: false, message: "Failed to create service", data: null }
+    if (!servico) {
+        throw new Error("Failed to create service")
     }
 
-    return { success: true, message: "Service created successfully", data: servico }
+    return servico
+}
 
+//*******update para admin******/
+export const updateServiceAdmin = async (id: string, input: Partial<createServicoInput>) => {
+    const updateData: Partial<typeof table_servicos.$inferInsert> = {}
+
+    if (input.name !== undefined) { updateData.name = input.name }
+    if (input.description !== undefined) { updateData.description = input.description }
+    if (input.imageUrl !== undefined) { updateData.imageUrl = input.imageUrl }
+    if (input.price !== undefined) { updateData.price = input.price }
+    if (input.category !== undefined) {
+        const categoryExists = await db.select().from(tablecategories).where(
+            eq(tablecategories.name, input.category)).limit(1)
+
+        if (!categoryExists.length) {
+            throw new Error("Category not found")
+        }
+
+        updateData.category = input.category
+    }
+
+    const [update] = await db.update(table_servicos).set({
+        ...updateData
+    }).where(eq(table_servicos.id, id)).returning()
+
+    if (!update) {
+        throw new Error("Failed to update service")
+    }
+
+    return update
 }
 
 export const updateService = async (id: string, userId: string, input: Partial<createServicoInput>) => {
@@ -77,101 +104,84 @@ export const updateService = async (id: string, userId: string, input: Partial<c
             eq(tablecategories.name, input.category)).limit(1)
 
         if (!categoryExists.length) {
-            return { success: false, message: "Category not found", data: null }
+            throw new Error("Category not found")
         }
 
         updateData.category = input.category
-
     }
 
-    const update = await db.update(table_servicos).set({
+    const [update] = await db.update(table_servicos).set({
         ...updateData
-    }).where(and(eq(table_servicos.id, id),
-        eq(table_servicos.user_id, userId))).returning()
+    }).where(and(eq(table_servicos.id, id), eq(table_servicos.user_id, userId))).returning()
 
-    if (!update || update.length === 0) {
-        return { success: false, message: "Failed to update service", data: null }
+    if (!update) {
+        throw new Error("Failed to update service")
     }
 
-    return { success: true, message: "Service updated successfully", data: update }
+    return update
 }
 
 export const deletService = async (id: string, userId: string) => {
-    console.log("Trying to delete product:", id)
-    const deleteService = await db.delete(table_servicos).where(and(
+    const [deleteService] = await db.delete(table_servicos).where(and(
         eq(table_servicos.id, id),
         eq(table_servicos.user_id, userId)
     )).returning()
 
-    if (!deleteService || deleteService.length === 0) {
-        return { success: false, message: "Failed to delete service", data: null }
+    if (!deleteService) {
+        throw new Error("Failed to delete service")
     }
 
-    return { success: true, message: "Service deleted successfully", data: deleteService }
+    return deleteService
 }
 
 export const getByUserId = async (userId: string, options?: { search?: string; limit?: number; offset?: number }) => {
-    try {
-        const { search = "", limit = 10, offset = 0 } = options || {}
+    const { search = "", limit = 10, offset = 0 } = options || {}
 
-        let query = db.select().from(table_servicos).where(eq(table_servicos.user_id, userId))
+    let query = db.select().from(table_servicos).where(eq(table_servicos.user_id, userId))
 
-        if (search) {
-            // @ts-ignore
-            query = query.where(and(eq(table_servicos.user_id, userId), ilike(table_servicos.name, `%${search}%`)))
-        }
+    if (search) {
+        // @ts-ignore
+        query = query.where(and(eq(table_servicos.user_id, userId), ilike(table_servicos.name, `%${search}%`)))
+    }
 
-        const servicesRows = await query.limit(limit).offset(offset)
+    const servicesRows = await query.limit(limit).offset(offset)
 
-        let countQuery = db.select({ count: sql<number>`count(*)` }).from(table_servicos).where(eq(table_servicos.user_id, userId))
-        if (search) {
-            // @ts-ignore
-            countQuery = countQuery.where(and(eq(table_servicos.user_id, userId), ilike(table_servicos.name, `%${search}%`)))
-        }
-        const [totalCount] = await countQuery
+    let countQuery = db.select({ count: sql<number>`count(*)` }).from(table_servicos).where(eq(table_servicos.user_id, userId))
+    if (search) {
+        // @ts-ignore
+        countQuery = countQuery.where(and(eq(table_servicos.user_id, userId), ilike(table_servicos.name, `%${search}%`)))
+    }
+    const [totalCount] = await countQuery
 
-        return {
-            success: true,
-            message: "Services retrieved successfully",
-            data: servicesRows,
-            total: Number(totalCount.count)
-        }
-    } catch (error) {
-        console.error('Erro ao buscar serviços do usuário:', error)
-        return { success: false, message: "Erro ao buscar serviços", data: null }
+    return {
+        services: servicesRows,
+        total: Number(totalCount.count)
     }
 }
 
 export const getAllServices = async (options?: { search?: string; limit?: number; offset?: number }) => {
-    try {
-        const { search = "", limit = 10, offset = 0 } = options || {}
+    const { search = "", limit = 10, offset = 0 } = options || {}
 
-        let query = db.select().from(table_servicos)
+    let query = db.select().from(table_servicos)
 
-        if (search) {
-            // @ts-ignore
-            query = query.where(ilike(table_servicos.name, `%${search}%`))
-        }
+    if (search) {
+        // @ts-ignore
+        query = query.where(ilike(table_servicos.name, `%${search}%`))
+    }
 
-        const servicesRows = await query.limit(limit).offset(offset)
+    const servicesRows = await query.limit(limit).offset(offset)
 
-        // Get total count
-        let countQuery = db.select({ count: sql<number>`count(*)` }).from(table_servicos)
-        if (search) {
-            // @ts-ignore
-            countQuery = countQuery.where(ilike(table_servicos.name, `%${search}%`))
-        }
-        const [totalCount] = await countQuery
+    // Get total count
+    let countQuery = db.select({ count: sql<number>`count(*)` }).from(table_servicos)
+    if (search) {
+        // @ts-ignore
+        countQuery = countQuery.where(ilike(table_servicos.name, `%${search}%`))
+    }
+    const [totalCount] = await countQuery
 
-        return {
-            success: true,
-            message: "Services retrieved successfully",
-            data: servicesRows,
-            total: Number(totalCount.count)
-        }
-    } catch (error) {
-        console.error('Erro ao buscar serviços:', error)
-        return { success: false, message: "Erro ao buscar serviços", data: null }
+    return {
+        services: servicesRows,
+        total: Number(totalCount.count)
     }
 }
 
@@ -181,8 +191,8 @@ export const getServiceById = async (id: string) => {
     ).limit(1)
 
     if (!service) {
-        return { success: false, message: "Service not found", data: null }
+        throw new Error("Service not found")
     }
 
-    return { success: true, message: "Service retrieved successfully", data: service }
+    return service
 }

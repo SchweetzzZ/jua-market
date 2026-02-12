@@ -40,8 +40,7 @@ export const useAdminServices = () => {
             })
 
             if (error) {
-                const errorMessage = typeof error.value === "string" ? error.value :
-                    (error.value as any)?.message || "erro ao buscar serviços"
+                const errorMessage = (error.value as any)?.message || "erro ao buscar serviços"
                 setError(errorMessage)
                 return
             }
@@ -50,27 +49,31 @@ export const useAdminServices = () => {
                 if ('total' in data) {
                     setTotalServices(data.total as number)
                 }
+            } else if (data && typeof data === 'object' && 'success' in data && !(data as any).success) {
+                setError((data as any).message || "Acesso negado")
+                setServices([])
             } else {
                 setServices([])
                 setTotalServices(0)
             }
         } catch (err) {
             console.error(err)
-            setError("Erro inesperado ao buscar produtos")
+            setError("Erro inesperado ao buscar serviços")
         } finally {
             setIsLoading(false)
         }
     }, [page, limit, searchQuery])
 
     const deleteAdminService = async (serviceId: string): Promise<void> => {
-        const { error } = await api.admin.services({ id: serviceId }).delete()
+        const { data, error } = await api.admin.services({ id: serviceId }).delete()
 
         if (error) {
-            const errorMessage =
-                typeof error.value === "string"
-                    ? error.value
-                    : (error.value as any)?.message || "Erro ao deletar serviço"
+            const errorMessage = (error.value as any)?.message || "Erro ao deletar serviço"
             throw new Error(errorMessage)
+        }
+
+        if (data?.success === false) {
+            throw new Error(data.message || "Erro ao deletar serviço")
         }
 
         await fetchServices()
@@ -84,14 +87,15 @@ export const useAdminServices = () => {
         price: string
         userId?: string
     }): Promise<void> => {
-        const { error } = await api.admin.services.post(serviceData)
+        const { data, error } = await api.admin.services.post(serviceData)
 
         if (error) {
-            const errorMessage =
-                typeof error.value === "string"
-                    ? error.value
-                    : (error.value as any)?.message || "Erro ao criar serviço"
+            const errorMessage = (error.value as any)?.message || "Erro ao criar serviço"
             throw new Error(errorMessage)
+        }
+
+        if (data?.success === false) {
+            throw new Error(data.message || "Erro ao criar serviço")
         }
 
         await fetchServices()
@@ -104,14 +108,15 @@ export const useAdminServices = () => {
         imageUrl: string
         price: string
     }): Promise<void> => {
-        const { error } = await api.admin.services({ id: serviceId }).put(serviceData)
+        const { data, error } = await api.admin.services({ id: serviceId }).put(serviceData)
 
         if (error) {
-            const errorMessage =
-                typeof error.value === "string"
-                    ? error.value
-                    : (error.value as any)?.message || "Erro ao atualizar serviço"
+            const errorMessage = (error.value as any)?.message || "Erro ao atualizar serviço"
             throw new Error(errorMessage)
+        }
+
+        if (data?.success === false) {
+            throw new Error(data.message || "Erro ao atualizar serviço")
         }
 
         await fetchServices()

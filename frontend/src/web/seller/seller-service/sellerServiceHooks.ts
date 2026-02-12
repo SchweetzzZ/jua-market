@@ -40,10 +40,7 @@ export const useSellerServices = () => {
             })
 
             if (error) {
-                const errorMessage =
-                    typeof error.value === "string"
-                        ? error.value
-                        : (error.value as any)?.message || "Erro ao buscar serviços"
+                const errorMessage = (error.value as any)?.message || "Erro ao buscar serviços"
                 setError(errorMessage)
                 return
             }
@@ -53,6 +50,9 @@ export const useSellerServices = () => {
                 if ("total" in data) {
                     setTotalServices(data.total as number)
                 }
+            } else if (data && typeof data === 'object' && 'success' in data && !(data as any).success) {
+                setError((data as any).message || "Erro ao buscar serviços")
+                setServices([])
             } else {
                 setServices([])
                 setTotalServices(0)
@@ -70,14 +70,14 @@ export const useSellerServices = () => {
     }, [fetchServices])
 
     const deleteSellerService = async (serviceId: string): Promise<void> => {
-        const { error } = await api.servicos({ id: serviceId }).delete()
+        const { data, error } = await api.servicos({ id: serviceId }).delete()
 
         if (error) {
-            throw new Error(
-                typeof error.value === "string"
-                    ? error.value
-                    : (error.value as any)?.message || "Erro ao deletar serviço"
-            )
+            throw new Error((error.value as any)?.message || "Erro ao deletar serviço")
+        }
+
+        if (data?.success === false) {
+            throw new Error(data.message || "Erro ao deletar serviço")
         }
 
         await fetchServices()
@@ -91,14 +91,14 @@ export const useSellerServices = () => {
         price: string
         userId?: string
     }): Promise<void> => {
-        const { error } = await api.servicos.post(serviceData)
+        const { data, error } = await api.servicos.post(serviceData)
 
         if (error) {
-            throw new Error(
-                typeof error.value === "string"
-                    ? error.value
-                    : (error.value as any)?.message || "Erro ao criar serviço"
-            )
+            throw new Error((error.value as any)?.message || "Erro ao criar serviço")
+        }
+
+        if (data?.success === false) {
+            throw new Error(data.message || "Erro ao criar serviço")
         }
 
         await fetchServices()
@@ -114,14 +114,14 @@ export const useSellerServices = () => {
             price: string
         }
     ): Promise<void> => {
-        const { error } = await api.servicos({ id: serviceId }).put(serviceData)
+        const { data, error } = await api.servicos({ id: serviceId }).put(serviceData)
 
         if (error) {
-            throw new Error(
-                typeof error.value === "string"
-                    ? error.value
-                    : (error.value as any)?.message || "Erro ao atualizar serviço"
-            )
+            throw new Error((error.value as any)?.message || "Erro ao atualizar serviço")
+        }
+
+        if (data?.success === false) {
+            throw new Error(data.message || "Erro ao atualizar serviço")
         }
 
         await fetchServices()

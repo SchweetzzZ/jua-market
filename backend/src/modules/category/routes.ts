@@ -7,7 +7,7 @@ export const categoryRoutes = new Elysia()
     .post("/category", async ({ body, set }) => {
         const data = await createCategory(body)
         set.status = 201
-        return { success: true, data }
+        return { success: true, message: "Categoria criada com sucesso", data }
     }, {
         body: t.Object({
             name: t.String(),
@@ -17,7 +17,7 @@ export const categoryRoutes = new Elysia()
     .put("/category/:id", async ({ body, params, set }) => {
         const data = await updateCatgory(params.id, body)
         set.status = 200
-        return { success: true, data }
+        return { success: true, message: "Categoria atualizada com sucesso", data }
     }, {
         body: t.Partial(
             t.Object({
@@ -29,15 +29,15 @@ export const categoryRoutes = new Elysia()
     .delete("/category/:id", async ({ params, set }) => {
         const data = await deleteCategory(params.id)
         set.status = 200
-        return { success: true, data }
+        return { success: true, message: "Categoria deletada com sucesso", data }
     })
     .get("/category/:id", async ({ params, set }) => {
         const data = await getCategory(params.id)
         set.status = 200
-        return { success: true, data }
+        return { success: true, message: "Categoria buscada com sucesso", data }
     })
     .get("/category", async ({ set }) => {
         const data = await getAllCategories()
         set.status = 200
-        return { success: true, data }
+        return { success: true, message: "Categorias buscadas com sucesso", data }
     })

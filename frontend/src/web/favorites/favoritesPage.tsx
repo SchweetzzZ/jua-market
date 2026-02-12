@@ -43,7 +43,7 @@ export default function FavoritesPage() {
                     <div className="flex justify-between h-16 items-center">
                         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/home")}>
                             <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">M</div>
-                            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
+                            <span className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-indigo-600 to-violet-600">
                                 Market Jua
                             </span>
                         </div>

@@ -80,7 +80,7 @@ export default function Home() {
                         </div>
                         {/* Desktop Menu */}
                         <div className="hidden md:flex items-center gap-8">
-                            <div className="flex items-center gap-6 mr-6 border-r border-slate-200 pr-6"></div>
+
                             {isAdmin && (
                                 <button
                                     onClick={() => navigate("/admin")}
@@ -114,49 +114,32 @@ export default function Home() {
                                         </button>
 
                                         {userDropdownOpen && (
-                                            <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 py-3 z-50">
-                                                <div className="px-4 py-2 border-b border-slate-50 mb-2">
+                                            <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 transform">
+                                                <div className="px-4 py-2 border-b border-slate-50 mb-1">
                                                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Conta</p>
                                                     <p className="text-sm font-bold text-slate-800 truncate">{session.user.email}</p>
                                                 </div>
-                                                {(isSeller) && (//|| isAdmin
+                                                {isSeller && (
                                                     <button
                                                         onClick={() => { navigate("/seller"); setUserDropdownOpen(false); }}
-                                                        className="w-full text-left px-4 py-2.5 text-indigo-600 hover:bg-indigo-50 font-bold transition flex items-center gap-3"
+                                                        className="w-full text-left px-4 py-2 text-indigo-600 hover:bg-slate-50 font-bold transition flex items-center gap-2"
                                                     >
-                                                        <div className="p-1.5 bg-indigo-100 rounded-lg">
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                            </svg>
-                                                        </div>
-                                                        Painel Vendedor
+                                                        <span className="text-lg">💼</span> Painel Vendedor
                                                     </button>
                                                 )}
                                                 <button onClick={() => { navigate("/favoritos"); setUserDropdownOpen(false); }}
-                                                    className="w-full text-left px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition flex items-center gap-3">
-                                                    <div className="p-1.5 bg-slate-100 rounded-lg">
-                                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                    Meus Favoritos
+                                                    className="w-full text-left px-4 py-2 text-slate-700 hover:bg-slate-50 font-bold transition flex items-center gap-2">
+                                                    <span className="text-lg">❤️</span> Favoritos
                                                 </button>
-
-                                                <div className="h-px bg-slate-100 my-2 mx-4"></div>
-
+                                                <div className="h-px bg-slate-100 my-1 mx-4"></div>
                                                 <button
                                                     onClick={async () => {
                                                         await authClient.signOut();
                                                         window.location.reload();
                                                     }}
-                                                    className="w-full text-left px-4 py-2.5 text-red-500 hover:bg-red-50 font-bold transition flex items-center gap-3"
+                                                    className="w-full text-left px-4 py-2 text-red-500 hover:bg-slate-50 font-bold transition flex items-center gap-2"
                                                 >
-                                                    <div className="p-1.5 bg-red-100 rounded-lg">
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                                        </svg>
-                                                    </div>
-                                                    Encerrar Sessão
+                                                    <span className="text-lg">🚪</span> Sair
                                                 </button>
                                             </div>
                                         )}

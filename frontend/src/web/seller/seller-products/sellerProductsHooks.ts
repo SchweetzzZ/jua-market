@@ -39,9 +39,7 @@ export const useSellerProducts = () => {
             })
 
             if (error) {
-                const errorMessage = typeof error.value === 'string'
-                    ? error.value
-                    : (error.value as any)?.message || "Erro ao buscar produtos"
+                const errorMessage = (error.value as any)?.message || "Erro ao buscar produtos"
                 setError(errorMessage)
                 return
             }
@@ -51,6 +49,9 @@ export const useSellerProducts = () => {
                 if ('total' in data) {
                     setTotalProducts(data.total as number)
                 }
+            } else if (data && typeof data === 'object' && 'success' in data && !(data as any).success) {
+                setError((data as any).message || "Erro ao buscar produtos")
+                setProducts([])
             } else {
                 setProducts([])
                 setTotalProducts(0)
@@ -64,14 +65,15 @@ export const useSellerProducts = () => {
     }, [page, limit, searchQuery])
 
     const deletSellerProduct = async (productId: string): Promise<void> => {
-        const { error } = await api.products({ id: productId }).delete()
+        const { data, error } = await api.products({ id: productId }).delete()
 
         if (error) {
-            const errorMessage =
-                typeof error.value === "string"
-                    ? error.value
-                    : (error.value as any)?.message || "Erro ao deletar produto"
+            const errorMessage = (error.value as any)?.message || "Erro ao deletar produto"
             throw new Error(errorMessage)
+        }
+
+        if (data?.success === false) {
+            throw new Error(data.message || "Erro ao deletar produto")
         }
 
         await fetchProducts()
@@ -85,14 +87,15 @@ export const useSellerProducts = () => {
         price: string
         userId?: string
     }): Promise<void> => {
-        const { error } = await api.products.post(productData)
+        const { data, error } = await api.products.post(productData)
 
         if (error) {
-            const errorMessage =
-                typeof error.value === "string"
-                    ? error.value
-                    : (error.value as any)?.message || "Erro ao criar produto"
+            const errorMessage = (error.value as any)?.message || "Erro ao criar produto"
             throw new Error(errorMessage)
+        }
+
+        if (data?.success === false) {
+            throw new Error(data.message || "Erro ao criar produto")
         }
 
         await fetchProducts()
@@ -105,14 +108,15 @@ export const useSellerProducts = () => {
         imageUrl: string
         price: string
     }): Promise<void> => {
-        const { error } = await api.products({ id: productId }).put(productData)
+        const { data, error } = await api.products({ id: productId }).put(productData)
 
         if (error) {
-            const errorMessage =
-                typeof error.value === "string"
-                    ? error.value
-                    : (error.value as any)?.message || "Erro ao atualizar produto"
+            const errorMessage = (error.value as any)?.message || "Erro ao atualizar produto"
             throw new Error(errorMessage)
+        }
+
+        if (data?.success === false) {
+            throw new Error(data.message || "Erro ao atualizar produto")
         }
 
         await fetchProducts()

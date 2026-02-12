@@ -10,9 +10,9 @@ interface createProductInput {
     category: string
     imageUrl: string;
     price: string;
-
 }
-//create para admin
+
+//******create para admin*******
 export const createProductAdmin = async (input: createProductInput, user_id: string) => {
     const categoryExists = await db.select()
         .from(tablecategories)
@@ -20,7 +20,7 @@ export const createProductAdmin = async (input: createProductInput, user_id: str
         .limit(1)
 
     if (!categoryExists.length) {
-        return { success: false, message: "Categoria não encontrada", data: null }
+        throw new Error("Categoria não encontrada")
     }
 
     const [create] = await db.insert(table_products).values({
@@ -31,13 +31,14 @@ export const createProductAdmin = async (input: createProductInput, user_id: str
         imageUrl: input.imageUrl,
         price: input.price,
     }).returning()
+
     if (!create) {
-        return { success: false, message: "Erro ao criar produto", data: null }
+        throw new Error("Erro ao criar produto")
     }
-    return { success: true, message: "Produto criado com sucesso", data: create }
+    return create
 }
 
-//create para usuario
+//******create para vendedor/seller******
 export const createProduct = async (user_id: string, input: createProductInput) => {
     const categoryExists = await db.select()
         .from(tablecategories)
@@ -45,7 +46,7 @@ export const createProduct = async (user_id: string, input: createProductInput) 
         .limit(1)
 
     if (!categoryExists.length) {
-        return { success: false, message: "Categoria não encontrada", data: null }
+        throw new Error("Categoria não encontrada")
     }
 
     const [create] = await db.insert(table_products).values({
@@ -56,15 +57,15 @@ export const createProduct = async (user_id: string, input: createProductInput) 
         imageUrl: input.imageUrl,
         price: input.price,
     }).returning()
+
     if (!create) {
-        return { success: false, message: "Erro ao criar produto", data: null }
+        throw new Error("Erro ao criar produto")
     }
-    return { success: true, message: "Produto criado com sucesso", data: create }
+    return create
 }
 
-export const updateProduct = async (id: string, user_id: string,
-    input: Partial<createProductInput>) => {
-
+//*******update para admin********/
+export const updateProductAdmin = async (id: string, input: Partial<createProductInput>) => {
     const updateData: Partial<typeof table_products.$inferInsert> = {}
 
     if (input.name !== undefined) { updateData.name = input.name }
@@ -77,7 +78,7 @@ export const updateProduct = async (id: string, user_id: string,
             .limit(1)
 
         if (!categoryExists.length) {
-            return { success: false, message: "Categoria não encontrada", data: null }
+            throw new Error("Categoria não encontrada")
         }
 
         updateData.category = input.category
@@ -85,18 +86,44 @@ export const updateProduct = async (id: string, user_id: string,
 
     const update = await db.update(table_products).set({
         ...updateData
-    }).where(and(eq(table_products.id, id),
-        eq(table_products.user_id, user_id))).returning()
+    }).where(eq(table_products.id, id)).returning()
 
     if (!update || update.length === 0) {
-        return { success: false, message: "Erro ao atualizar produto", data: null }
+        throw new Error("Erro ao atualizar produto")
     }
-    return {
-        success: true,
-        message: "Produto atualizado com sucesso",
-        data: update
-    }
+    return update
 }
+
+//*******update para vendedor*******/
+export const updateProduct = async (id: string, user_id: string, input: Partial<createProductInput>) => {
+    const updateData: Partial<typeof table_products.$inferInsert> = {}
+
+    if (input.name !== undefined) { updateData.name = input.name }
+    if (input.description !== undefined) { updateData.description = input.description }
+    if (input.imageUrl !== undefined) { updateData.imageUrl = input.imageUrl }
+    if (input.price !== undefined) { updateData.price = input.price }
+    if (input.category !== undefined) {
+        const categoryExists = await db.select().from(tablecategories)
+            .where(eq(tablecategories.name, input.category))
+            .limit(1)
+
+        if (!categoryExists.length) {
+            throw new Error("Categoria não encontrada")
+        }
+
+        updateData.category = input.category
+    }
+
+    const update = await db.update(table_products).set({
+        ...updateData
+    }).where(and(eq(table_products.id, id), eq(table_products.user_id, user_id))).returning()
+
+    if (!update || update.length === 0) {
+        throw new Error("Erro ao atualizar produto")
+    }
+    return update
+}
+
 //delete para admin
 export const deleteProductAdmin = async (id: string) => {
     const deleted = await db
@@ -105,14 +132,10 @@ export const deleteProductAdmin = async (id: string) => {
         .returning()
 
     if (!deleted || deleted.length === 0) {
-        return { success: false, message: "Erro ao deletar produto", data: null }
+        throw new Error("Erro ao deletar produto")
     }
 
-    return {
-        success: true,
-        message: "Produto deletado com sucesso",
-        data: deleted
-    }
+    return deleted
 }
 
 export const deleteProduct = async (id: string, user_id: string) => {
@@ -120,129 +143,95 @@ export const deleteProduct = async (id: string, user_id: string) => {
         eq(table_products.id, id),
         eq(table_products.user_id, user_id)
     )).returning()
+
     if (!deleteProduct || deleteProduct.length === 0) {
-        return { success: false, message: "Erro ao deletar produto", data: null }
+        throw new Error("Erro ao deletar produto")
     }
-    return { success: true, message: "Produto deletado com sucesso", data: deleteProduct }
+    return deleteProduct
 }
 
 export const getByUserId = async (user_id: string, options?: { search?: string; limit?: number; offset?: number }) => {
-    try {
-        const { search = "", limit = 10, offset = 0 } = options || {}
+    const { search = "", limit = 10, offset = 0 } = options || {}
 
-        let query = db.select().from(table_products).where(eq(table_products.user_id, user_id))
+    let query = db.select().from(table_products).where(eq(table_products.user_id, user_id))
 
-        if (search) {
-            // @ts-ignore
-            query = query.where(and(eq(table_products.user_id, user_id), ilike(table_products.name, `%${search}%`)))
-        }
+    if (search) {
+        // @ts-ignore
+        query = query.where(and(eq(table_products.user_id, user_id), ilike(table_products.name, `%${search}%`)))
+    }
 
-        const productsRows = await query.limit(limit).offset(offset)
+    const productsRows = await query.limit(limit).offset(offset)
 
-        // Get total count for this user
-        let countQuery = db.select({ count: sql<number>`count(*)` }).from(table_products).where(eq(table_products.user_id, user_id))
-        if (search) {
-            // @ts-ignore
-            countQuery = countQuery.where(and(eq(table_products.user_id, user_id), ilike(table_products.name, `%${search}%`)))
-        }
-        const [totalCount] = await countQuery
+    // Get total count for this user
+    let countQuery = db.select({ count: sql<number>`count(*)` }).from(table_products).where(eq(table_products.user_id, user_id))
+    if (search) {
+        // @ts-ignore
+        countQuery = countQuery.where(and(eq(table_products.user_id, user_id), ilike(table_products.name, `%${search}%`)))
+    }
+    const [totalCount] = await countQuery
 
-        return {
-            success: true,
-            message: "Produtos buscados com sucesso",
-            data: productsRows,
-            total: Number(totalCount.count)
-        }
-    } catch (error) {
-        console.error('Erro ao buscar produtos do usuário:', error)
-        return { success: false, message: "Erro ao buscar produtos", data: null }
+    return {
+        products: productsRows,
+        total: Number(totalCount.count)
     }
 }
 
 export const getAllProducts = async (options?: { search?: string; limit?: number; offset?: number }) => {
-    try {
-        const { search = "", limit = 10, offset = 0 } = options || {}
+    const { search = "", limit = 10, offset = 0 } = options || {}
 
-        let query = db.select().from(table_products)
+    let query = db.select().from(table_products)
 
-        if (search) {
-            // @ts-ignore
-            query = query.where(ilike(table_products.name, `%${search}%`))
-        }
+    if (search) {
+        // @ts-ignore
+        query = query.where(ilike(table_products.name, `%${search}%`))
+    }
 
-        const productsRows = await query.limit(limit).offset(offset)
+    const productsRows = await query.limit(limit).offset(offset)
 
-        // Get total count
-        let countQuery = db.select({ count: sql<number>`count(*)` }).from(table_products)
-        if (search) {
-            // @ts-ignore
-            countQuery = countQuery.where(ilike(table_products.name, `%${search}%`))
-        }
-        const [totalCount] = await countQuery
+    // Get total count
+    let countQuery = db.select({ count: sql<number>`count(*)` }).from(table_products)
+    if (search) {
+        // @ts-ignore
+        countQuery = countQuery.where(ilike(table_products.name, `%${search}%`))
+    }
+    const [totalCount] = await countQuery
 
-        if (!productsRows || productsRows.length === 0) {
-            return { success: true, message: "Nenhum produto encontrado", data: [], total: 0 }
-        }
-
-        return {
-            success: true,
-            message: "Produtos buscados com sucesso",
-            data: productsRows,
-            total: Number(totalCount.count)
-        }
-
-    } catch (error) {
-        console.error('Erro ao buscar produtos:', error)
-        return { success: false, message: "Erro ao buscar produtos", data: null }
+    return {
+        products: productsRows,
+        total: Number(totalCount.count)
     }
 }
+
 export const getProductById = async (id: string) => {
-    try {
-        console.log('Buscando produto do banco...')
-        const [product] = await db.select().from(table_products).where(eq(table_products.id, id)).limit(1)
+    const [product] = await db.select().from(table_products).where(eq(table_products.id, id)).limit(1)
 
-        if (!product) {
-            return { success: false, message: "Produto não encontrado", data: null }
-        }
-
-        return { success: true, message: "Produto buscado com sucesso", data: product }
-
-    } catch (error) {
-        console.error('Erro ao buscar produto:', error)
-
-        return { success: false, message: "Erro ao buscar produto", data: null }
+    if (!product) {
+        throw new Error("Produto não encontrado")
     }
+
+    return product
 }
+
 export const getUsers = async () => {
-    try {
-        const getUsers = await db.select().from(user)
+    const getUsers = await db.select().from(user)
 
-        console.log('Usuários encontrados no banco:', getUsers)
-
-        if (!getUsers || getUsers.length === 0) {
-            console.log('Nenhum usuário encontrado no banco')
-
-            return { success: true, message: "Nenhum usuário encontrado", data: [] }
-        }
-
-        return { success: true, message: "Usuários buscados com sucesso", data: getUsers }
-
-    } catch (error) {
-        console.error('Erro ao buscar usuários:', error)
-        return { success: false, message: "Erro ao buscar usuários", data: null }
+    if (!getUsers || getUsers.length === 0) {
+        return []
     }
+
+    return getUsers
 }
+
 export const getUserById = async (id: string) => {
-    const getuser = await db
+    const [getuser] = await db
         .select()
         .from(user)
         .where(eq(user.id, id))
         .limit(1)
 
-    if (!getuser.length) return { success: false, message: "Usuário não encontrado", data: null }
+    if (!getuser) {
+        throw new Error("Usuário não encontrado")
+    }
 
-    return { success: true, message: "Usuário buscado com sucesso", data: getuser[0] }
+    return getuser
 }
-
-
-

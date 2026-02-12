@@ -1,11 +1,13 @@
 import { useState, useCallback } from "react"
+import { api } from "../../lib/api"
+import { unwrap } from "../../lib/api-utils"
 
 type Servico = {
     id: string
     name: string
     description?: string
     price?: string
-    image?: string
+    imageUrl?: string
 }
 
 export const useServicos = () => {
@@ -16,35 +18,11 @@ export const useServicos = () => {
     const fetchServicos = useCallback(async () => {
         setIsLoading(true)
         setError(null)
-
         try {
-            const response = await fetch(
-                "http://localhost:3000/servicos/all",
-                {
-                    credentials: "include",
-                    headers: {
-                        'Accept': 'application/json',
-                    }
-                }
-            )
-
-            if (!response.ok) {
-                throw new Error(`Erro HTTP: ${response.status}`)
-            }
-
-            const result = await response.json()
-
-            if (result?.success && Array.isArray(result.data)) {
-                setServicos(result.data)
-            } else {
-                setServicos([])
-                if (result?.message && !result.success) {
-                    setError(result.message)
-                }
-            }
-
-        } catch (err) {
-            setError("Erro ao buscar servicos")
+            const data = await unwrap(api.servicos.all.get() as any)
+            setServicos(data)
+        } catch (err: any) {
+            setError(err.message || "Erro ao buscar serviços")
         } finally {
             setIsLoading(false)
         }

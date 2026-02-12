@@ -12,5 +12,8 @@
   "workspaces": [
     "backend",
     "frontend"
-  ]
+  ],
+  "scripts": {
+    "type-check": "bun run --filter backend type-check && bun run --filter frontend type-check"
+  }
 }

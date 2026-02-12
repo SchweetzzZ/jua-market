@@ -7,49 +7,54 @@ import { sellerGuard } from "../admin/seller-guard"
 export const productsRoutes = new Elysia()
     .use(authMacro)
     .get("/products", async ({ set, user, query }) => {
-        const { limit = 10, offset = 0, search = "" } = query as any
-        const allowed = checkPermission(user.role, "products", "read")
-        if (!allowed) {
-            set.status = 403
-            return { success: false, message: "Acesso negado", data: null }
+        try {
+            const { limit = 10, offset = 0, search = "" } = query as any
+            const allowed = checkPermission(user.role, "products", "read")
+            if (!allowed) {
+                set.status = 403
+                return { success: false, message: "Acesso negado", data: null }
+            }
+            const result = await getByUserId(user.id, {
+                limit: Number(limit),
+                offset: Number(offset),
+                search: search
+            })
+            return { success: true, message: "Produtos buscados com sucesso", data: result.products, total: result.total }
+        } catch (error: any) {
+            set.status = 400
+            return { success: false, message: error.message || "Erro ao buscar produtos", data: null }
         }
-        const result = await getByUserId(user.id, {
-            limit: Number(limit),
-            offset: Number(offset),
-            search: search
-        })
-        if (!result || !result.success) {
-            set.status = 404
-            return { success: false, message: "Erro ao buscar produtos", data: null }
-        }
-        set.status = 200
-        return result
     }, {
         auth: true
     })
-    .get("/products/all", async ({ set }) => {
-        const data = await getAllProducts()
-        if (!data || !data.success) {
-            set.status = 404
-            return { success: false, message: "Nenhum produto encontrado", data: null }
+    .get("/products/all", async ({ set, query }) => {
+        try {
+            const { limit = 10, offset = 0, search = "" } = query as any
+            const result = await getAllProducts({
+                limit: Number(limit),
+                offset: Number(offset),
+                search
+            })
+            return { success: true, message: "Produtos buscados com sucesso", data: result.products, total: result.total }
+        } catch (error: any) {
+            set.status = 400
+            return { success: false, message: error.message || "Erro ao buscar todos os produtos", data: null }
         }
-        set.status = 200
-        return data
     })
     .use(sellerGuard)
     .post("/products", async ({ body, set, user }) => {
-        const allowed = checkPermission(user.role, "products", "create")
-        if (!allowed) {
-            set.status = 403
-            return { success: false, message: "Sem permissão para criar produtos", data: null }
+        try {
+            const allowed = checkPermission(user.role, "products", "create")
+            if (!allowed) {
+                set.status = 403
+                return { success: false, message: "Sem permissão para criar produtos", data: null }
+            }
+            const data = await createProduct(user.id, body)
+            return { success: true, message: "Produto criado com sucesso", data }
+        } catch (error: any) {
+            set.status = 400
+            return { success: false, message: error.message || "Erro ao criar produto", data: null }
         }
-        const data = await createProduct(user.id, body)
-        if (!data || !data.success) {
-            set.status = 404
-            return { success: false, message: "Erro ao criar produto", data: null }
-        }
-        set.status = 201
-        return data
     }, {
         auth: true,
         body: t.Object({
@@ -61,18 +66,18 @@ export const productsRoutes = new Elysia()
         })
     })
     .put("/products/:id", async ({ body, params, set, user }) => {
-        const allowed = checkPermission(user.role, "products", "update")
-        if (!allowed) {
-            set.status = 403
-            return { success: false, message: "Sem permissão para atualizar produtos", data: null }
+        try {
+            const allowed = checkPermission(user.role, "products", "update")
+            if (!allowed) {
+                set.status = 403
+                return { success: false, message: "Sem permissão para atualizar produtos", data: null }
+            }
+            const data = await updateProduct(params.id, user.id, body)
+            return { success: true, message: "Produto atualizado com sucesso", data }
+        } catch (error: any) {
+            set.status = 400
+            return { success: false, message: error.message || "Erro ao atualizar produto", data: null }
         }
-        const data = await updateProduct(params.id, user.id, body)
-        if (!data || !data.success) {
-            set.status = 404
-            return { success: false, message: "Erro ao atualizar produto", data: null }
-        }
-        set.status = 200
-        return data
     }, {
         auth: true,
         body: t.Partial(
@@ -87,61 +92,55 @@ export const productsRoutes = new Elysia()
     })
 
     .delete("/products/:id", async ({ params, user, set }) => {
-        const allowed = checkPermission(user.role, "products", "delete")
-        if (!allowed) {
-            set.status = 403
-            return { success: false, message: "Sem permissão para deletar produtos", data: null }
+        try {
+            const allowed = checkPermission(user.role, "products", "delete")
+            if (!allowed) {
+                set.status = 403
+                return { success: false, message: "Sem permissão para deletar produtos", data: null }
+            }
+            const data = await deleteProduct(params.id, user.id)
+            return { success: true, message: "Produto deletado com sucesso", data }
+        } catch (error: any) {
+            set.status = 400
+            return { success: false, message: error.message || "Erro ao deletar produto", data: null }
         }
-        const data = await deleteProduct(params.id, user.id)
-        if (!data || !data.success) {
-            set.status = 404
-            return { success: false, message: "Produto não encontrado", data: null }
-        }
-        set.status = 200
-        return data
     }, {
         auth: true
     })
 
     .get("/products/:id", async ({ params, set }) => {
-        const data = await getProductById(params.id)
-        if (!data || !data.success) {
+        try {
+            const data = await getProductById(params.id)
+            return { success: true, message: "Produto encontrado com sucesso", data }
+        } catch (error: any) {
             set.status = 404
-            return { success: false, message: "Produto não encontrado", data: null }
+            return { success: false, message: error.message || "Produto não encontrado", data: null }
         }
-        set.status = 200
-        return data
     })
     .get("/productsId/:id", async ({ params, set }) => {
-        console.log("teste")
-        const data = await getProductById(params.id)
-        if (!data || !data.success) {
+        try {
+            const data = await getProductById(params.id)
+            return { success: true, message: "Produto encontrado com sucesso", data }
+        } catch (error: any) {
             set.status = 404
-            return { success: false, message: "Produto não encontrado", data: null }
+            return { success: false, message: error.message || "Produto não encontrado", data: null }
         }
-        set.status = 200
-        return data
     })
-    //rota para pegar usuarios(nao era pra estar aqui mas ok)
     .get("/users", async ({ set }) => {
-        const data = await getUsers()
-        if (!data || !data.success) {
-            set.status = 404
-            return { success: false, message: "Nenhum usuário encontrado", data: null }
+        try {
+            const data = await getUsers()
+            return { success: true, message: "Usuários encontrados com sucesso", data }
+        } catch (error: any) {
+            set.status = 400
+            return { success: false, message: error.message || "Erro ao buscar usuários", data: null }
         }
-        set.status = 200
-        return data
     })
     .get("/users/:id", async ({ params, set }) => {
-        const { id } = params
-
-        const data = await getUserById(id)
-
-        if (!data || !data.success) {
+        try {
+            const data = await getUserById(params.id)
+            return { success: true, message: "Usuário encontrado com sucesso", data }
+        } catch (error: any) {
             set.status = 404
-            return { success: false, message: "Usuário não encontrado", data: null }
+            return { success: false, message: error.message || "Usuário não encontrado", data: null }
         }
-
-        set.status = 200
-        return data
     })
