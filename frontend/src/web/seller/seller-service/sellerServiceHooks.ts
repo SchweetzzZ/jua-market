@@ -7,6 +7,7 @@ export interface SellerService {
     description: string
     category: string
     imageUrl: string
+    imageKey?: string
     price: string
     createdAt: Date
     updatedAt: Date
@@ -69,6 +70,35 @@ export const useSellerServices = () => {
         fetchServices()
     }, [fetchServices])
 
+    const uploadImage = async (file: File) => {
+        const { data, error } = await api.upload.presigned.post({
+            fileName: file.name,
+            contentType: file.type,
+            fileSize: file.size
+        })
+
+        if (error || !data?.success) {
+            throw new Error((error?.value as any)?.message || (data as any)?.message || "Erro ao obter URL de upload")
+        }
+
+        const uploadData = (data as any).data
+        const { uploadUrl, imageUrl, imageKey } = uploadData
+
+        const response = await fetch(uploadUrl, {
+            method: "PUT",
+            body: file,
+            headers: {
+                "Content-Type": file.type
+            }
+        })
+
+        if (!response.ok) {
+            throw new Error("Erro ao fazer upload da imagem para o S3")
+        }
+
+        return { imageUrl, imageKey }
+    }
+
     const deleteSellerService = async (serviceId: string): Promise<void> => {
         const { data, error } = await api.servicos({ id: serviceId }).delete()
 
@@ -76,8 +106,8 @@ export const useSellerServices = () => {
             throw new Error((error.value as any)?.message || "Erro ao deletar serviço")
         }
 
-        if (data?.success === false) {
-            throw new Error(data.message || "Erro ao deletar serviço")
+        if (data && typeof data === 'object' && 'success' in data && (data as any).success === false) {
+            throw new Error((data as any).message || "Erro ao deletar serviço")
         }
 
         await fetchServices()
@@ -88,17 +118,26 @@ export const useSellerServices = () => {
         description: string
         category: string
         imageUrl: string
+        imageKey?: string
         price: string
         userId?: string
-    }): Promise<void> => {
-        const { data, error } = await api.servicos.post(serviceData)
+    }, imageFile?: File): Promise<void> => {
+        let finalData = { ...serviceData }
+
+        if (imageFile) {
+            const uploaded = await uploadImage(imageFile)
+            finalData.imageUrl = uploaded.imageUrl
+            finalData.imageKey = uploaded.imageKey
+        }
+
+        const { data, error } = await api.servicos.post(finalData)
 
         if (error) {
             throw new Error((error.value as any)?.message || "Erro ao criar serviço")
         }
 
-        if (data?.success === false) {
-            throw new Error(data.message || "Erro ao criar serviço")
+        if (data && typeof data === 'object' && 'success' in data && (data as any).success === false) {
+            throw new Error((data as any).message || "Erro ao criar serviço")
         }
 
         await fetchServices()
@@ -111,17 +150,27 @@ export const useSellerServices = () => {
             description: string
             category: string
             imageUrl: string
+            imageKey?: string
             price: string
-        }
+        },
+        imageFile?: File
     ): Promise<void> => {
-        const { data, error } = await api.servicos({ id: serviceId }).put(serviceData)
+        let finalData = { ...serviceData }
+
+        if (imageFile) {
+            const uploaded = await uploadImage(imageFile)
+            finalData.imageUrl = uploaded.imageUrl
+            finalData.imageKey = uploaded.imageKey
+        }
+
+        const { data, error } = await api.servicos({ id: serviceId }).put(finalData)
 
         if (error) {
             throw new Error((error.value as any)?.message || "Erro ao atualizar serviço")
         }
 
-        if (data?.success === false) {
-            throw new Error(data.message || "Erro ao atualizar serviço")
+        if (data && typeof data === 'object' && 'success' in data && (data as any).success === false) {
+            throw new Error((data as any).message || "Erro ao atualizar serviço")
         }
 
         await fetchServices()

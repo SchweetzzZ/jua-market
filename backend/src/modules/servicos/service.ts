@@ -2,12 +2,14 @@ import { db } from "../../db";
 import { table_servicos } from "../../db/schemas/servicos_schema";
 import { tablecategories } from "../../db/schemas/category_schema"
 import { eq, and, ilike, sql } from "drizzle-orm"
+import { deleteFromS3 } from "../../lib/s3";
 
 interface createServicoInput {
     name: string;
     description: string;
     category: string
     imageUrl: string;
+    imageKey?: string;
     price: string;
 }
 
@@ -27,6 +29,7 @@ export const createServicoAdmin = async (userId: string, input: createServicoInp
         name: input.name,
         description: input.description,
         imageUrl: input.imageUrl,
+        imageKey: input.imageKey,
         price: input.price,
     }).returning()
 
@@ -52,6 +55,7 @@ export const createServico = async (userId: string, input: createServicoInput) =
         name: input.name,
         description: input.description,
         imageUrl: input.imageUrl,
+        imageKey: input.imageKey,
         price: input.price,
     }).returning()
 
@@ -64,11 +68,23 @@ export const createServico = async (userId: string, input: createServicoInput) =
 
 //*******update para admin******/
 export const updateServiceAdmin = async (id: string, input: Partial<createServicoInput>) => {
+    // Se estivermos atualizando a imagem, vamos deletar a antiga do S3
+    if (input.imageKey) {
+        const currentService = await db.query.table_servicos.findFirst({
+            where: eq(table_servicos.id, id)
+        })
+
+        if (currentService?.imageKey && currentService.imageKey !== input.imageKey) {
+            await deleteFromS3(currentService.imageKey)
+        }
+    }
+
     const updateData: Partial<typeof table_servicos.$inferInsert> = {}
 
     if (input.name !== undefined) { updateData.name = input.name }
     if (input.description !== undefined) { updateData.description = input.description }
     if (input.imageUrl !== undefined) { updateData.imageUrl = input.imageUrl }
+    if (input.imageKey !== undefined) { updateData.imageKey = input.imageKey }
     if (input.price !== undefined) { updateData.price = input.price }
     if (input.category !== undefined) {
         const categoryExists = await db.select().from(tablecategories).where(
@@ -93,11 +109,26 @@ export const updateServiceAdmin = async (id: string, input: Partial<createServic
 }
 
 export const updateService = async (id: string, userId: string, input: Partial<createServicoInput>) => {
+    // Se estivermos atualizando a imagem, vamos deletar a antiga do S3
+    if (input.imageKey) {
+        const currentService = await db.query.table_servicos.findFirst({
+            where: and(
+                eq(table_servicos.id, id),
+                eq(table_servicos.user_id, userId)
+            )
+        })
+
+        if (currentService?.imageKey && currentService.imageKey !== input.imageKey) {
+            await deleteFromS3(currentService.imageKey)
+        }
+    }
+
     const updateData: Partial<typeof table_servicos.$inferInsert> = {}
 
     if (input.name !== undefined) { updateData.name = input.name }
     if (input.description !== undefined) { updateData.description = input.description }
     if (input.imageUrl !== undefined) { updateData.imageUrl = input.imageUrl }
+    if (input.imageKey !== undefined) { updateData.imageKey = input.imageKey }
     if (input.price !== undefined) { updateData.price = input.price }
     if (input.category !== undefined) {
         const categoryExists = await db.select().from(tablecategories).where(
@@ -129,6 +160,10 @@ export const deletService = async (id: string, userId: string) => {
 
     if (!deleteService) {
         throw new Error("Failed to delete service")
+    }
+
+    if (deleteService && deleteService.imageKey) {
+        await deleteFromS3(deleteService.imageKey)
     }
 
     return deleteService

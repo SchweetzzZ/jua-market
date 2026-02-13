@@ -9,6 +9,7 @@ export const table_servicos = pgTable("servicos", {
     description: text("description").notNull(),
     category: text("category").notNull().references(() => tablecategories.name),
     imageUrl: text("image_url").notNull(),
+    imageKey: text("image_key"),
     price: numeric("price", { precision: 10, scale: 2 }).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")

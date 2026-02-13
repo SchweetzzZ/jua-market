@@ -3,12 +3,14 @@ import { table_products } from "../../db/schemas/products_schemas";
 import { tablecategories } from "../../db/schemas/category_schema"
 import { eq, and, ilike, sql } from "drizzle-orm"
 import { user } from "../../db/schemas/auth-schema"
+import { deleteFromS3 } from "../../lib/s3";
 
 interface createProductInput {
     name: string;
     description: string;
     category: string
     imageUrl: string;
+    imageKey?: string;
     price: string;
 }
 
@@ -29,6 +31,7 @@ export const createProductAdmin = async (input: createProductInput, user_id: str
         name: input.name,
         description: input.description,
         imageUrl: input.imageUrl,
+        imageKey: input.imageKey,
         price: input.price,
     }).returning()
 
@@ -55,6 +58,7 @@ export const createProduct = async (user_id: string, input: createProductInput) 
         name: input.name,
         description: input.description,
         imageUrl: input.imageUrl,
+        imageKey: input.imageKey,
         price: input.price,
     }).returning()
 
@@ -66,11 +70,23 @@ export const createProduct = async (user_id: string, input: createProductInput) 
 
 //*******update para admin********/
 export const updateProductAdmin = async (id: string, input: Partial<createProductInput>) => {
+    // Se estivermos atualizando a imagem, vamos deletar a antiga do S3
+    if (input.imageKey) {
+        const currentProduct = await db.query.table_products.findFirst({
+            where: eq(table_products.id, id)
+        })
+
+        if (currentProduct?.imageKey && currentProduct.imageKey !== input.imageKey) {
+            await deleteFromS3(currentProduct.imageKey)
+        }
+    }
+
     const updateData: Partial<typeof table_products.$inferInsert> = {}
 
     if (input.name !== undefined) { updateData.name = input.name }
     if (input.description !== undefined) { updateData.description = input.description }
     if (input.imageUrl !== undefined) { updateData.imageUrl = input.imageUrl }
+    if (input.imageKey !== undefined) { updateData.imageKey = input.imageKey }
     if (input.price !== undefined) { updateData.price = input.price }
     if (input.category !== undefined) {
         const categoryExists = await db.select().from(tablecategories)
@@ -96,11 +112,26 @@ export const updateProductAdmin = async (id: string, input: Partial<createProduc
 
 //*******update para vendedor*******/
 export const updateProduct = async (id: string, user_id: string, input: Partial<createProductInput>) => {
+    // Se estivermos atualizando a imagem, vamos deletar a antiga do S3
+    if (input.imageKey) {
+        const currentProduct = await db.query.table_products.findFirst({
+            where: and(
+                eq(table_products.id, id),
+                eq(table_products.user_id, user_id)
+            )
+        })
+
+        if (currentProduct?.imageKey && currentProduct.imageKey !== input.imageKey) {
+            await deleteFromS3(currentProduct.imageKey)
+        }
+    }
+
     const updateData: Partial<typeof table_products.$inferInsert> = {}
 
     if (input.name !== undefined) { updateData.name = input.name }
     if (input.description !== undefined) { updateData.description = input.description }
     if (input.imageUrl !== undefined) { updateData.imageUrl = input.imageUrl }
+    if (input.imageKey !== undefined) { updateData.imageKey = input.imageKey }
     if (input.price !== undefined) { updateData.price = input.price }
     if (input.category !== undefined) {
         const categoryExists = await db.select().from(tablecategories)
@@ -135,6 +166,10 @@ export const deleteProductAdmin = async (id: string) => {
         throw new Error("Erro ao deletar produto")
     }
 
+    if (deleted && deleted[0]?.imageKey) {
+        await deleteFromS3(deleted[0].imageKey)
+    }
+
     return deleted
 }
 
@@ -146,6 +181,9 @@ export const deleteProduct = async (id: string, user_id: string) => {
 
     if (!deleteProduct || deleteProduct.length === 0) {
         throw new Error("Erro ao deletar produto")
+    }
+    if (deleteProduct && deleteProduct[0]?.imageKey) {
+        await deleteFromS3(deleteProduct[0].imageKey)
     }
     return deleteProduct
 }

@@ -7,6 +7,7 @@ export interface SellerProduct {
     description: string
     price: string
     imageUrl: string
+    imageKey?: string
     category: string
     createdAt: Date
     updatedAt: Date
@@ -64,19 +65,33 @@ export const useSellerProducts = () => {
         }
     }, [page, limit, searchQuery])
 
-    const deletSellerProduct = async (productId: string): Promise<void> => {
-        const { data, error } = await api.products({ id: productId }).delete()
+    const uploadImage = async (file: File) => {
+        const { data, error } = await api.upload.presigned.post({
+            fileName: file.name,
+            contentType: file.type,
+            fileSize: file.size
+        })
 
-        if (error) {
-            const errorMessage = (error.value as any)?.message || "Erro ao deletar produto"
-            throw new Error(errorMessage)
+        if (error || !data?.success) {
+            throw new Error((error?.value as any)?.message || (data as any)?.message || "Erro ao obter URL de upload")
         }
 
-        if (data?.success === false) {
-            throw new Error(data.message || "Erro ao deletar produto")
+        const uploadData = (data as any).data
+        const { uploadUrl, imageUrl, imageKey } = uploadData
+
+        const response = await fetch(uploadUrl, {
+            method: "PUT",
+            body: file,
+            headers: {
+                "Content-Type": file.type
+            }
+        })
+
+        if (!response.ok) {
+            throw new Error("Erro ao fazer upload da imagem para o S3")
         }
 
-        await fetchProducts()
+        return { imageUrl, imageKey }
     }
 
     const createProduct = async (productData: {
@@ -84,18 +99,27 @@ export const useSellerProducts = () => {
         description: string
         category: string
         imageUrl: string
+        imageKey?: string
         price: string
         userId?: string
-    }): Promise<void> => {
-        const { data, error } = await api.products.post(productData)
+    }, imageFile?: File): Promise<void> => {
+        let finalData = { ...productData }
+
+        if (imageFile) {
+            const uploaded = await uploadImage(imageFile)
+            finalData.imageUrl = uploaded.imageUrl
+            finalData.imageKey = uploaded.imageKey
+        }
+
+        const { data, error } = await api.products.post(finalData)
 
         if (error) {
             const errorMessage = (error.value as any)?.message || "Erro ao criar produto"
             throw new Error(errorMessage)
         }
 
-        if (data?.success === false) {
-            throw new Error(data.message || "Erro ao criar produto")
+        if (data && typeof data === 'object' && 'success' in data && (data as any).success === false) {
+            throw new Error((data as any).message || "Erro ao criar produto")
         }
 
         await fetchProducts()
@@ -106,17 +130,41 @@ export const useSellerProducts = () => {
         description: string
         category: string
         imageUrl: string
+        imageKey?: string
         price: string
-    }): Promise<void> => {
-        const { data, error } = await api.products({ id: productId }).put(productData)
+    }, imageFile?: File): Promise<void> => {
+        let finalData = { ...productData }
+
+        if (imageFile) {
+            const uploaded = await uploadImage(imageFile)
+            finalData.imageUrl = uploaded.imageUrl
+            finalData.imageKey = uploaded.imageKey
+        }
+
+        const { data, error } = await api.products({ id: productId }).put(finalData)
 
         if (error) {
             const errorMessage = (error.value as any)?.message || "Erro ao atualizar produto"
             throw new Error(errorMessage)
         }
 
-        if (data?.success === false) {
-            throw new Error(data.message || "Erro ao atualizar produto")
+        if (data && typeof data === 'object' && 'success' in data && (data as any).success === false) {
+            throw new Error((data as any).message || "Erro ao atualizar produto")
+        }
+
+        await fetchProducts()
+    }
+
+    const deletSellerProduct = async (productId: string): Promise<void> => {
+        const { data, error } = await api.products({ id: productId }).delete()
+
+        if (error) {
+            const errorMessage = (error.value as any)?.message || "Erro ao deletar produto"
+            throw new Error(errorMessage)
+        }
+
+        if (data && typeof data === 'object' && 'success' in data && (data as any).success === false) {
+            throw new Error((data as any).message || "Erro ao deletar produto")
         }
 
         await fetchProducts()

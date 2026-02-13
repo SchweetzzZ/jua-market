@@ -43,6 +43,13 @@
       "when": 1770584643351,
       "tag": "0005_sharp_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1770935179816,
+      "tag": "0006_tranquil_texas_twister",
+      "breakpoints": true
     }
   ]
 }
