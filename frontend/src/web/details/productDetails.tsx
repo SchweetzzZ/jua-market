@@ -109,7 +109,7 @@ export default function ProductDetailsPage() {
                             {/* Decorative backing for the image card */}
                             <div className="absolute -inset-4 bg-indigo-50/50 rounded-[2.5rem] -rotate-1 scale-[0.98] blur-sm pointer-events-none group-hover:rotate-0 transition-transform duration-700"></div>
 
-                            <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-white shadow-2xl ring-1 ring-slate-200 transition-transform duration-700 group-hover:scale-[1.01]">
+                            <div className="relative aspect-4/5 overflow-hidden rounded-4xl bg-white shadow-2xl ring-1 ring-slate-200 transition-transform duration-700 group-hover:scale-[1.01]">
                                 <img
                                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                                     src={itemImageUrl(product.imageUrl)}
