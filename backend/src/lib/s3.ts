@@ -2,13 +2,16 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3Client = new S3Client({
-    region: process.env.AWS_REGION || "us-east-1",
+    region: process.env.AWS_REGION || "auto", // R2 recomenda "auto"
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
     },
-    endpoint: process.env.AWS_ENDPOINT, // Permite usar R2 ou LocalStack
+    endpoint: process.env.AWS_ENDPOINT,
     forcePathStyle: true,
+    // Desativar checksums flexíveis para compatibilidade com R2
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
 });
 
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME || "";

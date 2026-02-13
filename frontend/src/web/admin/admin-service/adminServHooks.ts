@@ -7,6 +7,7 @@ export interface AdminService {
     description: string
     category: string
     imageUrl: string
+    imageKey?: string
     price: string
     createdAt: Date
     updatedAt: Date
@@ -64,6 +65,35 @@ export const useAdminServices = () => {
         }
     }, [page, limit, searchQuery])
 
+    const uploadImage = async (file: File) => {
+        const { data, error } = await api.upload.presigned.post({
+            fileName: file.name,
+            contentType: file.type,
+            fileSize: file.size
+        })
+
+        if (error || !data?.success) {
+            throw new Error((error?.value as any)?.message || (data as any)?.message || "Erro ao obter URL de upload")
+        }
+
+        const uploadData = (data as any).data
+        const { uploadUrl, imageUrl, imageKey } = uploadData
+
+        const response = await fetch(uploadUrl, {
+            method: "PUT",
+            body: file,
+            headers: {
+                "Content-Type": file.type
+            }
+        })
+
+        if (!response.ok) {
+            throw new Error("Erro ao fazer upload da imagem para o S3")
+        }
+
+        return { imageUrl, imageKey }
+    }
+
     const deleteAdminService = async (serviceId: string): Promise<void> => {
         const { data, error } = await api.admin.services({ id: serviceId }).delete()
 
@@ -84,10 +114,19 @@ export const useAdminServices = () => {
         description: string
         category: string
         imageUrl: string
+        imageKey?: string
         price: string
         userId?: string
-    }): Promise<void> => {
-        const { data, error } = await api.admin.services.post(serviceData)
+    }, imageFile?: File): Promise<void> => {
+        let finalData = { ...serviceData }
+
+        if (imageFile) {
+            const uploaded = await uploadImage(imageFile)
+            finalData.imageUrl = uploaded.imageUrl
+            finalData.imageKey = uploaded.imageKey
+        }
+
+        const { data, error } = await api.admin.services.post(finalData)
 
         if (error) {
             const errorMessage = (error.value as any)?.message || "Erro ao criar serviço"
@@ -106,9 +145,18 @@ export const useAdminServices = () => {
         description: string
         category: string
         imageUrl: string
+        imageKey?: string
         price: string
-    }): Promise<void> => {
-        const { data, error } = await api.admin.services({ id: serviceId }).put(serviceData)
+    }, imageFile?: File): Promise<void> => {
+        let finalData = { ...serviceData }
+
+        if (imageFile) {
+            const uploaded = await uploadImage(imageFile)
+            finalData.imageUrl = uploaded.imageUrl
+            finalData.imageKey = uploaded.imageKey
+        }
+
+        const { data, error } = await api.admin.services({ id: serviceId }).put(finalData)
 
         if (error) {
             const errorMessage = (error.value as any)?.message || "Erro ao atualizar serviço"

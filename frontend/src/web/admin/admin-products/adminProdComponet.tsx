@@ -18,14 +18,14 @@ interface AdminProductTableProps {
         imageUrl: string
         price: string
         userId?: string
-    }) => Promise<void>
+    }, imageFile?: File) => Promise<void>
     updateProduct: (productId: string, productData: {
         name: string
         description: string
         category: string
         imageUrl: string
         price: string
-    }) => Promise<void>
+    }, imageFile?: File) => Promise<void>
 }
 
 export const AdminProductTable = ({
@@ -45,6 +45,9 @@ export const AdminProductTable = ({
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [editingImageFile, setEditingImageFile] = useState<File | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         description: "",
@@ -56,8 +59,9 @@ export const AdminProductTable = ({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsUploading(true);
         try {
-            await createProduct(formData);
+            await createProduct(formData, imageFile || undefined);
             setShowModal(false);
             setFormData({
                 name: "",
@@ -67,20 +71,25 @@ export const AdminProductTable = ({
                 price: "",
                 userId: ""
             });
+            setImageFile(null);
             alert("Produto criado com sucesso!");
         } catch (err: any) {
             alert(err.message || "Erro ao criar produto");
+        } finally {
+            setIsUploading(false);
         }
     };
 
     const handleEdit = (product: AdminProduct) => {
         setEditingProduct(product);
+        setEditingImageFile(null);
         setShowEditModal(true);
     };
 
     const handleEditSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingProduct) return;
+        setIsUploading(true);
 
         try {
             await updateProduct(editingProduct.id, {
@@ -89,12 +98,15 @@ export const AdminProductTable = ({
                 category: editingProduct.category,
                 imageUrl: editingProduct.imageUrl,
                 price: editingProduct.price
-            });
+            }, editingImageFile || undefined);
             setShowEditModal(false);
             setEditingProduct(null);
+            setEditingImageFile(null);
             alert("Produto atualizado com sucesso!");
         } catch (err: any) {
             alert(err.message || "Erro ao atualizar produto");
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -269,14 +281,15 @@ export const AdminProductTable = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">URL da Imagem</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Imagem do Produto</label>
                                 <input
-                                    type="text"
+                                    type="file"
+                                    accept="image/*"
                                     required
-                                    value={formData.imageUrl}
-                                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 />
+                                {imageFile && <p className="mt-1 text-xs text-slate-500">Selecionado: {imageFile.name}</p>}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Preço</label>
@@ -309,9 +322,10 @@ export const AdminProductTable = ({
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+                                    disabled={isUploading}
+                                    className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                                 >
-                                    Criar
+                                    {isUploading ? "Enviando..." : "Criar"}
                                 </button>
                             </div>
                         </form>
@@ -356,14 +370,18 @@ export const AdminProductTable = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">URL da Imagem</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Alterar Imagem (Opcional)</label>
                                 <input
-                                    type="text"
-                                    required
-                                    value={editingProduct.imageUrl}
-                                    onChange={(e) => setEditingProduct({ ...editingProduct, imageUrl: e.target.value })}
-                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => setEditingImageFile(e.target.files?.[0] || null)}
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 />
+                                {editingImageFile ? (
+                                    <p className="mt-1 text-xs text-slate-500">Nova imagem: {editingImageFile.name}</p>
+                                ) : (
+                                    <p className="mt-1 text-xs text-slate-500 truncate">Atual: {editingProduct.imageUrl}</p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Preço</label>
@@ -389,9 +407,10 @@ export const AdminProductTable = ({
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+                                    disabled={isUploading}
+                                    className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                                 >
-                                    Salvar
+                                    {isUploading ? "Salvando..." : "Salvar"}
                                 </button>
                             </div>
                         </form>

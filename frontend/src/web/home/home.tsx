@@ -129,7 +129,7 @@ export default function Home() {
                                                 )}
                                                 <button onClick={() => { navigate("/favoritos"); setUserDropdownOpen(false); }}
                                                     className="w-full text-left px-4 py-2 text-slate-700 hover:bg-slate-50 font-bold transition flex items-center gap-2">
-                                                    <span className="text-lg">❤️</span> Favoritos
+                                                    Favoritos
                                                 </button>
                                                 <div className="h-px bg-slate-100 my-1 mx-4"></div>
                                                 <button
@@ -139,7 +139,7 @@ export default function Home() {
                                                     }}
                                                     className="w-full text-left px-4 py-2 text-red-500 hover:bg-slate-50 font-bold transition flex items-center gap-2"
                                                 >
-                                                    <span className="text-lg">🚪</span> Sair
+                                                    Sair
                                                 </button>
                                             </div>
                                         )}
