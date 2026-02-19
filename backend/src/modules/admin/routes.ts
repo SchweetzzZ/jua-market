@@ -211,7 +211,7 @@ export const adminRoutes = new Elysia({
 
     .get("/users", async ({ query, request: { headers }, set }) => {
         try {
-            const { limit = 10, offset = 0, search = "" } = query as any;
+            const { limit = 9, offset = 0, search = "" } = query as any;
             const isEmail = search.includes("@");
 
             const listData = await auth.api.listUsers({
@@ -239,7 +239,7 @@ export const adminRoutes = new Elysia({
 
     .get("/products", async ({ query, set }) => {
         try {
-            const { limit = 10, offset = 0, search = "" } = query as any;
+            const { limit = 100, offset = 0, search = "" } = query as any;
             const result = await getAllProducts({
                 limit: Number(limit),
                 offset: Number(offset),
@@ -254,7 +254,7 @@ export const adminRoutes = new Elysia({
 
     .get("/services", async ({ query, set }) => {
         try {
-            const { limit = 10, offset = 0, search = "" } = query as any;
+            const { limit = 100, offset = 0, search = "" } = query as any;
             const result = await getAllServices({
                 limit: Number(limit),
                 offset: Number(offset),

@@ -8,7 +8,7 @@ export const servicesRoutes = new Elysia()
     .use(authMacro)
     .get("/servicos", async ({ set, user, query }) => {
         try {
-            const { limit = 10, offset = 0, search = "" } = query as any
+            const { limit = 9, offset = 0, search = "" } = query as any
             const allowed = checkPermission(user.role, "services", "read")
             if (!allowed) {
                 set.status = 403
@@ -23,14 +23,14 @@ export const servicesRoutes = new Elysia()
             return { success: true, message: "Serviços buscados com sucesso", data: result.services, total: result.total }
         } catch (error: any) {
             set.status = 400
-            return { success: false, message: error.message || "Erro ao buscar serviços", data: null }
+            return { success: false, message: "Erro ao buscar serviços", data: null }
         }
     }, {
         auth: true
     })
     .get("/servicos/all", async ({ set, query }) => {
         try {
-            const { limit = 10, offset = 0, search = "" } = query as any
+            const { limit = 9, offset = 0, search = "" } = query as any
             const result = await getAllServices({
                 limit: Number(limit),
                 offset: Number(offset),
@@ -40,6 +40,15 @@ export const servicesRoutes = new Elysia()
         } catch (error: any) {
             set.status = 400
             return { success: false, message: error.message || "Erro ao buscar todos os serviços", data: null }
+        }
+    })
+    .get("/servicos/:id", async ({ params, set }) => {
+        try {
+            const data = await getServiceById(params.id)
+            return { success: true, message: "Serviço encontrado com sucesso", data }
+        } catch (error: any) {
+            set.status = 404
+            return { success: false, message: error.message || "Serviço não encontrado", data: null }
         }
     })
     .use(sellerGuard)
@@ -54,7 +63,7 @@ export const servicesRoutes = new Elysia()
             return { success: true, message: "Serviço criado com sucesso", data }
         } catch (error: any) {
             set.status = 400
-            return { success: false, message: error.message || "Erro ao criar serviço", data: null }
+            return { success: false, message: "Erro ao criar serviço", data: null }
         }
     }, {
         auth: true,
@@ -79,7 +88,7 @@ export const servicesRoutes = new Elysia()
             return { success: true, message: "Serviço atualizado com sucesso", data }
         } catch (error: any) {
             set.status = 400
-            return { success: false, message: error.message || "Erro ao atualizar serviço", data: null }
+            return { success: false, message: "Erro ao atualizar serviço", data: null }
         }
     }, {
         auth: true,
@@ -106,26 +115,15 @@ export const servicesRoutes = new Elysia()
             return { success: true, message: "Serviço deletado com sucesso", data }
         } catch (error: any) {
             set.status = 400
-            return { success: false, message: error.message || "Erro ao deletar serviço", data: null }
+            return { success: false, message: "Erro ao deletar serviço", data: null }
         }
     }, {
         auth: true
     })
 
-
-    .get("/servicos/:id", async ({ params, set }) => {
-        try {
-            const data = await getServiceById(params.id)
-            return { success: true, message: "Serviço encontrado com sucesso", data }
-        } catch (error: any) {
-            set.status = 404
-            return { success: false, message: error.message || "Serviço não encontrado", data: null }
-        }
-    })
-
     .get("/servicos/me", async ({ user, query, set }) => {
         try {
-            const { limit = 10, offset = 0, search = "" } = query as any
+            const { limit = 9, offset = 0, search = "" } = query as any
             const result = await getByUserId(user.id, {
                 limit: Number(limit),
                 offset: Number(offset),
@@ -134,7 +132,7 @@ export const servicesRoutes = new Elysia()
             return { success: true, message: "Serviços buscados com sucesso", data: result.services, total: result.total }
         } catch (error: any) {
             set.status = 400
-            return { success: false, message: error.message || "Erro ao buscar serviços do usuário", data: null }
+            return { success: false, message: "Erro ao buscar serviços do usuário", data: null }
         }
     }, {
         auth: true

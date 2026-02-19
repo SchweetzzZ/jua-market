@@ -189,7 +189,7 @@ export const deleteProduct = async (id: string, user_id: string) => {
 }
 
 export const getByUserId = async (user_id: string, options?: { search?: string; limit?: number; offset?: number }) => {
-    const { search = "", limit = 10, offset = 0 } = options || {}
+    const { search = "", limit = 9, offset = 0 } = options || {}
 
     let query = db.select().from(table_products).where(eq(table_products.user_id, user_id))
 
@@ -215,7 +215,7 @@ export const getByUserId = async (user_id: string, options?: { search?: string; 
 }
 
 export const getAllProducts = async (options?: { search?: string; limit?: number; offset?: number }) => {
-    const { search = "", limit = 10, offset = 0 } = options || {}
+    const { search = "", limit = 9, offset = 0 } = options || {}
 
     let query = db.select().from(table_products)
 

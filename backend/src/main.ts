@@ -10,6 +10,7 @@ import { createAdmin } from "./modules/admin/create-admin";
 import { swaggerModules } from "./modules/swagger";
 import { favoritesRoutes } from "./modules/favorites/favorites";
 import { uploadRoutes } from "./modules/upload/routes";
+import { commentsRoutes } from "./modules/comments/routes";
 
 async function createAdm() {
   await createAdmin()
@@ -25,6 +26,7 @@ export const createCoreApi = () => {
         allowedHeaders: ["Content-Type", "Authorization"],
       }
     ))
+    .mount(auth.handler)
     .onError(({ code, error, set }) => {
       if (code === 'NOT_FOUND') {
         set.status = 404
@@ -49,7 +51,6 @@ export const createCoreApi = () => {
         data: null
       }
     })
-    .mount(auth.handler)
     .use(authMacro)
     .use(swaggerModules)
     .use(adminRoutes)
@@ -57,6 +58,7 @@ export const createCoreApi = () => {
     .use(categoryRoutes)
     .use(servicesRoutes)
     .use(favoritesRoutes)
+    .use(commentsRoutes)
     .use(uploadRoutes)
     .get("/teste", () => "Hello Elysia")
     .get("/", () => "Hello Elysia")

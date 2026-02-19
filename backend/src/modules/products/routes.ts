@@ -8,7 +8,7 @@ export const productsRoutes = new Elysia()
     .use(authMacro)
     .get("/products", async ({ set, user, query }) => {
         try {
-            const { limit = 10, offset = 0, search = "" } = query as any
+            const { limit = 9, offset = 0, search = "" } = query as any
             const allowed = checkPermission(user.role, "products", "read")
             if (!allowed) {
                 set.status = 403
@@ -22,14 +22,14 @@ export const productsRoutes = new Elysia()
             return { success: true, message: "Produtos buscados com sucesso", data: result.products, total: result.total }
         } catch (error: any) {
             set.status = 400
-            return { success: false, message: error.message || "Erro ao buscar produtos", data: null }
+            return { success: false, message: "Erro ao buscar produtos", data: null }
         }
     }, {
         auth: true
     })
     .get("/products/all", async ({ set, query }) => {
         try {
-            const { limit = 10, offset = 0, search = "" } = query as any
+            const { limit = 9, offset = 0, search = "" } = query as any
             const result = await getAllProducts({
                 limit: Number(limit),
                 offset: Number(offset),
@@ -38,7 +38,43 @@ export const productsRoutes = new Elysia()
             return { success: true, message: "Produtos buscados com sucesso", data: result.products, total: result.total }
         } catch (error: any) {
             set.status = 400
-            return { success: false, message: error.message || "Erro ao buscar todos os produtos", data: null }
+            return { success: false, message: "Erro ao buscar todos os produtos", data: null }
+        }
+    })
+    .get("/products/:id", async ({ params, set }) => {
+        try {
+            const data = await getProductById(params.id)
+            return { success: true, message: "Produto encontrado com sucesso", data }
+        } catch (error: any) {
+            set.status = 404
+            return { success: false, message: "Produto não encontrado", data: null }
+        }
+    })
+    .get("/productsId/:id", async ({ params, set }) => {
+        try {
+            const data = await getProductById(params.id)
+            return { success: true, message: "Produto encontrado com sucesso", data }
+        } catch (error: any) {
+            set.status = 404
+            return { success: false, message: error.message || "Produto não encontrado", data: null }
+        }
+    })
+    .get("/users", async ({ set }) => {
+        try {
+            const data = await getUsers()
+            return { success: true, message: "Usuários encontrados com sucesso", data }
+        } catch (error: any) {
+            set.status = 400
+            return { success: false, message: error.message || "Erro ao buscar usuários", data: null }
+        }
+    })
+    .get("/users/:id", async ({ params, set }) => {
+        try {
+            const data = await getUserById(params.id)
+            return { success: true, message: "Usuário encontrado com sucesso", data }
+        } catch (error: any) {
+            set.status = 404
+            return { success: false, message: error.message || "Usuário não encontrado", data: null }
         }
     })
     .use(sellerGuard)
@@ -108,41 +144,4 @@ export const productsRoutes = new Elysia()
         }
     }, {
         auth: true
-    })
-
-    .get("/products/:id", async ({ params, set }) => {
-        try {
-            const data = await getProductById(params.id)
-            return { success: true, message: "Produto encontrado com sucesso", data }
-        } catch (error: any) {
-            set.status = 404
-            return { success: false, message: error.message || "Produto não encontrado", data: null }
-        }
-    })
-    .get("/productsId/:id", async ({ params, set }) => {
-        try {
-            const data = await getProductById(params.id)
-            return { success: true, message: "Produto encontrado com sucesso", data }
-        } catch (error: any) {
-            set.status = 404
-            return { success: false, message: error.message || "Produto não encontrado", data: null }
-        }
-    })
-    .get("/users", async ({ set }) => {
-        try {
-            const data = await getUsers()
-            return { success: true, message: "Usuários encontrados com sucesso", data }
-        } catch (error: any) {
-            set.status = 400
-            return { success: false, message: error.message || "Erro ao buscar usuários", data: null }
-        }
-    })
-    .get("/users/:id", async ({ params, set }) => {
-        try {
-            const data = await getUserById(params.id)
-            return { success: true, message: "Usuário encontrado com sucesso", data }
-        } catch (error: any) {
-            set.status = 404
-            return { success: false, message: error.message || "Usuário não encontrado", data: null }
-        }
     })

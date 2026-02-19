@@ -170,7 +170,7 @@ export const deletService = async (id: string, userId: string) => {
 }
 
 export const getByUserId = async (userId: string, options?: { search?: string; limit?: number; offset?: number }) => {
-    const { search = "", limit = 10, offset = 0 } = options || {}
+    const { search = "", limit = 9, offset = 0 } = options || {}
 
     let query = db.select().from(table_servicos).where(eq(table_servicos.user_id, userId))
 
@@ -195,7 +195,7 @@ export const getByUserId = async (userId: string, options?: { search?: string; l
 }
 
 export const getAllServices = async (options?: { search?: string; limit?: number; offset?: number }) => {
-    const { search = "", limit = 10, offset = 0 } = options || {}
+    const { search = "", limit = 9, offset = 0 } = options || {}
 
     let query = db.select().from(table_servicos)
 
