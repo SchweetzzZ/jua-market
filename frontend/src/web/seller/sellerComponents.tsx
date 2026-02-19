@@ -8,7 +8,6 @@ interface SidebarProps {
 
 export const SellerSidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) => {
     const menuItems = [
-        { id: "overview", label: "Visão Geral", icon: "📊" },
         { id: "products", label: "Produtos", icon: "📦" },
         { id: "services", label: "Serviços", icon: "🔧" },
         { id: "settings", label: "Configurações", icon: "⚙️" },

@@ -98,12 +98,12 @@ export default function ServicosDetailsPage() {
 
                     {/* Imagem */}
                     <div className="lg:sticky lg:top-24 lg:self-start">
-                        <div className="aspect-square rounded-2xl overflow-hidden bg-slate-50">
+                        <div className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-white shadow-2xl ring-1 ring-slate-200 transition-transform duration-700 hover:scale-[1.01] group">
                             <img
-                                className="w-full h-full object-cover"
-                                src={servico.imageUrl || "https://placehold.co/600x600/f8fafc/94a3b8?text=Serviço"}
+                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                src={servico.imageUrl || "https://placehold.co/600x800?text=Serviço"}
                                 alt={servico.name}
-                                onError={(e) => (e.currentTarget.src = "https://placehold.co/600x600/f8fafc/94a3b8?text=Serviço")}
+                                onError={(e) => (e.currentTarget.src = "https://placehold.co/600x800?text=Serviço")}
                             />
                         </div>
                     </div>

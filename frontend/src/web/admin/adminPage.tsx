@@ -49,16 +49,9 @@ export default function AdminPage() {
         const isAdmin = role === "admin" || (Array.isArray(role) && role.includes("admin"));
 
         if (isAdmin) {
-            if (activeSection === "users") {
-                fetchUsers({ page, search: debouncedSearch });
-            }
-
-            if (activeSection === "products") {
-                fetchProducts({ page: prodPage, search: debouncedProdSearch });
-            }
-            if (activeSection === "services") {
-                fetchServices({ page: servPage, search: debouncedServSearch });
-            }
+            fetchUsers({ page, search: debouncedSearch });
+            fetchProducts({ page: prodPage, search: debouncedProdSearch });
+            fetchServices({ page: servPage, search: debouncedServSearch });
         }
     }, [activeSection, page, debouncedSearch, prodPage, debouncedProdSearch, servPage, debouncedServSearch, session, fetchUsers, fetchProducts, fetchServices]);
 

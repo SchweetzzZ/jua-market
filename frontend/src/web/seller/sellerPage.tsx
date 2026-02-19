@@ -11,7 +11,7 @@ import { SellerServiceTable } from "../seller/seller-service/sellerServiceCompon
 export default function SellerPage() {
     const navigate = useNavigate();
     const { data: session, isPending } = useSession();
-    const [activeSection, setActiveSection] = useState("overview");
+    const [activeSection, setActiveSection] = useState("products");
 
     const { products, isLoading: productsLoading, error: productsError, fetchProducts, deleteProduct, createProduct, updateProduct, totalProducts,
         page: prodPage, setPage: setProdPage, searchQuery: prodSearch, setSearchQuery: setProdSearch } = useSellerProducts();
@@ -45,18 +45,9 @@ export default function SellerPage() {
         const isAuthorized = role === "admin" || role === "seller" || (Array.isArray(role) && (role.includes("admin") || role.includes("seller")));
 
         if (isAuthorized) {
-            if (activeSection === "overview") {
-                // Pre-fetch for dashboard if needed
-                fetchProducts({ page: 1, search: "" });
-                fetchServices({ page: 1, search: "" });
-            }
-
-            if (activeSection === "products") {
-                fetchProducts({ page: prodPage, search: debouncedProdSearch });
-            }
-            if (activeSection === "services") {
-                fetchServices({ page: servPage, search: debouncedServSearch });
-            }
+            // Sempre busca ambos na primeira carga para popular os MetricCards
+            fetchProducts({ page: prodPage, search: debouncedProdSearch });
+            fetchServices({ page: servPage, search: debouncedServSearch });
         }
     }, [activeSection, prodPage, debouncedProdSearch, servPage, debouncedServSearch, session, fetchProducts, fetchServices]);
 
@@ -95,7 +86,6 @@ export default function SellerPage() {
                 <header className="flex justify-between items-center mb-10">
                     <div>
                         <h1 className="text-3xl font-bold text-slate-800">
-                            {activeSection === "overview" && "Painel de Controle"}
                             {activeSection === "products" && "Produtos"}
                             {activeSection === "settings" && "Configurações do Sistema"}
                             {activeSection === "services" && "Serviços"}
@@ -109,6 +99,12 @@ export default function SellerPage() {
                     </div>
                 </header>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <MetricCard title="Total Produtos" value={totalProducts} icon="📦" />
+                    <MetricCard title="Total Serviços" value={totalServices} icon="🔧" />
+                    <MetricCard title="Suporte Aberto" value="3" icon="🎧" />
+                </div>
+
                 {(productsError || servicesError) && (
                     <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded shadow-sm">
                         <div className="flex items-center">
@@ -118,19 +114,7 @@ export default function SellerPage() {
                     </div>
                 )}
 
-                {activeSection === "overview" && (
-                    <div className="space-y-10">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <MetricCard title="Total Produtos" value={totalProducts} icon="📦" />
-                            <MetricCard title="Total Serviços" value={totalServices} icon="🔧" />
-                            <MetricCard title="Suporte Aberto" value="3" icon="🎧" />
-                        </div>
 
-                        <section>
-
-                        </section>
-                    </div>
-                )}
 
                 {activeSection === "products" && (
                     <SellerProductTable
