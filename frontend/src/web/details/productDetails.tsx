@@ -96,6 +96,7 @@ export default function ProductDetailsPage() {
                 {/* Layout principal */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
 
+<<<<<<< HEAD
                     {/* Imagem */}
                     <div className="lg:sticky lg:top-24 lg:self-start">
                         <div className="aspect-square rounded-2xl overflow-hidden bg-slate-50">
@@ -105,6 +106,16 @@ export default function ProductDetailsPage() {
                                 alt={product.name}
                                 onError={(e) => (e.currentTarget.src = "https://placehold.co/600x600/f8fafc/94a3b8?text=Produto")}
                             />
+=======
+                            <div className="relative aspect-4/5 overflow-hidden rounded-4xl bg-white shadow-2xl ring-1 ring-slate-200 transition-transform duration-700 group-hover:scale-[1.01]">
+                                <img
+                                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                    src={itemImageUrl(product.imageUrl)}
+                                    alt={product.name}
+                                    onError={(e) => (e.currentTarget.src = "https://placehold.co/600x800?text=Indisponivel")}
+                                />
+                            </div>
+>>>>>>> 34d4d873c2e70dcfe3d432c1bf5194a8b5e22da1
                         </div>
                     </div>
 
