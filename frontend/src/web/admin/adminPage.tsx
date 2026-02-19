@@ -12,7 +12,7 @@ import { AdminServiceTable } from "./admin-service/adminServComponents";
 export default function AdminPage() {
     const navigate = useNavigate();
     const { data: session, isPending } = useSession();
-    const [activeSection, setActiveSection] = useState("overview");
+    const [activeSection, setActiveSection] = useState("users");
     const { users, isLoading, error, fetchUsers, banUser, unbanUser, totalUsers, page, setPage,
         searchQuery, setSearchQuery } = useAdminUsers();
     const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -51,8 +51,6 @@ export default function AdminPage() {
         if (isAdmin) {
             if (activeSection === "users") {
                 fetchUsers({ page, search: debouncedSearch });
-            } else if (activeSection === "overview") {
-                fetchUsers({ page: 1, search: "" });
             }
 
             if (activeSection === "products") {
@@ -124,14 +122,13 @@ export default function AdminPage() {
     };
 
     return (
-        <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900">
+        <div className="flex h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden">
             <AdminSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
 
             <main className="flex-1 p-10 overflow-y-auto">
                 <header className="flex justify-between items-center mb-10">
                     <div>
                         <h1 className="text-3xl font-bold text-slate-800">
-                            {activeSection === "overview" && "Painel de Controle"}
                             {activeSection === "users" && "Gerenciamento de Usuários"}
                             {activeSection === "products" && "Produtos"}
                             {activeSection === "settings" && "Configurações do Sistema"}
@@ -146,6 +143,12 @@ export default function AdminPage() {
                     </div>
                 </header>
 
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <MetricCard title="Total de Usuários" value={totalUsers} icon="👥" />
+                    <MetricCard title="Produtos Ativos" value={totalProducts} icon="📦" />
+                    <MetricCard title="Serviços Ativos" value={totalServices} icon="🔧" />
+                </div>
+
                 {error && (
                     <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded shadow-sm">
                         <div className="flex items-center">
@@ -155,32 +158,7 @@ export default function AdminPage() {
                     </div>
                 )}
 
-                {activeSection === "overview" && (
-                    <div className="space-y-10">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <MetricCard title="Total de Usuários" value={totalUsers} icon="👥" />
-                            <MetricCard title="Novos Produtos" value={totalProducts} icon="📦" />
-                            <MetricCard title="Novos " value={totalServices} icon="🎧" />
-                        </div>
 
-                        <section>
-                            <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center">
-                                <span className="mr-2"></span> Usuários Recentes
-                            </h2>
-                            <UserTable
-                                users={users.slice(0, 5)}
-                                isLoading={isLoading}
-                                onBan={handleBan}
-                                onUnban={handleUnban}
-                                totalUsers={users.length}
-                                page={1}
-                                onPageChange={() => { }}
-                                searchQuery=""
-                                onSearchChange={() => { }}
-                            />
-                        </section>
-                    </div>
-                )}
 
                 {activeSection === "users" && (
                     <UserTable
@@ -193,6 +171,7 @@ export default function AdminPage() {
                         onPageChange={handlePageChange}
                         searchQuery={searchQuery}
                         onSearchChange={setSearchQuery}
+                        error={error}
                     />
                 )}
 

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useHome } from "./homeHooks";
 import { useServicos } from "../servicos/servicosHooks";
 import { useNavigate } from "react-router-dom";
@@ -28,30 +28,46 @@ interface Servico {
 type Tab = "produtos" | "servicos";
 
 export default function Home() {
-    const { products, isLoading, error, fetchProducts } = useHome();
-    const { servicos, isLoading: isLoadingServicos, error: errorServicos, fetchServicos } = useServicos();
+    const { products, isLoading, error, fetchProducts, totalProducts } = useHome();
+    const { servicos, isLoading: isLoadingServicos, error: errorServicos, fetchServicos, totalServicos } = useServicos();
     const { data: session, isPending: sessionPending } = useSession();
     const navigate = useNavigate();
 
     const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [activeTab, setActiveTab] = useState<Tab>("produtos");
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
+    // Pagination states
+    const [productPage, setProductPage] = useState(1);
+    const [servicePage, setServicePage] = useState(1);
+    const ITEMS_PER_PAGE = 9;
+
+    // Debounce search
     useEffect(() => {
-        fetchProducts();
-        fetchServicos();
-    }, [fetchProducts, fetchServicos]);
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+            setProductPage(1); // Reset to first page on search
+            setServicePage(1);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
 
-    const filteredProducts = useMemo(() => {
-        if (!search.trim()) return products;
-        return products.filter((p: Product) => p.name.toLowerCase().includes(search.toLowerCase()));
-    }, [products, search]);
+    useEffect(() => {
+        fetchProducts(productPage, ITEMS_PER_PAGE, debouncedSearch);
+    }, [fetchProducts, productPage, debouncedSearch]);
 
-    const filteredServicos = useMemo(() => {
-        if (!search.trim()) return servicos;
-        return servicos.filter((s: Servico) => s.name.toLowerCase().includes(search.toLowerCase()));
-    }, [servicos, search]);
+    useEffect(() => {
+        fetchServicos(servicePage, ITEMS_PER_PAGE, debouncedSearch);
+    }, [fetchServicos, servicePage, debouncedSearch]);
+
+    const totalPages = activeTab === "produtos"
+        ? Math.ceil(totalProducts / ITEMS_PER_PAGE)
+        : Math.ceil(totalServicos / ITEMS_PER_PAGE);
+
+    const currentPage = activeTab === "produtos" ? productPage : servicePage;
+    const setCurrentPage = activeTab === "produtos" ? setProductPage : setServicePage;
 
     const role = session?.user?.role;
     const isAdmin = role === "admin" || (Array.isArray(role) && role.includes("admin"));
@@ -124,7 +140,7 @@ export default function Home() {
                                                         onClick={() => { navigate("/seller"); setUserDropdownOpen(false); }}
                                                         className="w-full text-left px-4 py-2 text-indigo-600 hover:bg-slate-50 font-bold transition flex items-center gap-2"
                                                     >
-                                                        <span className="text-lg">💼</span> Painel Vendedor
+                                                        <span className="text-lg">Painel Vendedor</span>
                                                     </button>
                                                 )}
                                                 <button onClick={() => { navigate("/favoritos"); setUserDropdownOpen(false); }}
@@ -275,7 +291,7 @@ export default function Home() {
 
                     <div className="hidden md:flex items-center gap-4 bg-white px-6 py-4 rounded-4xl border border-slate-100 shadow-lg shadow-slate-200/40">
                         <div className="bg-indigo-50 p-3 rounded-2xl">
-                            <div className="text-indigo-600 font-black text-2xl">{activeTab === "produtos" ? filteredProducts.length : filteredServicos.length}</div>
+                            <div className="text-indigo-600 font-black text-2xl">{activeTab === "produtos" ? totalProducts : totalServicos}</div>
                         </div>
                         <div>
                             <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Encontrados</div>
@@ -292,27 +308,65 @@ export default function Home() {
                         <button onClick={() => window.location.reload()} className="mt-8 bg-red-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg hover:bg-red-700 transition-all">Tentar novamente</button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
-                        {activeTab === "produtos" ? (
-                            filteredProducts.length === 0 ? (
-                                <EmptyState message="Desculpe, não encontramos este produto no momento." />
+                    <div className="flex flex-col gap-16">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+                            {activeTab === "produtos" ? (
+                                products.length === 0 ? (
+                                    <EmptyState message="Desculpe, não encontramos este produto no momento." />
+                                ) : (
+                                    products.map((p: Product) => (
+                                        <div key={p.id} className="transition-all duration-300">
+                                            <ProductCard item={p} navigate={navigate} />
+                                        </div>
+                                    ))
+                                )
                             ) : (
-                                filteredProducts.map((p: Product) => (
-                                    <div key={p.id} className="transition-all duration-300">
-                                        <ProductCard item={p} navigate={navigate} />
-                                    </div>
-                                ))
-                            )
-                        ) : (
-                            filteredServicos.length === 0 ? (
-                                <EmptyState message="Nenhum profissional disponível para esta busca." />
-                            ) : (
-                                filteredServicos.map((s: Servico) => (
-                                    <div key={s.id} className="transition-all duration-300">
-                                        <ServiceCard item={s} navigate={navigate} />
-                                    </div>
-                                ))
-                            )
+                                servicos.length === 0 ? (
+                                    <EmptyState message="Nenhum profissional disponível para esta busca." />
+                                ) : (
+                                    servicos.map((s: Servico) => (
+                                        <div key={s.id} className="transition-all duration-300">
+                                            <ServiceCard item={s} navigate={navigate} />
+                                        </div>
+                                    ))
+                                )
+                            )}
+                        </div>
+
+                        {/* Pagination UI */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-center items-center gap-2 pt-8">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                    disabled={currentPage === 1}
+                                    className="p-3 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold"
+                                >
+                                    Anterior
+                                </button>
+
+                                <div className="flex items-center gap-1">
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentPage(page)}
+                                            className={`w-12 h-12 rounded-xl border font-bold transition-all ${currentPage === page
+                                                ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100"
+                                                : "bg-white border-slate-200 text-slate-600 hover:border-indigo-300"
+                                                }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="p-3 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold"
+                                >
+                                    Próxima
+                                </button>
+                            </div>
                         )}
                     </div>
                 )}

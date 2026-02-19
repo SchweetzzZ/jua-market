@@ -28,7 +28,7 @@ export default function LoginPage() {
         <div className="bg-slate-50 h-screen flex items-center justify-center p-10">
             <div className="w-full max-w-md">
                 <img className="h-14 mx-auto mb-8 block object-contain"
-                    src="src/assets/logo-h.png"
+                    src="/src/assets/logo-h.png"
                     alt="Logo"
                 />
                 <form className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.30)] p-15 flex flex-col gap-6"
@@ -66,6 +66,15 @@ export default function LoginPage() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
+                        <div className="flex justify-end pr-1">
+                            <button
+                                type="button"
+                                onClick={() => navigate("/forgot-password")}
+                                className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors mt-1"
+                            >
+                                Esqueci minha senha?
+                            </button>
+                        </div>
                     </div>
 
                     <button

@@ -8,14 +8,14 @@ interface SidebarProps {
 
 export const AdminSidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) => {
     const menuItems = [
-        { id: "overview", label: "Visão Geral", icon: "📊" },
+        { id: "users", label: "Usuários", icon: "👥" },
         { id: "products", label: "Produtos", icon: "📦" },
         { id: "services", label: "Serviços", icon: "🔧" },
         { id: "settings", label: "Configurações", icon: "⚙️" },
     ];
 
     return (
-        <div className="w-64 bg-slate-900 text-white min-h-screen flex flex-col shadow-xl">
+        <div className="w-64 bg-slate-900 text-white h-screen flex flex-col shadow-xl">
             <div className="p-6 border-b border-slate-800">
                 <h2 className="text-xl font-bold tracking-wider text-blue-400">Admin Jua</h2>
             </div>
@@ -76,6 +76,7 @@ interface UserTableProps {
     onPageChange: (page: number) => void;
     searchQuery: string;
     onSearchChange: (query: string) => void;
+    error: string | null;
 }
 
 export const UserTable: React.FC<UserTableProps> = ({
@@ -87,7 +88,8 @@ export const UserTable: React.FC<UserTableProps> = ({
     page,
     onPageChange,
     searchQuery,
-    onSearchChange
+    onSearchChange,
+    error
 }) => {
     const totalPages = Math.ceil(totalUsers / 10);
 
@@ -98,7 +100,7 @@ export const UserTable: React.FC<UserTableProps> = ({
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></span>
                     <input
                         type="text"
-                        placeholder="Buscar por email..."
+                        placeholder="Buscar por nome ou email..."
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
@@ -116,6 +118,18 @@ export const UserTable: React.FC<UserTableProps> = ({
                             <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent mb-2"></div>
                             <p className="text-sm font-medium text-slate-600">Carregando...</p>
                         </div>
+                    </div>
+                )}
+
+                <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h2 className="text-lg font-bold text-slate-800">
+                        Usuários
+                    </h2>
+                </div>
+
+                {error && (
+                    <div className="p-6 text-red-600 font-medium bg-red-50">
+                        {error}
                     </div>
                 )}
 

@@ -143,21 +143,31 @@ export const useServicos = () => {
     const [servicos, setServicos] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [totalServicos, setTotalServicos] = useState(0)
 
-    const fetchServicos = useCallback(async () => {
+    const fetchServicos = useCallback(async (page: number = 1, limit: number = 20, search: string = "") => {
         setIsLoading(true)
         setError(null)
 
         try {
-            const response = await fetch("http://localhost:3000/servicos/all")
+            const offset = (page - 1) * limit
+            const url = new URL("http://localhost:3000/servicos/all")
+            url.searchParams.append("limit", String(limit))
+            url.searchParams.append("offset", String(offset))
+            if (search) url.searchParams.append("search", search)
+
+            const response = await fetch(url.toString())
             if (!response.ok) {
                 throw new Error(`Erro HTTP: ${response.status}`)
             }
             const result = await response.json()
             if (result.success) {
                 setServicos(result.data)
+                setTotalServicos(result.total || 0)
             } else {
                 setError(result.message || "Erro ao buscar serviços")
+                setServicos([])
+                setTotalServicos(0)
             }
         } catch (err) {
             setError("Erro ao se conectar com o servidor")
@@ -170,6 +180,7 @@ export const useServicos = () => {
     return {
         servicos,
         fetchServicos,
+        totalServicos,
         isLoading,
         error
     }
