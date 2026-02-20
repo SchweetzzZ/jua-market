@@ -97,7 +97,7 @@ export default function ProductDetailsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
 
                     {/* Imagem */}
-                    <div className="lg:sticky lg:top-24 lg:self-start">
+                    <div className="">
                         <div className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-white shadow-2xl ring-1 ring-slate-200 transition-transform duration-700 hover:scale-[1.01] group">
                             <img
                                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
@@ -113,7 +113,7 @@ export default function ProductDetailsPage() {
 
                         {/* Cabeçalho */}
                         <div className="flex flex-col gap-3">
-                            <span className="text-xs font-medium text-slate-400 uppercase tracking-widest">Produto</span>
+                            <span className="text-[10px] font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-md uppercase tracking-widest w-fit">Produto</span>
                             <h1 className="text-2xl lg:text-3xl font-semibold text-slate-900 leading-snug">
                                 {product.name}
                             </h1>
@@ -127,7 +127,7 @@ export default function ProductDetailsPage() {
 
                         {/* Descrição */}
                         <div className="flex flex-col gap-2">
-                            <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">Descrição</p>
+                            <p className="text-[10px] font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-md uppercase tracking-widest w-fit">Descrição</p>
                             <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
                                 {product.description || "Nenhuma descrição fornecida pelo anunciante."}
                             </p>
@@ -139,7 +139,7 @@ export default function ProductDetailsPage() {
                         {/* Vendedor */}
                         {user && (
                             <div className="flex flex-col gap-5">
-                                <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">Vendedor</p>
+                                <p className="text-[10px] font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-md uppercase tracking-widest w-fit">Vendedor</p>
 
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-sm flex-shrink-0">
