@@ -8,6 +8,7 @@ export interface AdminService {
     category: string
     imageUrl: string
     imageKey?: string
+    images: { imageUrl: string; imageKey: string }[]
     price: string
     createdAt: Date
     updatedAt: Date
@@ -113,20 +114,23 @@ export const useAdminServices = () => {
         name: string
         description: string
         category: string
-        imageUrl: string
-        imageKey?: string
         price: string
         userId?: string
-    }, imageFile?: File): Promise<void> => {
-        let finalData = { ...serviceData }
+    }, imageFiles?: File[]): Promise<void> => {
+        const finalImages: { imageUrl: string; imageKey: string }[] = []
 
-        if (imageFile) {
-            const uploaded = await uploadImage(imageFile)
-            finalData.imageUrl = uploaded.imageUrl
-            finalData.imageKey = uploaded.imageKey
+        if (imageFiles && imageFiles.length > 0) {
+            const uploadPromises = imageFiles.map(file => uploadImage(file))
+            const uploadedResults = await Promise.all(uploadPromises)
+            uploadedResults.forEach(res => {
+                finalImages.push({ imageUrl: res.imageUrl, imageKey: res.imageKey })
+            })
         }
 
-        const { data, error } = await api.admin.services.post(finalData)
+        const { data, error } = await api.admin.services.post({
+            ...serviceData,
+            images: finalImages
+        } as any)
 
         if (error) {
             const errorMessage = (error.value as any)?.message || "Erro ao criar serviço"
@@ -144,19 +148,25 @@ export const useAdminServices = () => {
         name: string
         description: string
         category: string
-        imageUrl: string
-        imageKey?: string
         price: string
-    }, imageFile?: File): Promise<void> => {
-        let finalData = { ...serviceData }
+        images?: { imageUrl: string; imageKey: string }[]
+    }, imageFiles?: File[]): Promise<void> => {
+        let finalImages = serviceData.images || []
 
-        if (imageFile) {
-            const uploaded = await uploadImage(imageFile)
-            finalData.imageUrl = uploaded.imageUrl
-            finalData.imageKey = uploaded.imageKey
+        if (imageFiles && imageFiles.length > 0) {
+            const uploadPromises = imageFiles.map(file => uploadImage(file))
+            const uploadedResults = await Promise.all(uploadPromises)
+            const newImages = uploadedResults.map(res => ({
+                imageUrl: res.imageUrl,
+                imageKey: res.imageKey
+            }))
+            finalImages = [...finalImages, ...newImages]
         }
 
-        const { data, error } = await api.admin.services({ id: serviceId }).put(finalData)
+        const { data, error } = await api.admin.services({ id: serviceId }).put({
+            ...serviceData,
+            images: finalImages
+        } as any)
 
         if (error) {
             const errorMessage = (error.value as any)?.message || "Erro ao atualizar serviço"

@@ -15,17 +15,16 @@ interface AdminServiceTableProps {
         name: string
         description: string
         category: string
-        imageUrl: string
         price: string
         userId?: string
-    }, imageFile?: File) => Promise<void>
+    }, imageFiles?: File[]) => Promise<void>
     updateService: (serviceId: string, serviceData: {
         name: string
         description: string
         category: string
-        imageUrl: string
         price: string
-    }, imageFile?: File) => Promise<void>
+        images?: { imageUrl: string; imageKey: string }[]
+    }, imageFiles?: File[]) => Promise<void>
 }
 
 export const AdminServiceTable = ({ services, isLoading, error, totalServices, page, onPageChange, searchQuery, onSearchChange,
@@ -35,14 +34,13 @@ export const AdminServiceTable = ({ services, isLoading, error, totalServices, p
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingService, setEditingService] = useState<AdminService | null>(null);
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [editingImageFile, setEditingImageFile] = useState<File | null>(null);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const [editingImageFiles, setEditingImageFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         description: "",
         category: "",
-        imageUrl: "",
         price: "",
         userId: ""
     });
@@ -51,17 +49,16 @@ export const AdminServiceTable = ({ services, isLoading, error, totalServices, p
         e.preventDefault();
         setIsUploading(true);
         try {
-            await createService(formData, imageFile || undefined);
+            await createService(formData, imageFiles);
             setShowModal(false);
             setFormData({
                 name: "",
                 description: "",
                 category: "",
-                imageUrl: "",
                 price: "",
                 userId: ""
             });
-            setImageFile(null);
+            setImageFiles([]);
             alert("Serviço criado com sucesso!");
         } catch (err: any) {
             alert(err.message || "Erro ao criar serviço");
@@ -72,7 +69,7 @@ export const AdminServiceTable = ({ services, isLoading, error, totalServices, p
 
     const handleEdit = (service: AdminService) => {
         setEditingService(service);
-        setEditingImageFile(null);
+        setEditingImageFiles([]);
         setShowEditModal(true);
     };
 
@@ -86,12 +83,12 @@ export const AdminServiceTable = ({ services, isLoading, error, totalServices, p
                 name: editingService.name,
                 description: editingService.description,
                 category: editingService.category,
-                imageUrl: editingService.imageUrl,
-                price: editingService.price
-            }, editingImageFile || undefined);
+                price: editingService.price,
+                images: editingService.images
+            }, editingImageFiles);
             setShowEditModal(false);
             setEditingService(null);
-            setEditingImageFile(null);
+            setEditingImageFiles([]);
             alert("Serviço atualizado com sucesso!");
         } catch (err: any) {
             alert(err.message || "Erro ao atualizar serviço");
@@ -271,15 +268,34 @@ export const AdminServiceTable = ({ services, isLoading, error, totalServices, p
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Imagem do Serviço</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Imagens do Serviço</label>
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    required
-                                    onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                                    multiple
+                                    required={imageFiles.length === 0}
+                                    onChange={(e) => {
+                                        const files = Array.from(e.target.files || []);
+                                        setImageFiles(prev => [...prev, ...files]);
+                                    }}
                                     className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 />
-                                {imageFile && <p className="mt-1 text-xs text-slate-500">Selecionado: {imageFile.name}</p>}
+                                <div className="mt-2 grid grid-cols-4 gap-2">
+                                    {imageFiles.map((file, idx) => (
+                                        <div key={idx} className="relative aspect-square rounded-lg border border-slate-200 overflow-hidden group">
+                                            <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" alt="preview" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setImageFiles(prev => prev.filter((_, i) => i !== idx))}
+                                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Preço</label>
@@ -360,18 +376,53 @@ export const AdminServiceTable = ({ services, isLoading, error, totalServices, p
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Alterar Imagem (Opcional)</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Imagens Atuais</label>
+                                <div className="grid grid-cols-4 gap-2 mb-4">
+                                    {editingService.images?.map((img, idx) => (
+                                        <div key={idx} className="relative aspect-square rounded-lg border border-slate-200 overflow-hidden group">
+                                            <img src={img.imageUrl} className="w-full h-full object-cover" alt="current" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditingService({
+                                                    ...editingService,
+                                                    images: editingService.images.filter((_, i) => i !== idx)
+                                                })}
+                                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Adicionar Novas Imagens</label>
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => setEditingImageFile(e.target.files?.[0] || null)}
+                                    multiple
+                                    onChange={(e) => {
+                                        const files = Array.from(e.target.files || []);
+                                        setEditingImageFiles(prev => [...prev, ...files]);
+                                    }}
                                     className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 />
-                                {editingImageFile ? (
-                                    <p className="mt-1 text-xs text-slate-500">Nova imagem: {editingImageFile.name}</p>
-                                ) : (
-                                    <p className="mt-1 text-xs text-slate-500 truncate">Atual: {editingService.imageUrl}</p>
-                                )}
+                                <div className="mt-2 grid grid-cols-4 gap-2">
+                                    {editingImageFiles.map((file, idx) => (
+                                        <div key={idx} className="relative aspect-square rounded-lg border border-slate-200 overflow-hidden group">
+                                            <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" alt="preview" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditingImageFiles(prev => prev.filter((_, i) => i !== idx))}
+                                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Preço</label>

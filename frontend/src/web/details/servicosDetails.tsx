@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useServicoDetails } from "./servicoHooks"
 import { useUsers } from "./listUsers"
@@ -11,6 +11,7 @@ export default function ServicosDetailsPage() {
     const { servico, isLoading, error, fetchServicoById } = useServicoDetails()
     const { user, fetchUser } = useUsers()
     const { data: session } = useSession()
+    const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
     useEffect(() => {
         if (id) fetchServicoById(id)
@@ -97,15 +98,37 @@ export default function ServicosDetailsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
 
                     {/* Imagem */}
-                    <div className="">
-                        <div className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-white shadow-2xl ring-1 ring-slate-200 transition-transform duration-700 hover:scale-[1.01] group">
+                    <div className="flex flex-col gap-6">
+                        <div className="relative aspect-4/5 overflow-hidden rounded-[2.5rem] bg-white shadow-2xl ring-1 ring-slate-200 transition-transform duration-700 hover:scale-[1.01] group">
                             <img
                                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                                src={servico.imageUrl || "https://placehold.co/600x800?text=Serviço"}
+                                src={selectedImage || servico.imageUrl || "https://placehold.co/600x800?text=Serviço"}
                                 alt={servico.name}
                                 onError={(e) => (e.currentTarget.src = "https://placehold.co/600x800?text=Serviço")}
                             />
                         </div>
+
+                        {/* Galeria de Miniaturas */}
+                        {servico.images && servico.images.length > 1 && (
+                            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                                {servico.images.map((img, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setSelectedImage(img.imageUrl)}
+                                        className={`relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 transition-all duration-300 ${(selectedImage || servico.imageUrl) === img.imageUrl
+                                            ? "ring-2 ring-indigo-600 scale-95"
+                                            : "ring-1 ring-slate-200 opacity-60 hover:opacity-100"
+                                            }`}
+                                    >
+                                        <img
+                                            src={img.imageUrl}
+                                            className="w-full h-full object-cover"
+                                            alt={`${servico.name} view ${idx + 1}`}
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Informações */}
@@ -145,7 +168,7 @@ export default function ServicosDetailsPage() {
                                 <p className="text-[10px] font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-md uppercase tracking-widest w-fit">Profissional</p>
 
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-sm flex-shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-sm shrink-0">
                                         {user.name?.[0]?.toUpperCase() || "P"}
                                     </div>
                                     <div>
@@ -179,7 +202,7 @@ export default function ServicosDetailsPage() {
                 </div>
 
                 {/* Comentários */}
-                <div className="mt-20 pt-10 border-t border-slate-100">
+                <div className="mt-12 pt-8 border-t border-slate-100">
                     <CommentsSection serviceId={id} />
                 </div>
             </main>

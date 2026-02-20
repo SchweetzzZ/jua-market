@@ -64,6 +64,13 @@
       "when": 1771256840841,
       "tag": "0008_bright_scarecrow",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1771600554300,
+      "tag": "0009_sad_calypso",
+      "breakpoints": true
     }
   ]
 }

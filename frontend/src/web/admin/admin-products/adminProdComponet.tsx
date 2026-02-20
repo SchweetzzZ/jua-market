@@ -15,17 +15,16 @@ interface AdminProductTableProps {
         name: string
         description: string
         category: string
-        imageUrl: string
         price: string
         userId?: string
-    }, imageFile?: File) => Promise<void>
+    }, imageFiles?: File[]) => Promise<void>
     updateProduct: (productId: string, productData: {
         name: string
         description: string
         category: string
-        imageUrl: string
         price: string
-    }, imageFile?: File) => Promise<void>
+        images?: { imageUrl: string; imageKey: string }[]
+    }, imageFiles?: File[]) => Promise<void>
 }
 
 export const AdminProductTable = ({
@@ -45,14 +44,13 @@ export const AdminProductTable = ({
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null);
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [editingImageFile, setEditingImageFile] = useState<File | null>(null);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const [editingImageFiles, setEditingImageFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         description: "",
         category: "",
-        imageUrl: "",
         price: "",
         userId: ""
     });
@@ -61,17 +59,16 @@ export const AdminProductTable = ({
         e.preventDefault();
         setIsUploading(true);
         try {
-            await createProduct(formData, imageFile || undefined);
+            await createProduct(formData, imageFiles);
             setShowModal(false);
             setFormData({
                 name: "",
                 description: "",
                 category: "",
-                imageUrl: "",
                 price: "",
                 userId: ""
             });
-            setImageFile(null);
+            setImageFiles([]);
             alert("Produto criado com sucesso!");
         } catch (err: any) {
             alert(err.message || "Erro ao criar produto");
@@ -82,7 +79,7 @@ export const AdminProductTable = ({
 
     const handleEdit = (product: AdminProduct) => {
         setEditingProduct(product);
-        setEditingImageFile(null);
+        setEditingImageFiles([]);
         setShowEditModal(true);
     };
 
@@ -96,12 +93,12 @@ export const AdminProductTable = ({
                 name: editingProduct.name,
                 description: editingProduct.description,
                 category: editingProduct.category,
-                imageUrl: editingProduct.imageUrl,
-                price: editingProduct.price
-            }, editingImageFile || undefined);
+                price: editingProduct.price,
+                images: editingProduct.images
+            }, editingImageFiles);
             setShowEditModal(false);
             setEditingProduct(null);
-            setEditingImageFile(null);
+            setEditingImageFiles([]);
             alert("Produto atualizado com sucesso!");
         } catch (err: any) {
             alert(err.message || "Erro ao atualizar produto");
@@ -281,15 +278,34 @@ export const AdminProductTable = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Imagem do Produto</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Imagens do Produto</label>
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    required
-                                    onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                                    multiple
+                                    required={imageFiles.length === 0}
+                                    onChange={(e) => {
+                                        const files = Array.from(e.target.files || []);
+                                        setImageFiles(prev => [...prev, ...files]);
+                                    }}
                                     className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 />
-                                {imageFile && <p className="mt-1 text-xs text-slate-500">Selecionado: {imageFile.name}</p>}
+                                <div className="mt-2 grid grid-cols-4 gap-2">
+                                    {imageFiles.map((file, idx) => (
+                                        <div key={idx} className="relative aspect-square rounded-lg border border-slate-200 overflow-hidden group">
+                                            <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" alt="preview" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setImageFiles(prev => prev.filter((_, i) => i !== idx))}
+                                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Preço</label>
@@ -370,18 +386,53 @@ export const AdminProductTable = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Alterar Imagem (Opcional)</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Imagens Atuais</label>
+                                <div className="grid grid-cols-4 gap-2 mb-4">
+                                    {editingProduct.images?.map((img, idx) => (
+                                        <div key={idx} className="relative aspect-square rounded-lg border border-slate-200 overflow-hidden group">
+                                            <img src={img.imageUrl} className="w-full h-full object-cover" alt="current" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditingProduct({
+                                                    ...editingProduct,
+                                                    images: editingProduct.images.filter((_, i) => i !== idx)
+                                                })}
+                                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Adicionar Novas Imagens</label>
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => setEditingImageFile(e.target.files?.[0] || null)}
+                                    multiple
+                                    onChange={(e) => {
+                                        const files = Array.from(e.target.files || []);
+                                        setEditingImageFiles(prev => [...prev, ...files]);
+                                    }}
                                     className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 />
-                                {editingImageFile ? (
-                                    <p className="mt-1 text-xs text-slate-500">Nova imagem: {editingImageFile.name}</p>
-                                ) : (
-                                    <p className="mt-1 text-xs text-slate-500 truncate">Atual: {editingProduct.imageUrl}</p>
-                                )}
+                                <div className="mt-2 grid grid-cols-4 gap-2">
+                                    {editingImageFiles.map((file, idx) => (
+                                        <div key={idx} className="relative aspect-square rounded-lg border border-slate-200 overflow-hidden group">
+                                            <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" alt="preview" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditingImageFiles(prev => prev.filter((_, i) => i !== idx))}
+                                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Preço</label>

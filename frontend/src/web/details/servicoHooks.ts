@@ -6,6 +6,7 @@ type Servico = {
     description: string
     price: string
     imageUrl: string
+    images?: { imageUrl: string; imageKey: string }[]
     user_id: string
 }
 

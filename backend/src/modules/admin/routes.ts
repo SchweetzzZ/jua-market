@@ -27,9 +27,14 @@ export const adminRoutes = new Elysia({
             name: t.String(),
             description: t.String(),
             category: t.String(),
-            imageUrl: t.String(),
             price: t.String(),
             userId: t.Optional(t.String()),
+            images: t.Array(
+                t.Object({
+                    imageUrl: t.String(),
+                    imageKey: t.String(),
+                })
+            )
         })
     })
 
@@ -48,9 +53,14 @@ export const adminRoutes = new Elysia({
             name: t.String(),
             description: t.String(),
             category: t.String(),
-            imageUrl: t.String(),
             price: t.String(),
             userId: t.Optional(t.String()),
+            images: t.Array(
+                t.Object({
+                    imageUrl: t.String(),
+                    imageKey: t.String(),
+                })
+            )
         })
     })
 
@@ -68,8 +78,13 @@ export const adminRoutes = new Elysia({
             name: t.String(),
             description: t.String(),
             category: t.String(),
-            imageUrl: t.String(),
             price: t.String(),
+            images: t.Array(
+                t.Object({
+                    imageUrl: t.String(),
+                    imageKey: t.String(),
+                })
+            )
         }))
     })
 
@@ -87,8 +102,13 @@ export const adminRoutes = new Elysia({
             name: t.String(),
             description: t.String(),
             category: t.String(),
-            imageUrl: t.String(),
             price: t.String(),
+            images: t.Array(
+                t.Object({
+                    imageUrl: t.String(),
+                    imageKey: t.String(),
+                })
+            )
         }))
     })
 

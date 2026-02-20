@@ -8,30 +8,3 @@ interface CreateUserAdminInput {
   name: string
   role: Role
 }
-
-/*
-export const createUserAdmin = async (input: CreateUserAdminInput) => {
-  try {
-    const createdUser = await auth.api.createUser({
-      body: {
-        email: input.email,
-        password: input.password,
-        name: input.name,
-        role: input.role
-      }
-    })
-
-    return {
-      success: true,
-      message: "Usuário criado com sucesso",
-      data: createdUser
-    }
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error?.message ?? "Erro ao criar usuário",
-      data: null
-    }
-  }
-}
-*/

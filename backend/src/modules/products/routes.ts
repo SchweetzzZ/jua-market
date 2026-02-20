@@ -97,9 +97,13 @@ export const productsRoutes = new Elysia()
             name: t.String(),
             description: t.String(),
             category: t.String(),
-            imageUrl: t.String(),
-            imageKey: t.Optional(t.String()),
             price: t.String(),
+            images: t.Array(
+                t.Object({
+                    imageUrl: t.String(),
+                    imageKey: t.String(),
+                })
+            )
         })
     })
     .put("/products/:id", async ({ body, params, set, user }) => {
@@ -122,9 +126,13 @@ export const productsRoutes = new Elysia()
                 name: t.String(),
                 description: t.String(),
                 category: t.String(),
-                imageUrl: t.String(),
-                imageKey: t.Optional(t.String()),
                 price: t.String(),
+                images: t.Array(
+                    t.Object({
+                        imageUrl: t.String(),
+                        imageKey: t.String(),
+                    })
+                )
             })
         )
     })

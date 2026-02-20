@@ -1,4 +1,4 @@
-import { table_comments } from "../../db/schemas/comments._schema";
+import { table_comments } from "../../db/schemas/comments_schema";
 import { eq, and } from "drizzle-orm";
 import { db } from "../../db";
 import { table_products } from "../../db/schemas/products_schemas";
